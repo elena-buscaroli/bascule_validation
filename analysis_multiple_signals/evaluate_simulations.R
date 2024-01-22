@@ -3,20 +3,29 @@ devtools::load_all("~/GitHub/basilica/")
 
 source("~/GitHub/basilica_validation/analysis_multiple_signals/evaluate_aux_fns.R")
 
-run_id = "clustering.matched.2011"
+run_id = "matched.2011.compare"
 path = paste0("~/Dropbox/shared/2022. Basilica/simulations/fits/fits_dn.", run_id, "/")
 files = list.files(path, full.names=T, pattern=".Rds")
 
-runids = c("Autoguide", "ManualGuide")
-fitnames = c("x.fit0.auto", "x.fit0.man")
+# runids = c("Autoguide", "ManualGuide")
+# fitnames = c("x.fit0.auto", "x.fit0.man")
 
+runids = c("Basilica", "SigProfiler", "SparseSignatures")
+fitnames = c("fit.0", "sigprofiler", "sparsesignatures")
 
+# all_stats = lapply(files, function(fname) {
+#   stats_single_data(fname, names_fits=fitnames %>% setNames(runids))
+# }) %>% dplyr::bind_rows()
+# saveRDS(all_stats, paste0("~/Dropbox/shared/2022. Basilica/simulations/stats_", run_id, ".Rds"))
 
-all_stats = lapply(files, function(fname) {
-  stats_single_data(fname, names_fits=fitnames %>% setNames(runids))
-}) %>% dplyr::bind_rows()
-saveRDS(all_stats, paste0("~/Dropbox/shared/2022. Basilica/simulations/stats_", run_id, ".Rds"))
+all_stats = readRDS(paste0("~/Dropbox/shared/2022. Basilica/simulations/stats_", run_id, ".Rds"))
+make_plots_stats_compare(all_stats, boxplot=T)
+ggsave(paste0("~/Dropbox/shared/2022. Basilica/simulations/plots_", run_id, "_boxp.pdf"),
+       height=8, width=12)
 
+make_plots_stats_compare(all_stats, boxplot=F)
+ggsave(paste0("~/Dropbox/shared/2022. Basilica/simulations/plots_", run_id, "_line.pdf"),
+       height=8, width=12)
 
 stats_plots = lapply(runids, function(penalty_id) {
   stats_p = all_stats %>% dplyr::filter(penalty==penalty_id)

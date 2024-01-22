@@ -13,6 +13,7 @@ eval_single_fit_matched = function(x.fit, x.simul, cutoff=0.8) {
   x.fit = x.fit %>% rename_dn_expos()
   assigned_missing_all = get_assigned_missing(x.fit=x.fit, x.simul=x.simul, cutoff=cutoff)
   lapply(get_types(x.fit), function(tid) {
+    print(tid)
     sigs.fit = get_signatures(x.fit, matrix=T)[[tid]]; sigs.simul = get_signatures(x.simul, matrix=T)[[tid]]
     sigs_fixed.fit = get_fixed_signatures(x.fit, matrix=T)[[tid]]
     sigs_dn.fit = get_denovo_signatures(x.fit, matrix=T)[[tid]]
@@ -26,13 +27,18 @@ eval_single_fit_matched = function(x.fit, x.simul, cutoff=0.8) {
     mse_counts = compute.mse(m_true=get_input(x.simul, matrix=T)[[tid]], m_inf=get_input(x.fit, reconstructed=T, matrix=T)[[tid]])
     mse_expos = compute.mse(m_true=expos.simul, m_inf=expos.fit,
                             assigned_missing=assigned_missing)
+    mse_expos_missing = compute.mse(m_true=expos.simul, m_inf=expos.fit,
+                                    assigned_missing=assigned_missing, keep_missing=T)
 
-    cosine_sigs = compute.cosine(sigs.fit, sigs.simul,
+    cosine_sigs = compute.cosine(m_true=sigs.simul, m_inf=sigs.fit,
                                  assigned_missing=assigned_missing,
                                  what="sigs")
-    cosine_expos = compute.cosine(expos.fit, expos.simul,
+    cosine_expos = compute.cosine(m_true=expos.simul, m_inf=expos.fit,
                                   assigned_missing=assigned_missing,
                                   what="expos")
+    cosine_expos_missing = compute.cosine(m_true=expos.simul, m_inf=expos.fit,
+                                          assigned_missing=assigned_missing,
+                                          what="expos", keep_missing=T)
 
     cosine_fixed = list()
     if (!is.null(sigs_dn.fit)) {
@@ -59,12 +65,15 @@ eval_single_fit_matched = function(x.fit, x.simul, cutoff=0.8) {
       # "private_found"=sum(assigned %in% c(rare_common$private_rare, rare_common$private_common)),
       "K_true"=length(get_signames(x.simul)[[tid]]),
       "K_found"=length(get_signames(x.fit)[[tid]]),
+      "K_assigned"=length(assigned_missing_all[[tid]][["assigned_tp"]]),
 
       "mse_counts"=mse_counts,
       "mse_expos"=mse_expos,
+      "mse_expos_missing"=mse_expos_missing,
 
       "cosine_sigs"=cosine_sigs,
       "cosine_expos"=cosine_expos,
+      "cosine_expos_missing"=cosine_expos_missing,
       "cosine_fixed"=list(cosine_fixed),
 
       "groups_found"=length(get_cluster_labels(x.fit)),
@@ -97,7 +106,7 @@ make_plots_stats = function(stats) {
 
   sim1 = make_boxplot(stats_tmp %>% tidyr::unnest(cosine_fixed_SBS), "cosine_fixed_SBS") + labs(title="cosine_fixed_SBS")
   sim2 = make_boxplot(stats_tmp %>% tidyr::unnest(cosine_fixed_DBS), "cosine_fixed_DBS") + labs(title="cosine_fixed_DBS")
-  # sim = patchwork::wrap_plots(sim1, sim2, ncol=2)
+  sim = patchwork::wrap_plots(sim1, sim2, ncol=2)
 
   ari = nmi = NULL
   cosine_expos = make_boxplot(stats, "cosine_expos") + labs(title="cosine_expos")
@@ -128,22 +137,106 @@ make_plots_stats = function(stats) {
 
 
 
+make_plots_stats_compare = function(all_stats, boxplot=TRUE) {
+  filter_lims = function(x){
+    l = boxplot.stats(x)$stats[1]
+    u = boxplot.stats(x)$stats[5]
+    x_tmp = x
+    for (i in 1:length(x)) x_tmp[i] = ifelse(x[i]>l & x[i]<u, x[i], NA)
+    if (all(is.na(x_tmp))) return(x)
+    return(x_tmp)
+  }
+  
+  boxplot_compare = function(all_stats, colname) {
+    all_stats %>% dplyr::select(N, G, penalty, K_true_SBS, dplyr::contains(colname)) %>%
+      reshape2::melt(id=c("N","G","penalty","K_true_SBS"), variable.name="type") %>%
+      dplyr::mutate(type=stringr::str_replace_all(type, paste0(colname,"_"),"")) %>%
+      dplyr::filter(type=="SBS") %>% 
+      dplyr::mutate(value=filter_lims(value)) %>% dplyr::filter(!is.na(value)) %>% 
+      ggplot() +
+      geom_boxplot(aes(x=factor(K_true_SBS), y=value, fill=penalty), na.rm=T) +
+      ggh4x::facet_nested(penalty ~ N) +
+      
+      # geom_boxplot(aes(x=factor(N), y=value, color=penalty)) +
+      # ggh4x::facet_nested( ~ G) +
+      theme_bw()
+  }
+  
+  line_compare = function(all_stats, colname) {
+    all_stats %>% dplyr::select(N, G, penalty, K_true_SBS, dplyr::contains(colname)) %>%
+      reshape2::melt(id=c("N","G","penalty","K_true_SBS"), variable.name="type") %>%
+      dplyr::mutate(type=stringr::str_replace_all(type, paste0(colname,"_"),"")) %>%
+      dplyr::filter(type=="SBS") %>% 
+      dplyr::mutate(value=filter_lims(value)) %>% dplyr::filter(!is.na(value)) %>% 
+      ggplot() +
+      geom_jitter(aes(x=K_true_SBS, y=value, color=penalty),
+                  na.rm=T, size=.7, height=0, width=0.2, alpha=0.5) +
+      geom_smooth(aes(x=K_true_SBS, y=value, color=penalty),
+                  na.rm=T, se=F) +
+      ggh4x::facet_nested( ~ N) +
+      scale_x_continuous(breaks=unique(all_stats$K_true_SBS)) +
+      theme_bw()
+  }
+  
+  if (boxplot) fn = boxplot_compare else fn = line_compare
+  
+  col_palette = ggsci::pal_simpsons()(length(unique(all_stats$penalty)))
+  
+  cosine_expos = fn(all_stats, "cosine_expos") + labs(title="cosine_expos")
+  cosine_expos_missing = fn(all_stats, "cosine_expos_missing") + 
+    labs(title="cosine_expos_missing")
+  mse_expos_missing = fn(all_stats, "mse_expos_missing") + 
+    labs(title="mse_expos_missing")
+  cosine_sigs = fn(all_stats, "cosine_sigs") + labs(title="cosine_sigs")
+  mse_counts = fn(all_stats, "mse_counts") + labs(title="mse_counts")
+  
+  k_ratio = all_stats %>% 
+    dplyr::select(-K_assigned_SBS, -K_assigned_DBS) %>% 
+    dplyr::select(N, G, seed, penalty, dplyr::contains("K_")) %>%
+    reshape2::melt(id=c("N","G","seed","penalty"), variable.name="type") %>%
+    tidyr::separate(col="type", into=c("else","what","type")) %>% dplyr::mutate("else"=NULL) %>%
+    dplyr::filter(type=="SBS") %>% 
+    tidyr::pivot_wider(names_from="what", values_from="value") %>%
+    dplyr::mutate(value=found/true) %>%
+    dplyr::mutate(value=filter_lims(value)) %>% dplyr::filter(!is.na(value)) %>% 
+    ggplot() +
+    
+    # geom_jitter(aes(x=true, y=value, color=penalty), size=.7, height=0, width=0.2, alpha=0.5) +
+    geom_smooth(aes(x=true, y=value, color=penalty), se=F) + 
+    scale_x_continuous(breaks=unique(all_stats$K_true_SBS)) +
+    
+    # geom_violin(aes(x=as.factor(true), y=value, fill=penalty), draw_quantiles=c(0.5)) +
+    geom_hline(yintercept=1, lty="dotted", color="grey40") +
+    ggh4x::facet_nested(~ N) +
+    labs(title="K_ratio") + # scale_y_continuous(breaks=seq(0, 2, by=0.2)) +
+    theme_bw()
+  
+  return(
+    patchwork::wrap_plots(mse_counts, cosine_expos, cosine_expos_missing,
+                          mse_expos_missing, cosine_sigs, k_ratio, 
+                          ncol=2, guides="collect")
+  )
+}
+
+
+
+
 stats_single_data = function(fname, names_fits=list("NoPenalty"="fit.0", "PenaltyN"="fit.N")) {
   cat(paste0(fname, "\n"))
   simul_fit = readRDS(fname)
   x.simul = simul_fit$dataset
-  x.fit.1 = simul_fit[[names_fits[[1]]]] %>% merge_clusters()
-  x.fit.2 = simul_fit[[names_fits[[2]]]] %>% merge_clusters()
-
+  
+  fits = lapply(names_fits, function(fitname) 
+    simul_fit[[fitname]] %>% merge_clusters()) %>% 
+    setNames(names(names_fits))
+  
   idd = strsplit(fname, "/")[[1]]; idd = idd[[length(idd)]]
 
-  stats_fit1 = stats_fit2 = data.frame()
-
-  try(expr = {stats_fit1 = eval_single_fit_matched(x.fit.1, x.simul) %>%
-    dplyr::bind_cols() %>% dplyr::mutate(penalty=names(names_fits)[1])})
-
-  try(expr = {stats_fit2 = eval_single_fit_matched(x.fit.2, x.simul) %>%
-    dplyr::bind_cols() %>% dplyr::mutate(penalty=names(names_fits)[2])})
+  stats = lapply(names(fits), function(ff) {
+    print(ff)
+    eval_single_fit_matched(fits[[ff]], x.simul) %>%
+      dplyr::bind_cols() %>% dplyr::mutate(penalty=ff)
+  }) %>% dplyr::bind_rows()
 
   return(
     tibble::tibble(fname=fname,
@@ -155,7 +248,7 @@ stats_single_data = function(fname, names_fits=list("NoPenalty"="fit.0", "Penalt
                      as.numeric(),
                    "idd"=idd) %>%
       dplyr::select(N, G, seed, idd, dplyr::everything()) %>%
-      dplyr::bind_cols(rbind(stats_fit1, stats_fit2))
+      dplyr::bind_cols(stats)
   )
 }
 
