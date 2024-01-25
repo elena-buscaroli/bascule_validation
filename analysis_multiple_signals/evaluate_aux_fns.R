@@ -138,6 +138,14 @@ make_plots_stats = function(stats) {
 
 
 make_plots_stats_compare = function(all_stats, boxplot=TRUE) {
+  qq = all_stats$K_true_SBS %>% quantile(c(0.33,0.66,1.))
+  
+  all_stats = all_stats %>% dplyr::mutate(K_cat=dplyr::case_when(
+    K_true_SBS <= qq[[1]] ~ paste0(0,"-",qq[[1]]),
+    K_true_SBS > qq[[1]] & K_true_SBS <= qq[[2]] ~ paste0(qq[[1]]+1,"-",qq[[2]]),
+    K_true_SBS > qq[[2]] & K_true_SBS <= qq[[3]] ~ paste0(qq[[2]]+1,"-",qq[[3]])
+  ))
+  
   filter_lims = function(x){
     l = boxplot.stats(x)$stats[1]
     u = boxplot.stats(x)$stats[5]
@@ -148,17 +156,18 @@ make_plots_stats_compare = function(all_stats, boxplot=TRUE) {
   }
   
   boxplot_compare = function(all_stats, colname) {
-    all_stats %>% dplyr::select(N, G, penalty, K_true_SBS, dplyr::contains(colname)) %>%
-      reshape2::melt(id=c("N","G","penalty","K_true_SBS"), variable.name="type") %>%
+    all_stats %>% dplyr::select(N, G, penalty, K_true_SBS, K_cat, dplyr::contains(colname)) %>%
+      reshape2::melt(id=c("N","G","penalty","K_true_SBS","K_cat"), variable.name="type") %>%
       dplyr::mutate(type=stringr::str_replace_all(type, paste0(colname,"_"),"")) %>%
       dplyr::filter(type=="SBS") %>% 
-      dplyr::mutate(value=filter_lims(value)) %>% dplyr::filter(!is.na(value)) %>% 
+      dplyr::mutate(value=filter_lims(value)) %>% dplyr::filter(!is.na(value)) %>%
       ggplot() +
-      geom_boxplot(aes(x=factor(K_true_SBS), y=value, fill=penalty), na.rm=T) +
-      ggh4x::facet_nested(penalty ~ N) +
+      # geom_boxplot(aes(x=factor(K_true_SBS), y=value, fill=penalty), na.rm=T) +
+      # ggh4x::facet_nested(penalty ~ N) +
       
-      # geom_boxplot(aes(x=factor(N), y=value, color=penalty)) +
-      # ggh4x::facet_nested( ~ G) +
+      geom_boxplot(aes(x=factor(N), y=value, fill=penalty)) +
+      ggh4x::facet_nested( ~ K_cat) +
+      scale_fill_manual(values=c("tan2","dodgerblue3","#ca472f")) +
       theme_bw()
   }
   
