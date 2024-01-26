@@ -221,9 +221,18 @@ eval_single_fit_matched = function(x.fit, x.simul, cutoff=0.8) {
       "ari"=ari_nmi[[1]],
       "nmi"=ari_nmi[[2]],
       "type"=tid
-    )
+    ) %>% 
+      dplyr::rowwise() %>% 
+      dplyr::mutate(K_input_found=length(intersect(assigned, input_sigs)),
+                    K_input_true=length(input_sigs),
+                    K_dn_found=length(intersect(assigned, dn_sigs)),
+                    K_dn_true=K_true - length(input_sigs),
+
+                    K_input_ratio=K_input_found / K_input_true,
+                    K_dn_ratio=K_dn_found / K_dn_true,
+                    K_ratio=K_assigned / K_true) %>% 
+      dplyr::ungroup()
     
-    # colnames(res) = paste(colnames(res), tid, sep="_")
     return(res)
   }) %>% setNames(get_types(x.fit))
 }

@@ -1,15 +1,15 @@
 devtools::load_all("~/GitHub/simbasilica/")
 devtools::load_all("~/GitHub/basilica/")
 run_id = "clustering.matched.2011"
-save_path = "~/Dropbox/shared/2022. Basilica/simulations/stats_dataframes/"
+save_path = "~/Dropbox/dropbox_shared/2022. Basilica/simulations/stats_dataframes/"
+source("~/GitHub/basilica_validation/eval_aux_fns.R")
+source("~/GitHub/basilica_validation/plots_aux_fns.R")
 
 # Generate stats #####
-source("~/GitHub/basilica_validation/eval_aux_fns.R")
-
 runids = c("Autoguide", "ManualGuide")
 fitnames = c("x.fit0.auto", "x.fit0.man")
 
-path = paste0("~/Dropbox/shared/2022. Basilica/simulations/fits/fits_dn.", run_id, "/")
+path = paste0("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits/fits_dn.", run_id, "/")
 files = list.files(path, full.names=T, pattern=".Rds")
 
 all_stats = lapply(files, function(fname) {
@@ -20,7 +20,7 @@ all_stats = lapply(files, function(fname) {
 
 
 # Plots #####
-# all_stats = readRDS(paste0(save_path, "stats_", run_id, ".Rds"))
+all_stats = readRDS(paste0(save_path, "stats_", run_id, ".Rds"))
 id_cols = c("N","G","seed","idd","fname","type","penalty")
 list_cols = c("assigned_missing","input_sigs","fixed_sigs","dn_sigs")
 
@@ -29,30 +29,7 @@ plot_list = list()
 plot_list[["K"]] = all_stats %>% 
   compute_quantiles(colname="K_true") %>% 
   dplyr::filter(penalty=="Autoguide") %>% 
-  dplyr::rowwise() %>% 
-  dplyr::mutate(K_input_found=length(intersect(assigned_missing$assigned_tp, input_sigs)),
-                K_input_true=length(input_sigs),
-                K_input_ratio=K_input_found / K_input_true,
-                
-                K_dn_found=length(intersect(assigned_missing$assigned_tp, dn_sigs)),
-                K_dn_true=K_true - length(input_sigs),
-                K_dn_ratio=K_dn_found / K_dn_true,
-                
-                K_found=length(assigned_missing$assigned_tp),
-                K_ratio=K_found / K_true) %>% 
-  dplyr::select(-dplyr::all_of(list_cols)) %>% 
-  reshape2::melt(id=c(id_cols,"K_true_cat"), variable.name="metric") %>% 
-  dplyr::filter(grepl("_ratio$", metric)) %>% 
-  ggplot() +
-  geom_violin(aes(x=factor(N), y=value, fill=K_true_cat, color=K_true_cat)) +
-  # geom_jitter(aes(x=factor(N), y=value), height=0, width=0.2, size=.5) +
-  geom_hline(yintercept=1, color="red4", linetype="dashed") +
-  facet_grid(type ~ metric, scales="free_y") + 
-  scale_fill_manual(values=c("tan2","#8FBC8B","thistle2")) +
-  scale_color_manual(values=c("tan2","#8FBC8B","thistle2")) +
-  theme_bw() + ylim(0,NA)
-
-
+  plot_K()
 
 
 ## quality metrics #####
