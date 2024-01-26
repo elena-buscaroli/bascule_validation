@@ -10,16 +10,6 @@ compute_quantiles = function(all_stats, colname) {
 }
 
 
-## function to remove boxplot outliers
-filter_lims = function(x){
-  l = boxplot.stats(x)$stats[1]
-  u = boxplot.stats(x)$stats[5]
-  x_tmp = x
-  for (i in 1:length(x)) x_tmp[i] = ifelse(x[i]>l & x[i]<u, x[i], NA)
-  if (all(is.na(x_tmp))) return(x)
-  return(x_tmp)
-}
-
 
 
 make_boxplot = function(all_stats, colname) {

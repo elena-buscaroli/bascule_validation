@@ -1,39 +1,36 @@
 devtools::load_all("~/GitHub/simbasilica/")
 devtools::load_all("~/GitHub/basilica/")
 run_id = "matched.2011.compare"
+save_path = "~/Dropbox/dropbox_shared/2022. Basilica/simulations/stats_dataframes/"
+source("~/GitHub/basilica_validation/eval_aux_fns.R")
+source("~/GitHub/basilica_validation/plots_aux_fns.R")
 
 # Generate stats dataframe ##### 
-source("~/GitHub/basilica_validation/analysis_multiple_signals/evaluate_aux_fns.R")
-
 runids = c("Basilica", "SigProfiler", "SparseSignatures")
 fitnames = c("fit.0", "sigprofiler", "sparsesignatures")
 
-path = paste0("~/Dropbox/shared/2022. Basilica/simulations/fits/fits_dn.", run_id, "/")
+path = paste0("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits/fits_dn.", run_id, "/")
 files = list.files(path, full.names=T, pattern=".Rds")
 
 all_stats = lapply(files, function(fname) {
   stats_single_data(fname, names_fits=fitnames %>% setNames(runids))
 }) %>% dplyr::bind_rows()
-# saveRDS(all_stats, paste0("~/Dropbox/shared/2022. Basilica/simulations/stats_dataframes/stats_", run_id, ".Rds"))
+saveRDS(all_stats, paste0(save_path, "stats_", run_id, ".Rds"))
 
 
 
 # Make plots #####
-all_stats = readRDS(paste0("~/Dropbox/shared/2022. Basilica/simulations/stats_dataframes/stats_", run_id, ".Rds"))
+all_stats = readRDS(paste0(save_path, "stats_", run_id, ".Rds")) %>% 
+  compute_quantiles(colname="K_true") %>% 
+  dplyr::filter(type=="SBS")
 
-col_palette = c("tan2","dodgerblue3","#ca472f")
-id_cols = c("N","G","seed","idd","fname","type","penalty")
-
+plot_list = list()
 all_stats %>% 
-  dplyr::select(-assigned_missing) %>% 
-  dplyr::filter(type=="SBS") %>% 
-  reshape2::melt(id=id_cols, variable.name="metric") %>% 
-  dplyr::filter(grepl("^mse|^cosine",metric)) %>% 
-  ggplot() +
-  geom_boxplot(aes(x=factor(N), y=value, fill=penalty)) +
-  scale_fill_manual(values=col_palette) +
-  facet_wrap(~metric, scales="free_y") +
-  theme_bw()
+  dplyr::select(-K_input_ratio, -K_dn_ratio) %>% 
+  plot_K(fill="penalty", facet="~metric + K_true_cat")
+
+all_stats %>% plot_performance(fill="penalty")
+all_stats %>% plot_performance(fill="penalty", facet="~variable + K_true_cat")
 
 
 

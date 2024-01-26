@@ -15,80 +15,50 @@ files = list.files(path, full.names=T, pattern=".Rds")
 all_stats = lapply(files, function(fname) {
   stats_single_data(fname, names_fits=fitnames %>% setNames(runids))
 }) %>% dplyr::bind_rows()
-# saveRDS(all_stats, paste0(save_path, "stats_", run_id, ".Rds"))
+saveRDS(all_stats, paste0(save_path, "stats_", run_id, ".Rds"))
 
 
 
 # Plots #####
-all_stats = readRDS(paste0(save_path, "stats_", run_id, ".Rds"))
-id_cols = c("N","G","seed","idd","fname","type","penalty")
-list_cols = c("assigned_missing","input_sigs","fixed_sigs","dn_sigs")
+all_stats = readRDS(paste0(save_path, "stats_", run_id, ".Rds")) %>% 
+  compute_quantiles(colname="K_true")
 
-plot_list = list()
+plot_list = list("p1"=list(), "p2"=list())
 ## fixed/dn retrieved ####
-plot_list[["K"]] = all_stats %>% 
+plot_list$p1[["K"]] = all_stats %>% 
   compute_quantiles(colname="K_true") %>% 
   dplyr::filter(penalty=="Autoguide") %>% 
   plot_K()
 
+plot_list$p2[["K"]] = all_stats %>% 
+  compute_quantiles(colname="K_true") %>% 
+  dplyr::filter(penalty=="Autoguide") %>% 
+  plot_K(fill="K_true_cat")
+
 
 ## quality metrics #####
-metrics = c("mse_counts","cosine_expos","cosine_expos_missing","cosine_sigs")
-cosine = all_stats %>% 
-  dplyr::select(-dplyr::all_of(list_cols)) %>% 
-  reshape2::melt(id=id_cols, variable.name="metric") %>% 
-  dplyr::filter(metric %in% metrics[-1], penalty=="Autoguide") %>% 
-  tidyr::separate("metric", into=c("metric","variable"), extra="merge", sep="_") %>% 
-  ggplot() +
-  geom_boxplot(aes(x=factor(N), y=filter_lims(value))) +
-  # geom_jitter(aes(x=factor(N), y=filter_lims(value)), height=0, width=0.2, size=.5) +
-  ggh4x::facet_nested(type ~ variable, scales="free_y") +
-  theme_bw() + ylab("Cosine similarity")
+plot_list$p1[["performance"]] = all_stats %>% 
+  dplyr::filter(penalty=="Autoguide") %>% 
+  plot_performance()
 
-mse = all_stats %>% 
-  dplyr::select(-dplyr::all_of(list_cols)) %>% 
-  reshape2::melt(id=id_cols, variable.name="metric") %>% 
-  dplyr::filter(metric %in% metrics[1], penalty=="Autoguide") %>% 
-  tidyr::separate("metric", into=c("metric","variable"), extra="merge", sep="_") %>% 
-  ggplot() +
-  geom_boxplot(aes(x=factor(N), y=filter_lims(value))) +
-  # geom_jitter(aes(x=factor(N), y=filter_lims(value)), height=0, width=0.2, size=.5) +
-  ggh4x::facet_nested(type ~ variable, scales="free_y") +
-  theme_bw() + ylab("MSE")
-plot_list[["performance"]] = patchwork::wrap_plots(mse, cosine, design="ABBB")
+plot_list$p2[["performance"]] = all_stats %>%
+  dplyr::filter(penalty=="Autoguide") %>%
+  plot_performance(fill="K_true_cat")
 
-  
+
 
 ## clustering validation #####
-plot_list[["clustering"]] = all_stats %>% 
-  dplyr::select(-dplyr::all_of(list_cols)) %>%
-  reshape2::melt(id=id_cols, variable.name="metric") %>% 
-  dplyr::select(-type) %>% unique() %>% 
-  dplyr::filter(metric %in% c("ari","nmi")) %>% 
-  dplyr::rename(guide_t=penalty) %>% 
-  ggplot() +
-  geom_boxplot(aes(x=factor(N), y=filter_lims(value), fill=guide_t), na.rm=T) +
-  geom_hline(yintercept=1, color="grey70", linetype="dashed") +
-  ggh4x::facet_nested(~metric, scales="free_y") +
-  scale_fill_manual(values=c("tan2","steelblue2")) +
-  theme_bw() + theme(legend.position="bottom")
+plot_list$p1[["clustering"]] = all_stats %>% plot_performance_clustering()
+plot_list$p2[["clustering"]] = all_stats %>% 
+  plot_performance_clustering(fill="K_true_cat", facet="penalty~metric")
 
 
 ## save plots #####
-patchwork::wrap_plots(plot_list$K, plot_list$performance, plot_list$clustering,
-                      design="AAABBBBBCC\nAAABBBBB##")
-ggsave(paste0(save_path, "stats_", run_id, ".pdf"), height=5, width=14)
+patchwork::wrap_plots(plot_list$p1, design="AABBBBC\nAABBBB#")
+ggsave(paste0(save_path, "stats_", run_id, "_nogrps.pdf"), width=12, height=5)
 
-
-# OLD plots #####
-make_plots_stats_compare(all_stats, boxplot=T)
-# ggsave(paste0("~/Dropbox/shared/2022. Basilica/simulations/plots_", run_id, "_boxp.pdf"),
-#        height=8, width=12)
-
-make_plots_stats_compare(all_stats, boxplot=F)
-# ggsave(paste0("~/Dropbox/shared/2022. Basilica/simulations/plots_", run_id, "_line.pdf"),
-#        height=8, width=12)
-
+patchwork::wrap_plots(plot_list$p2, design="AABBBBC\nAABBBB#")
+ggsave(paste0(save_path, "stats_", run_id, "_grps.pdf"), width=12, height=5)
 
 
 
