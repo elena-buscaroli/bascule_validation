@@ -6,16 +6,16 @@ source("~/GitHub/basilica_validation/eval_aux_fns.R")
 source("~/GitHub/basilica_validation/plots_aux_fns.R")
 
 # Generate stats dataframe ##### 
-runids = c("Basilica", "SigProfiler", "SparseSignatures")
-fitnames = c("fit.0", "sigprofiler", "sparsesignatures")
-
-path = paste0("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits/fits_dn.", run_id, "/")
-files = list.files(path, full.names=T, pattern=".Rds")
-
-all_stats = lapply(files, function(fname) {
-  stats_single_data(fname, names_fits=fitnames %>% setNames(runids))
-}) %>% dplyr::bind_rows()
-saveRDS(all_stats, paste0(save_path, "stats_", run_id, ".Rds"))
+# runids = c("Basilica", "SigProfiler", "SparseSignatures")
+# fitnames = c("fit.0", "sigprofiler", "sparsesignatures")
+# 
+# path = paste0("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits/fits_dn.", run_id, "/")
+# files = list.files(path, full.names=T, pattern=".Rds")
+# 
+# all_stats = lapply(files, function(fname) {
+#   stats_single_data(fname, names_fits=fitnames %>% setNames(runids))
+# }) %>% dplyr::bind_rows()
+# saveRDS(all_stats, paste0(save_path, "stats_", run_id, ".Rds"))
 
 
 
@@ -24,16 +24,21 @@ all_stats = readRDS(paste0(save_path, "stats_", run_id, ".Rds")) %>%
   compute_quantiles(colname="K_true") %>% 
   dplyr::filter(type=="SBS")
 
+pal = RColorBrewer::brewer.pal(3, name="Dark2")
+
 plot_list = list()
-all_stats %>% 
+plot_list[["K"]] = all_stats %>% 
   dplyr::select(-K_input_ratio, -K_dn_ratio) %>% 
-  plot_K(fill="penalty", facet="~metric + K_true_cat")
+  plot_K(fill="penalty", facet="~metric + K_true_cat", pal=pal)
 
-all_stats %>% plot_performance(fill="penalty")
-all_stats %>% plot_performance(fill="penalty", facet="~variable + K_true_cat")
+plot_list[["performance"]] = all_stats %>% plot_performance(fill="penalty", pal=pal)
+plot_list[["performance_grps"]] = all_stats %>% plot_performance(fill="penalty", facet="~variable + K_true_cat", pal=pal) &
+  patchwork::plot_layout(ncol=1)
 
 
-
+all_stats %>% 
+  dplyr::select(-dplyr::contains(c("expos","sigs"))) %>% 
+  plot_performance(fill="penalty", pal=pal)
 
 
 

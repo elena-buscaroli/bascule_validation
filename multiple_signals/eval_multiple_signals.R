@@ -54,11 +54,12 @@ plot_list$p2[["clustering"]] = all_stats %>%
 
 
 ## save plots #####
-patchwork::wrap_plots(plot_list$p1, design="AABBBBC\nAABBBB#")
-ggsave(paste0(save_path, "stats_", run_id, "_nogrps.pdf"), width=12, height=5)
+patchwork::wrap_plots(plot_list$p1, design="BBBBB\nAAACC")
+ggsave(paste0(save_path, "stats_", run_id, "_nogrps.pdf"), width=10, height=10)
 
-patchwork::wrap_plots(plot_list$p2, design="AABBBBC\nAABBBB#")
-ggsave(paste0(save_path, "stats_", run_id, "_grps.pdf"), width=12, height=5)
+patchwork::wrap_plots(plot_list$p2, design="BBBBB\nAAACC") &
+  theme(legend.position="bottom")
+ggsave(paste0(save_path, "stats_", run_id, "_grps.pdf"), width=10, height=10)
 
 
 
