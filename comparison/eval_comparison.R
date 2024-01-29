@@ -36,15 +36,17 @@ plot_list[["performance_grps"]] = all_stats %>% plot_performance(fill="penalty",
   patchwork::plot_layout(ncol=1)
 
 
-all_stats %>% 
-  dplyr::select(-dplyr::contains(c("expos","sigs"))) %>% 
-  plot_performance(fill="penalty", pal=pal)
+# Save plots #####
+saveRDS(plot_list, paste0(save_path, "stats_", run_id, "_plots.Rds"))
+
+patchwork::wrap_plots(plot_list, design="CCCCC\nAABBB") &
+  theme(legend.position="bottom")
+ggsave(paste0(save_path, "stats_", run_id, ".pdf"), width=10, height=10)
 
 
 
 
-
-### save plots for each fit #####
+# save plots for each fit #####
 lapply(files, function(fname) {
   tmp = strsplit(fname, split="/")[[1]]; fit_id = tmp[length(tmp)]
   simul_fit = readRDS(fname)

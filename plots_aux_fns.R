@@ -53,22 +53,27 @@ plot_performance = function(all_stats, fill="", facet="type ~ variable",
     bxplt_fn = geom_boxplot(aes(x=factor(N), y=value, fill=get(fill)), outlier.shape=NA, lwd=0.3)
   } else { pal = c() }
   
-  cosine = all_stats %>% 
-    dplyr::select(-dplyr::all_of(list_cols)) %>% 
-    reshape2::melt(id=id_cols, variable.name="metric") %>% 
-    dplyr::filter(grepl("^cosine", metric)) %>% 
-    tidyr::separate("metric", into=c("metric","variable"), extra="merge", sep="_") %>% 
-    plt(fn=bxplt_fn, pal=pal, fill=fill, facet=facet, grps_cols=grps_cols) +
-    ylab("Cosine similarity")
+  cosine = mse = NULL
+  if (any(grepl("cosine", metrics)))
+    cosine = all_stats %>% 
+      dplyr::select(-dplyr::all_of(list_cols)) %>% 
+      reshape2::melt(id=id_cols, variable.name="metric") %>% 
+      dplyr::filter(grepl("^cosine", metric)) %>% 
+      tidyr::separate("metric", into=c("metric","variable"), extra="merge", sep="_") %>% 
+      plt(fn=bxplt_fn, pal=pal, fill=fill, facet=facet, grps_cols=grps_cols) +
+      ylab("Cosine similarity")
   
-  mse = all_stats %>% 
-    dplyr::select(-dplyr::all_of(list_cols)) %>% 
-    reshape2::melt(id=id_cols, variable.name="metric") %>% 
-    dplyr::filter(grepl("^mse", metric)) %>% 
-    tidyr::separate("metric", into=c("metric","variable"), extra="merge", sep="_") %>% 
-    plt(fn=bxplt_fn, pal=pal, fill=fill, facet=facet, grps_cols=grps_cols) +
-    theme_bw() + ylab("MSE")
+  if (any(grepl("mse", metrics)))
+    mse = all_stats %>% 
+      dplyr::select(-dplyr::all_of(list_cols)) %>% 
+      reshape2::melt(id=id_cols, variable.name="metric") %>% 
+      dplyr::filter(grepl("^mse", metric)) %>% 
+      tidyr::separate("metric", into=c("metric","variable"), extra="merge", sep="_") %>% 
+      plt(fn=bxplt_fn, pal=pal, fill=fill, facet=facet, grps_cols=grps_cols) +
+      theme_bw() + ylab("MSE")
   
+  if (is.null(mse)) return(cosine)
+  if (is.null(cosine)) return(mse)
   patchwork::wrap_plots(mse, cosine, guides="collect") & theme(legend.position="bottom")
 }
 

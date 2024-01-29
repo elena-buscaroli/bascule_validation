@@ -6,16 +6,16 @@ source("~/GitHub/basilica_validation/eval_aux_fns.R")
 source("~/GitHub/basilica_validation/plots_aux_fns.R")
 
 # Generate stats #####
-runids = c("Autoguide", "ManualGuide")
-fitnames = c("x.fit0.auto", "x.fit0.man")
-
-path = paste0("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits/fits_dn.", run_id, "/")
-files = list.files(path, full.names=T, pattern=".Rds")
-
-all_stats = lapply(files, function(fname) {
-  stats_single_data(fname, names_fits=fitnames %>% setNames(runids))
-}) %>% dplyr::bind_rows()
-saveRDS(all_stats, paste0(save_path, "stats_", run_id, ".Rds"))
+# runids = c("Autoguide", "ManualGuide")
+# fitnames = c("x.fit0.auto", "x.fit0.man")
+# 
+# path = paste0("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits/fits_dn.", run_id, "/")
+# files = list.files(path, full.names=T, pattern=".Rds")
+# 
+# all_stats = lapply(files, function(fname) {
+#   stats_single_data(fname, names_fits=fitnames %>% setNames(runids))
+# }) %>% dplyr::bind_rows()
+# saveRDS(all_stats, paste0(save_path, "stats_", run_id, ".Rds"))
 
 
 
@@ -53,7 +53,9 @@ plot_list$p2[["clustering"]] = all_stats %>%
   plot_performance_clustering(fill="K_true_cat", facet="penalty~metric")
 
 
-## save plots #####
+# Save plots #####
+saveRDS(plot_list, paste0(save_path, "stats_",run_id, "_plots.Rds"))
+
 patchwork::wrap_plots(plot_list$p1, design="BBBBB\nAAACC")
 ggsave(paste0(save_path, "stats_", run_id, "_nogrps.pdf"), width=10, height=10)
 
