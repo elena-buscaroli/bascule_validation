@@ -73,7 +73,8 @@ panelC = clustering + labs(tag="C")
 
 patchwork::wrap_plots(panelA, panelB, panelC, ggplot() + labs(tag="D"), design="AAAC\nBBBD")
 ggsave(paste0(df_path, "draft_fig2.pdf"), height=8, width=12)
-  
+ggsave(paste0(df_path, "draft_fig2.png"), height=8, width=12)
+
 
 
 
