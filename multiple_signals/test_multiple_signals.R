@@ -9,15 +9,15 @@ shared = list("SBS"=c("SBS1","SBS5"),
 
 ## Example ####
 
-path = "~/Dropbox/shared/2022. Basilica/simulations/matched_signals/"
-simul_fit_i = readRDS(paste0(path, "fits/simul_fit_300.2.600.penalty_scale.Rds"))
+path = "~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits/fits_dn.matched.2011/"
+simul_fit_i = readRDS(paste0(path, "simul_fit.N150.G3.s8.matched.2011.Rds"))
 simul_i = simul_fit_i$dataset
-fit_i = simul_fit_i$fit
+fit_i = simul_fit_i$fit.0
 
 fit_i %>% plot_signatures()
 simul_i %>% plot_signatures()
 
-counts_ng = list("SBS"=get_input(fit_i)$SBS %>% long_to_wide(what="counts"))
+counts_ng = list("SBS"=get_input(fit_i, matrix=T)[["SBS"]])
 x_ng = fit(counts=counts_ng, k_list=1:3, cluster=NULL, n_steps=3000,
            reference_cat=list("SBS"=COSMIC_filt[shared$SBS,]),
            keep_sigs=unlist(shared),
