@@ -57,7 +57,8 @@ FP_FN_ratio = stats_compare %>% dplyr::rowwise() %>%
   theme_bw() + facet_grid(false_pos_neg~., scales="free") +
   scale_fill_manual(values=pal)
 
-ggsave(paste0(df_path, "draft_fig2.pdf"))
+ggsave(plot=FP_FN_ratio, filename=paste0(df_path, "FN_FP.png"))
+ggsave(plot=K_ratio_cmp_fct, filename=paste0(df_path, "K_ratio_fct.png"))
 
 
 mse_counts_cmp = stats_compare %>%
@@ -89,7 +90,34 @@ panelB = patchwork::wrap_plots(K_ratio_cmp + labs(tag="B"),
 panelC = clustering + labs(tag="C")
 
 
-patchwork::wrap_plots(panelA, panelB, panelC, ggplot() + labs(tag="D"), design="AAAC\nBBBD")
+## runtimes ####
+times_sigpr = read.csv("~/Dropbox/dropbox_shared/2022. Basilica/simulations/runtimes/sigprofiler_exectimes.csv") %>% 
+  dplyr::mutate(tool="SigProfiler") %>% tibble::as_tibble()
+times_sparsesig = read.csv("~/Dropbox/dropbox_shared/2022. Basilica/simulations/runtimes/sparsesignatures_exectimes.csv") %>% 
+  dplyr::rename(execution_time=total_mins) %>% dplyr::mutate(tool="SparseSignatures") %>% tibble::as_tibble()
+times_basilica = read.csv("~/Dropbox/dropbox_shared/2022. Basilica/simulations/runtimes/basilica_exectimes.csv") %>% 
+  dplyr::rename(execution_time=execution_time_SBS) %>% dplyr::mutate(tool="Basilica") %>% tibble::as_tibble()
+
+panelD = bind_rows(times_sigpr, times_sparsesig, times_basilica) %>% 
+  rowwise() %>% 
+  mutate(processor=case_when(
+    tool=="SigProfiler" ~ "GPU",
+    tool=="Basilica" && grep("N1000", simulation_name) ~ "GPU",
+    .default="CPU"
+  )) %>% 
+  mutate(N=strsplit(simulation_name, "[.]")[[1]][2] %>% stringr::str_remove_all("N") %>% as.numeric()) %>% 
+  select(simulation_name, execution_time, tool, processor, N) %>% 
+  ggplot() +
+  geom_boxplot(aes(y=execution_time, x=factor(N), fill=tool)) +
+  facet_wrap(~processor, scales="free") +
+  ylab("Runtime (min)") +
+  theme_bw() +
+  labs(tag="D")
+
+ggsave("~/Dropbox/dropbox_shared/2022. Basilica/simulations/stats_dataframes/runtimes.png")
+
+
+patchwork::wrap_plots(panelA, panelB, panelC, panelD, design="AAAC\nBBBD")
 ggsave(paste0(df_path, "draft_fig2.pdf"), height=8, width=12)
 ggsave(paste0(df_path, "draft_fig2.png"), height=8, width=12)
 
