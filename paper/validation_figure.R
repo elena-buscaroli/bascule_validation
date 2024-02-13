@@ -5,8 +5,7 @@ source("~/GitHub/basilica_validation/plots_aux_fns.R")
 
 df_path = "~/Dropbox/dropbox_shared/2022. Basilica/simulations/stats_dataframes/"
 stats_basilica = readRDS(paste0(df_path, "stats_clustering.matched.2011.Rds")) %>% 
-  compute_quantiles(colname="K_true") %>% 
-  dplyr::filter(type=="SBS")
+  compute_quantiles(colname="K_true")
 stats_compare = readRDS(paste0(df_path, "stats_matched.2011.compare.Rds")) %>% 
   compute_quantiles(colname="K_true") %>% 
   dplyr::filter(type=="SBS")
@@ -30,7 +29,7 @@ cosine_sigs_expos = stats_basilica %>%
   plot_performance(fill="K_true_cat")
 
 clustering = stats_basilica %>% 
-  dplyr::filter(penalty=="Autoguide") %>% 
+  dplyr::filter(penalty=="Autoguide", type=="SBS") %>% 
   dplyr::select(-ari) %>% 
   plot_performance_clustering(fill="K_true_cat", facet="~metric")
 
@@ -41,6 +40,25 @@ pal = RColorBrewer::brewer.pal(3, name="Dark2")
 K_ratio_cmp = stats_compare %>% 
   dplyr::select(-K_input_ratio, -K_dn_ratio) %>% 
   plot_K(fill="penalty", facet="~metric", pal=pal)
+
+K_ratio_cmp_fct = stats_compare %>% 
+  dplyr::select(-K_input_ratio, -K_dn_ratio) %>% 
+  plot_K(fill="penalty", facet="K_true_cat~metric", pal=pal)
+
+FP_FN_ratio = stats_compare %>% dplyr::rowwise() %>%
+  dplyr::mutate(FN=length(assigned_missing$missing_fn),
+                FP=length(assigned_missing$added_fp)) %>%
+  tidyr::pivot_longer(cols=c("FN","FP"), names_to="false_pos_neg") %>% 
+  dplyr::mutate(value=value/K_found) %>% 
+  ggplot() + 
+  geom_violin(aes(x=K_true_cat, y=value, fill=factor(penalty)), 
+              lwd=.3, draw_quantiles=c(.5),
+              position=position_dodge(width=.7)) +
+  theme_bw() + facet_grid(false_pos_neg~., scales="free") +
+  scale_fill_manual(values=pal)
+
+ggsave(paste0(df_path, "draft_fig2.pdf"))
+
 
 mse_counts_cmp = stats_compare %>%
   dplyr::select(-mse_expos, -mse_expos_missing, -dplyr::contains("cosine")) %>% 
