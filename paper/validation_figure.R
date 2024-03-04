@@ -18,6 +18,10 @@ K_ratio = stats_basilica %>%
   dplyr::filter(penalty=="Autoguide") %>% 
   plot_K(fill="K_true_cat")
 
+## accuracy : (TP + TN) / (TP + TN + FP + FN)
+## precision : TP / (TP + FP)
+## recall : TP / (TP + FN)
+
 mse_counts = stats_basilica %>% 
   dplyr::select(-mse_expos, -mse_expos_missing, -dplyr::contains("cosine")) %>% 
   dplyr::filter(penalty=="Autoguide") %>% 
