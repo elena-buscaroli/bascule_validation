@@ -1,20 +1,20 @@
 devtools::load_all("~/GitHub/simbasilica/")
 devtools::load_all("~/GitHub/basilica/")
-run_id = "clustering.matched.2011"
+run_id = "matched.2011"
 save_path = "~/Dropbox/dropbox_shared/2022. Basilica/simulations/stats_dataframes/"
-source("~/GitHub/basilica_validation/eval_aux_fns.R")
-source("~/GitHub/basilica_validation/plots_aux_fns.R")
+source("~/GitHub/basilica_validation/aux_fns/eval_aux_fns.R")
+source("~/GitHub/basilica_validation/aux_fns/plots_aux_fns.R")
 
 # Generate stats #####
-# runids = c("Autoguide", "ManualGuide")
-# fitnames = c("x.fit0.auto", "x.fit0.man")
-# 
-# path = paste0("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits/fits_dn.", run_id, "/")
-# files = list.files(path, full.names=T, pattern=".Rds")
-# 
-# all_stats = lapply(files, function(fname) {
-#   stats_single_data(fname, names_fits=fitnames %>% setNames(runids))
-# }) %>% dplyr::bind_rows()
+runids = c("Autoguide", "ManualGuide")
+fitnames = c("fit.0.auto", "fit.0.man")
+
+path = paste0("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits/fits_dn.", run_id, "/")
+files = list.files(path, full.names=T, pattern=".Rds")
+
+all_stats = lapply(files, function(fname) {
+  stats_single_data(fname, names_fits=fitnames %>% setNames(runids))
+}) %>% dplyr::bind_rows()
 # saveRDS(all_stats, paste0(save_path, "stats_", run_id, ".Rds"))
 
 

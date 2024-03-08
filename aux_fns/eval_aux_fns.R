@@ -158,6 +158,18 @@ stats_single_data = function(fname, names_fits=list("NoPenalty"="fit.0", "Penalt
 eval_single_fit_matched = function(x.fit, x.simul, cutoff=0.8) {
   x.fit = x.fit %>% rename_dn_expos()
   assigned_missing_all = get_assigned_missing(x.fit=x.fit, x.simul=x.simul, cutoff=cutoff)
+  
+  # clustering stuff ####
+  ari_nmi = ari_nmi_KM = list(NA, NA)
+  if (have_groups(x.fit)) {
+    ari_nmi = compute_ari_nmi(groups_simul=get_cluster_assignments(x.simul) %>% dplyr::arrange(samples) %>% dplyr::pull(clusters), 
+                              groups_fit=get_cluster_assignments(x.fit) %>% dplyr::arrange(samples) %>% dplyr::pull(clusters))
+    
+    KM_groups = run_kmeans_multiple_signals(x.fit)
+    ari_nmi_KM = compute_ari_nmi(groups_simul=get_cluster_assignments(x.simul) %>% dplyr::arrange(samples) %>% dplyr::pull(clusters), 
+                                 groups_fit=KM_groups %>% dplyr::arrange(samples) %>% dplyr::pull(clusters))
+  }
+
   lapply(get_types(x.fit), function(tid) {
     sigs.fit = get_signatures(x.fit, matrix=T)[[tid]]; sigs.simul = get_signatures(x.simul, matrix=T)[[tid]]
     sigs_fixed.fit = get_fixed_signatures(x.fit, matrix=T)[[tid]]
@@ -185,10 +197,7 @@ eval_single_fit_matched = function(x.fit, x.simul, cutoff=0.8) {
     cosine_expos_missing = compute.cosine(m_true=expos.simul, m_inf=expos.fit,
                                           assigned_missing=assigned_missing,
                                           what="expos", keep_missing=T)
-    
-    ari_nmi = ari_nmi_km = ari_nmi_km_em = list(NA, NA)
-    if (have_groups(x.fit)) ari_nmi = compute_ari_nmi(x.simul=x.simul, x.fit=x.fit)
-    
+
     res = tibble::tibble(
       "assigned_missing"=list(assigned_missing),
       "input_sigs"=list(get_input_signames(x.fit)[[tid]]),
@@ -206,10 +215,13 @@ eval_single_fit_matched = function(x.fit, x.simul, cutoff=0.8) {
       "cosine_sigs"=cosine_sigs,
       "cosine_expos"=cosine_expos,
       "cosine_expos_missing"=cosine_expos_missing,
-      
+  
       "groups_found"=length(get_cluster_labels(x.fit)),
       "ari"=ari_nmi[[1]],
       "nmi"=ari_nmi[[2]],
+      "ari_KM"=ari_nmi_KM[[1]],
+      "nmi_KM"=ari_nmi_KM[[2]],
+      
       "type"=tid
     ) %>% 
       dplyr::rowwise() %>% 
