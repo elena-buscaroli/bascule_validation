@@ -25,7 +25,7 @@ stats_basilica %>%
                                         Method=="nmi_KM" ~ "KMeans")) %>% 
   
   dplyr::group_by(N, K_true_cat) %>%
-  dplyr::filter(! (nmi %in% boxplot.stats(nmi)$out) ) %>%
+  # dplyr::filter(! (nmi %in% boxplot.stats(nmi)$out) ) %>%
   
   ggplot() +
   geom_violin(aes(x=factor(N), y=nmi, fill=Method, color=Method), 

@@ -15,7 +15,7 @@ files = list.files(path, full.names=T, pattern=".Rds")
 all_stats = lapply(files, function(fname) {
   stats_single_data(fname, names_fits=fitnames %>% setNames(runids))
 }) %>% dplyr::bind_rows()
-# saveRDS(all_stats, paste0(save_path, "stats_", run_id, ".Rds"))
+saveRDS(all_stats, paste0(save_path, "stats_", run_id, "_KM.Rds"))
 
 
 
