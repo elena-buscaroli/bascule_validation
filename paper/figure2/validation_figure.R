@@ -34,8 +34,8 @@ plots[["nmi"]] = stats_basilica %>%
   stat_summary(aes(group=Method), position=position_dodge(width=0.2), fun.data="mean_cl_boot",
                geom="line", linewidth=1) +
   
-  scale_color_manual(values=pal_methods) +
-  scale_fill_manual(values=pal_methods) +
+  scale_fill_manual(values=pal_methods, breaks=names(pal_methods)) +
+  scale_color_manual(values=pal_methods, breaks=names(pal_methods)) +
   theme_bw() + ylim(NA, 1)
   
 
@@ -60,8 +60,8 @@ plots[["recall"]] = stats_compare %>% dplyr::rowwise() %>%
   
   theme_bw() + 
   scale_y_continuous(breaks=scales::pretty_breaks(n=3), limits=c(NA, 1)) +
-  scale_fill_manual(values=pal_methods) +
-  scale_color_manual(values=pal_methods)
+  scale_fill_manual(values=pal_methods, breaks=names(pal_methods)) +
+  scale_color_manual(values=pal_methods, breaks=names(pal_methods)) 
 
 
 ## mse ####
@@ -75,11 +75,11 @@ plots[["mse_counts"]] = stats_compare %>%
   stat_summary(aes(group=penalty), position=position_dodge(width=.15), fun.data="mean_cl_boot") +
   stat_summary(aes(group=penalty), position=position_dodge(width=.15), fun.data="mean_cl_boot", 
                geom="line", linewidth=1) +
-  theme_bw() + facet_grid(~metric) +
+  theme_bw() + # facet_grid(~metric) +
   scale_y_continuous(breaks=scales::pretty_breaks(n=3), limits=c(0, NA),
                      labels=function(x) scales::scientific(x)) +
-  scale_fill_manual(values=pal_methods) +
-  scale_color_manual(values=pal_methods)
+  scale_fill_manual(values=pal_methods, breaks=names(pal_methods)) +
+  scale_color_manual(values=pal_methods, breaks=names(pal_methods))
 
 
 plots[["cosine_sigs"]] = stats_compare %>%
@@ -93,11 +93,11 @@ plots[["cosine_sigs"]] = stats_compare %>%
                geom="pointrange", fun.data="mean_cl_boot") +
   stat_summary(aes(group=penalty, color=penalty), geom="line",
                position=position_dodge(width=.15), fun.data="mean_cl_boot", linewidth=1) +
-  theme_bw() + facet_grid(~metric) +
+  theme_bw() + # facet_grid(~metric) +
   # scale_y_continuous(n.breaks=5) +
   scale_y_continuous(breaks=scales::pretty_breaks(n=3), limits=c(NA, 1)) +
-  scale_fill_manual(values=pal_methods) +
-  scale_color_manual(values=pal_methods)
+  scale_fill_manual(values=pal_methods, breaks=names(pal_methods)) +
+  scale_color_manual(values=pal_methods, breaks=names(pal_methods)) 
 
 
 plots[["cosine_expos"]] = stats_compare %>%
@@ -112,10 +112,10 @@ plots[["cosine_expos"]] = stats_compare %>%
   stat_summary(aes(group=penalty), fun.data="mean_cl_boot", position=position_dodge(width=.2), 
                geom="line", linewidth=1) +
   
-  theme_bw() + facet_grid(~metric) +
+  theme_bw() + # facet_grid(~metric) +
   scale_y_continuous(breaks=scales::pretty_breaks(n=3), limits=c(NA, 1)) +
-  scale_fill_manual(values=pal_methods) +
-  scale_color_manual(values=pal_methods)
+  scale_fill_manual(values=pal_methods, breaks = names(pal_methods)) +
+  scale_color_manual(values=pal_methods, breaks = names(pal_methods)) 
 
 
 ## runtimes ####
@@ -149,15 +149,17 @@ plots[["runtime"]] = dplyr::bind_rows(times_sigpr,
   
   dplyr::mutate(tool=reorder(tool, time_gain, mean, decreasing=T)) %>% 
   
-  ggplot(aes(x=factor(N), y=log(time_gain, base=10), fill=tool, color=tool)) +
+  ggplot(aes(x=factor(N), y=time_gain, fill=tool, color=tool)) +
   stat_summary(aes(group=tool), position=position_dodge(width=.15), fun.data="mean_cl_boot") +
   stat_summary(aes(group=tool), fun.data="mean_cl_boot", position=position_dodge(width=.15), 
                geom="line", linewidth=1) +
   theme_bw() +
-  scale_fill_manual(values=pal_methods, breaks = names(pal_methods), drop=F) +
-  scale_color_manual(values=pal_methods, breaks = names(pal_methods), drop=F) + 
-  scale_y_continuous(breaks=scales::pretty_breaks(n=4), limits=c(1, NA),
-                     labels=function(x) round(10^x, digits = 0))
+  scale_fill_manual(values=pal_methods, breaks = names(pal_methods)) +
+  scale_color_manual(values=pal_methods, breaks = names(pal_methods)) + 
+  scale_y_continuous(limits=c(1, NA)
+                     # labels=function(x) round(10^x, digits = 0),
+                     # breaks=scales::pretty_breaks(n=4), 
+                     )
 
 
 
@@ -202,6 +204,7 @@ panelH = plots[["runtime"]] +
   patchwork::plot_annotation(tag_levels="A")
 
 ggsave("~/Dropbox/dropbox_shared/2022. Basilica/paper/figure2/draft_fig2.png", height=8, width=14)
+ggsave("~/Dropbox/dropbox_shared/2022. Basilica/paper/figure2/draft_fig2.pdf", height=8, width=14)
 
 
 
