@@ -1,6 +1,6 @@
 library(magrittr)
 library(ggplot2)
-devtools::load_all("~/GitHub/basilica/")
+devtools::load_all("~/GitHub/bascule/")
 
 fit_simul = readRDS("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits/fits_dn.matched.2011/simul_fit.N500.G3.s11.matched.2011.Rds")
 # fit_simul = readRDS("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits/fits_dn.matched.2011/simul_fit.N150.G3.s22.matched.2011.Rds")

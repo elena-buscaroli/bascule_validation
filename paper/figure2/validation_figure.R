@@ -1,11 +1,11 @@
 library(magrittr)
 library(ggplot2)
-devtools::load_all("~/GitHub/basilica/")
-source("~/GitHub/basilica_validation/synthetic_data/aux_fns/eval_aux_fns.R")
-source("~/GitHub/basilica_validation/synthetic_data/aux_fns/plots_aux_fns.R")
+devtools::load_all("~/GitHub/bascule/")
+source("~/GitHub/bascule_validation/synthetic_data/aux_fns/eval_aux_fns.R")
+source("~/GitHub/bascule_validation/synthetic_data/aux_fns/plots_aux_fns.R")
 
 df_path = "~/Dropbox/dropbox_shared/2022. Basilica/simulations/stats_dataframes/"
-stats_basilica = readRDS(paste0(df_path, "stats_matched.2011_KM.Rds")) %>% 
+stats_bascule = readRDS(paste0(df_path, "stats_matched.2011_KM.Rds")) %>% 
   compute_quantiles(colname="K_true")
 stats_compare = readRDS(paste0(df_path, "stats_matched.2011.compare.Rds")) %>% 
   compute_quantiles(colname="K_true") %>% 
@@ -20,7 +20,7 @@ pal_methods = c("#7fb3d5", "#FF8C00", "#8FBC8B", "#DB7093") %>% setNames(c("BASC
 
 # Basilica ####
 
-plots[["nmi"]] = stats_basilica %>% 
+plots[["nmi"]] = stats_bascule %>% 
   dplyr::filter(type=="SBS") %>% 
   compute_quantiles(colname="K_true") %>% 
   dplyr::select(idd, N, K_true_cat, nmi, nmi_KM) %>% 
@@ -134,17 +134,17 @@ times_sparsesig = read.csv("~/Dropbox/dropbox_shared/2022. Basilica/simulations/
                 simulation_name=stringr::str_remove_all(simulation_name, ".Rds")) %>% 
   tibble::as_tibble() %>% 
   dplyr::select(simulation_name, execution_time, tool)
-times_basilica = read.csv("~/Dropbox/dropbox_shared/2022. Basilica/simulations/runtimes/basilica_exectimes.csv") %>% 
-  dplyr::rename(execution_time_basilica=execution_time_SBS) %>% tibble::as_tibble() %>% 
-  dplyr::mutate(tool="BASCULE", execution_time=execution_time_basilica) %>%
-  dplyr::select(simulation_name, execution_time, execution_time_basilica, tool)
+times_bascule = read.csv("~/Dropbox/dropbox_shared/2022. Basilica/simulations/runtimes/bascule_exectimes.csv") %>% 
+  dplyr::rename(execution_time_bascule=execution_time_SBS) %>% tibble::as_tibble() %>% 
+  dplyr::mutate(tool="BASCULE", execution_time=execution_time_bascule) %>%
+  dplyr::select(simulation_name, execution_time, execution_time_bascule, tool)
 
 plots[["runtime"]] = dplyr::bind_rows(times_sigpr, 
                                       times_sparsesig, 
-                                      times_basilica %>% dplyr::select(-execution_time_basilica)) %>% 
-  dplyr::inner_join(times_basilica %>% dplyr::select(-execution_time, -tool)) %>% 
+                                      times_bascule %>% dplyr::select(-execution_time_bascule)) %>% 
+  dplyr::inner_join(times_bascule %>% dplyr::select(-execution_time, -tool)) %>% 
 
-  dplyr::mutate(time_gain=execution_time / execution_time_basilica) %>% 
+  dplyr::mutate(time_gain=execution_time / execution_time_bascule) %>% 
   
   dplyr::filter(tool!="BASCULE") %>% 
   

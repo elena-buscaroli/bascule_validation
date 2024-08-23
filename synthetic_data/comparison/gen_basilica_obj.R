@@ -1,9 +1,9 @@
 library(magrittr)
-devtools::load_all("~/GitHub/simbasilica/")
-load_basilica()
+devtools::load_all("~/GitHub/simbascule/")
+load_bascule()
 
-create_basilica_obj = function(counts, expos, sigs) {
-  obj = list(); class(obj) = "basilica_obj"
+create_bascule_obj = function(counts, expos, sigs) {
+  obj = list(); class(obj) = "bascule_obj"
   obj[["input"]][["SBS"]] = list("counts"=counts,
                                  "reference"=NULL)
   obj[["nmf"]][["SBS"]] = list("exposure"=wide_to_long(expos, what="exposures"),
@@ -35,7 +35,7 @@ lapply(fitsnames, function(fname) {
     sp_alpha = read.csv(paste0(sp_res, "Activities/SBS96_De-Novo_Activities_refit.txt"), sep="\t", row.names=1)
     sp_alpha = sp_alpha / rowSums(sp_alpha)
     sp_sigs = read.csv(paste0(sp_res, "Signatures/SBS96_De-Novo_Signatures.txt"), sep="\t", row.names=1) %>% t()
-    x.sp = create_basilica_obj(counts, sp_alpha, sp_sigs)
+    x.sp = create_bascule_obj(counts, sp_alpha, sp_sigs)
   })
   
   ## sparsesignatures ####
@@ -43,7 +43,7 @@ lapply(fitsnames, function(fname) {
     ss_res = readRDS(paste0(ss_path, fname))
     rownames(ss_res$alpha) = rownames(long_to_wide(counts, what="counts"))
     ss_res$alpha = ss_res$alpha / rowSums(ss_res$alpha)
-    x.ss = create_basilica_obj(counts, ss_res$alpha, ss_res$beta)
+    x.ss = create_bascule_obj(counts, ss_res$alpha, ss_res$beta)
   })
   
   simu_fit[["sigprofiler"]] = x.sp
