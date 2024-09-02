@@ -267,7 +267,8 @@ panelH = plots[["runtime"]] +
                         # guides="collect",
                         design="AAAABBCC\nDDEEFFGG")
     # theme(legend.position="bottom") &
-  ) & patchwork::plot_annotation(tag_levels="A")
+  ) & patchwork::plot_annotation(tag_levels="A") &
+  theme
 
 ggsave("~/Dropbox/dropbox_shared/2022. Basilica/paper/figure2/draft_fig2BIS.png", height=8, width=14)
 ggsave("~/Dropbox/dropbox_shared/2022. Basilica/paper/figure2/draft_fig2BIS.pdf", height=8, width=14)
