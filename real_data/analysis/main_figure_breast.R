@@ -60,19 +60,12 @@ plots[["mapped_sigs"]] = plot_mapping_barplot(x_orig, cls_catalogues) +
 
 # CENTROIDS + AETIOLOGY #####
 
-sig_cls_organ = list(
-  G0=c("SBS2", "SBS13", "DBS2", "DBS13", "DBS11"), 
-  G1=c("SBS3", "DBS2", "DBS13"), 
-  G10=c("SBS1", "SBS3", "SBS2", "SBS13", "SBSD11", "DBS11"), 
-  G11=c("SBS1", "SBS3", "SBS2", "SBS13", "SBSD11", "DBS14", "DBS13"), 
-  G13=c("SBS1", "SBS3", "SBS2", "SBS13", "SBSD11", "DBS13")
-)
-
 aetiology = read.csv("~/Google Drive/My Drive/work/basilica_shared/codes/sbs_aetiology.csv") %>% 
   dplyr::bind_rows(read.csv("~/Google Drive/My Drive/work/basilica_shared/codes/dbs_aetiology.csv"))
-set.seed(55)
-cls = yarrr::piratepal(palette="basel", mix.col="yellow", mix.p=.2) %>% sample() %>% 
-  setNames(unlist(sig_cls_organ) %>% unique())
+
+sig_cls_organ = sig_cls_organ_all[[tolower(organ_type)]]
+
+cls = get_color_palette(cosmic, degasperi, sig_cls_organ_all)[[tolower(organ_type)]]
 
 plots_tmp = custom_centroid_plot(
   x=x, 
@@ -94,15 +87,20 @@ aetiology %>% dplyr::filter(signature %in% (dplyr::bind_rows(assigned) %>%
                                          dplyr::filter(signature_type=="De novo") %>%
                                          dplyr::pull(reference))) %>% 
   dplyr::filter(aetiology!="UNKNOWN")
-denovo_catalogue = get_denovo_signatures(x_orig)[["SBS"]]
+denovo_catalogue = get_denovo_signatures(x_orig)
 
 dn1 = "SBSD10"
 dn2 = "SBSD11"
 ref1 = assigned$SBS %>% dplyr::filter(bascule==dn1) %>% dplyr::pull(reference)
 ref2 = assigned$SBS %>% dplyr::filter(bascule==dn2) %>% dplyr::pull(reference)
+cat1 = assigned$SBS %>% dplyr::filter(bascule==dn1) %>% dplyr::pull(catalogue)
+cat2 = assigned$SBS %>% dplyr::filter(bascule==dn2) %>% dplyr::pull(catalogue)
 
-sigs1 = plot_mirrored_sigs(denovo_catalogue, cosmic, dn1, ref1, "COSMIC v3.4")
-sigs2 = plot_mirrored_sigs(denovo_catalogue, cosmic, dn2, ref2, "Degasperi et al.")
+fn_tmp = function(cat_name) if (cat_name=="COSMIC v3.4") return(cosmic) else return(degasperi)
+sigs1 = plot_mirrored_sigs(denovo_catalogue[["SBS"]], fn_tmp(cat1), 
+                           dn1, ref1, cat1, type="SBS", thr=0)
+sigs2 = plot_mirrored_sigs(denovo_catalogue[["SBS"]], fn_tmp(cat2), 
+                           dn2, ref2, cat2, type="SBS", thr=0)
 
 plots[["denovo_sigs"]] = patchwork::wrap_plots(sigs1, sigs2, 
                                                guides="collect", 
@@ -115,22 +113,15 @@ plots[["denovo_sigs"]] = patchwork::wrap_plots(sigs1, sigs2,
 
 cls["Other"] = "gainsboro"
 cls = cls[!is.na(names(cls))]
-sigs_order = c(gtools::mixedsort(unique(c(sig_cls_organ$G0, sig_cls_organ$G1))), "Other")
-# expos_g0 = plot_exposures(x, signatures_list=sig_cls_organ$G0, clusters="G0", color_palette=cls) +
-#   scale_fill_manual(values=cls, breaks=sigs_order, limits=sigs_order) +
-#   scale_y_continuous(breaks=c(0,1))
-# expos_g1 = plot_exposures(x, signatures_list=sig_cls_organ$G1, clusters="G1", color_palette=cls) +
-#   scale_fill_manual(values=cls, breaks=sigs_order, limits=sigs_order) +
-#   scale_y_continuous(breaks=c(0,1))
-# plots[["expos_g0"]] = expos_g0
-# plots[["expos_g1"]] = expos_g1
+sigs_order = c(gtools::mixedsort(unique(unlist(sig_cls_organ))), "Other")
 
-
-n_samples = sapply(names(sig_cls_organ), function(cl_id) get_cluster_assignments(x, clusters=cl_id) %>% nrow())
 cluster_names = names(sig_cls_organ)
+n_samples = sapply(cluster_names, function(cl_id) get_cluster_assignments(x, clusters=cl_id) %>% nrow())
 plots[["exposures"]] = lapply(cluster_names, function(cl_id) {
-  pl = plot_exposures(x, signatures_list=sig_cls_organ[[cl_id]], 
-                 clusters=cl_id, color_palette=cls) +
+  # pl = plot_exposures(x, signatures_list=sig_cls_organ[[cl_id]], 
+  #                clusters=cl_id, color_palette=cls) +
+  pl = plot_exposures(x, signatures_list=sigs_order, 
+                      clusters=cl_id, color_palette=cls) +
     scale_fill_manual(values=cls, breaks=sigs_order, limits=sigs_order) +
     scale_y_continuous(breaks=c(0,1)) +
     xlab("Samples") + ylab("Relative exposures") +
@@ -161,7 +152,7 @@ panelA = plots$scores +
   labs(title="Model selection", subtitle="BIC of the tested bNMF models")
 panelB = plots$mapped_sigs + 
   labs(title="Mapping of de novo signatures",
-       subtitle="De novo signatures mapped to COSMIC v3.4 and Degasperi et al.") +
+       subtitle="De novo signatures mapped to known catalogues") +
   theme(axis.title.y=element_blank())
 
 panelCD = plots$denovo_sigs
@@ -189,4 +180,4 @@ a = patchwork::wrap_plots(
   design="ABC\nDDD\nEEE\nEEE"
 ) + patchwork::plot_annotation(tag_levels="A")
 
-ggsave("real_data/draft3.pdf", plot=a, width=210, height=297, units="mm")
+ggsave(paste0("paper/figure3/", tolower(organ_type), ".pdf"), plot=a, width=210, height=297, units="mm")

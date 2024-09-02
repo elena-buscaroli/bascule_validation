@@ -3,28 +3,28 @@ library(ggrepel)
 library(ggpubr)
 library(reshape2)
 
-
-'
-remove.sparsity = function(x, type, exposure_thr=0.01) {
-  x[x < exposure_thr] = 0
-  df = data.frame(type=c(), name=c(), mean=c(), freq=c())
-  
-  if ( (x %>% ncol) < 1 ) { return(df) }
-  
-  for (i in 1:ncol(x)) {
-    ls = list(
-      type=type, 
-      name=colnames(x)[i], 
-      mean=sum(x[,i]) / sum(x[,i] != 0), 
-      freq=sum(x[,i] != 0)
-    )
-    df = rbind(df, ls)
-    df$type = factor(df$type)
-  }
-  return(df)
-}
-'
-
+sig_cls_organ_all <<- list(
+  breast = list(G0=c("SBS2", "SBS13", "DBS2", "DBS13", "DBS11"), 
+                G1=c("SBS3", "DBS2", "DBS13"), 
+                G10=c("SBS1", "SBS3", "SBS2", "SBS13", "SBSD11", "DBS11"), 
+                G11=c("SBS1", "SBS3", "SBS2", "SBS13", "SBSD11", "DBS14", "DBS13"), 
+                G13=c("SBS1", "SBS3", "SBS2", "SBS13", "SBSD11", "DBS13")),
+  lung = list(G1=c("SBS4", "DBS2"), 
+              G3=c("SBS31", "DBS5"), 
+              G13=c("SBS17b", "DBS13"), 
+              G14=c("SBS1", "SBS5", "DBS1"), 
+              G0=c("SBS1", "SBS5", "DBS13"), 
+              G12=c("SBS1", "SBS5", "DBS6"), 
+              G8=c("SBS1", "SBS5", "DBS20")),
+  colorectal = list(G1=c("SBS1", "SBS3", "SBS5", "SBS18", "SBS35", "SBS44", "SBSD8", "DBS25"), 
+                    G3=c("SBS1", "SBS3", "SBS5", "SBS18", "SBS35", "SBS44", "SBSD8", "DBS5"), 
+                    G6=c("SBS1", "SBS3", "SBS5", "SBS18", "SBS35", "SBS44", "SBSD8", "DBS8"), 
+                    G12=c("SBS1", "SBS3", "SBS5", "SBS18", "SBS35", "SBS44", "SBSD8", "DBS13"), 
+                    G10=c("SBS44", "SBSD7", "SBSD12", "DBS14"), 
+                    G9=c("SBS10a", "DBS3"), 
+                    G0=c("SBS3", "SBS18", "DBS2"), 
+                    G5=c("SBS15", "SBSD7", "DBSD3"))
+)
 
 
 # input:
@@ -459,38 +459,53 @@ custom_centroid_plot = function(x, sig_cls, col_palette,
 }
 
 
+renormalize_sigs = function(catalogue, thr) {
+  catalogue %>% 
+    dplyr::mutate(value=replace(value, value<thr, 0)) %>%
+    dplyr::group_by(sigs) %>%
+    dplyr::mutate(value=value/(sum(value)+1e-10)) %>%
+    dplyr::ungroup()
+}
+
 plot_mirrored_sigs = function(denovo_cat, ref_cat, 
                               dn_name, ref_name,
-                              cat_name) {
+                              cat_name, type, thr=0.02) {
   breaks = c("De novo", "COSMIC v3.4", "Degasperi et al.")
   title_name = strsplit(cat_name, split=" ")[[1]][1]
-  denovo_cat %>% 
+  
+  input_df = denovo_cat %>% 
     dplyr::filter(sigs==dn_name) %>% 
-    reformat_contexts(what="SBS") %>% 
+    reformat_contexts(what=type) %>% 
     dplyr::mutate(Catalogue=breaks[1]) %>% 
+    
+    renormalize_sigs(thr=thr) %>%  
     
     dplyr::bind_rows(
       ref_cat %>% dplyr::filter(sigs %in% c(ref_name)) %>% 
-        reformat_contexts(what="SBS") %>% dplyr::select(-type) %>% 
+        reformat_contexts(what=type) %>% dplyr::select(-type) %>% 
         dplyr::mutate(value=-value) %>% 
-        # dplyr::mutate(Signatures=ifelse(sigs==ref_name, breaks[2], breaks[3]))
         dplyr::mutate(Catalogue=cat_name)
-    ) %>% {
-      ggplot(.) +
-        geom_bar(aes(x=context, y=value, fill=Catalogue), show.legend=T, 
-                 stat="identity", position="identity") +
-        facet_grid(~variant) +
-        scale_fill_manual(values=cls_catalogues, 
-                          breaks=breaks,
-                          limits=breaks) +
-        scale_y_continuous(breaks=pretty(.[["value"]]),
-                           labels=abs(pretty(.[["value"]]))) +
-        theme_bw() +
-        theme(axis.text=element_blank(),
-              axis.ticks=element_blank(),
-              panel.grid=element_blank()) +
-        ylab("Density") + xlab("Trinucleotide contexts") +
-        labs(title=paste0("Signatures ", dn_name, " and ", ref_name))
+    )
+  
+  max_abs = max(max(input_df$value), max(abs(input_df$value)))
+
+  input_df %>% {
+    ggplot(.) +
+      geom_bar(aes(x=context, y=value, fill=Catalogue), show.legend=T, 
+               stat="identity", position="identity") +
+      facet_grid(~variant) +
+      scale_fill_manual(values=cls_catalogues, 
+                        breaks=breaks,
+                        limits=breaks) +
+      scale_y_continuous(breaks=pretty(.[["value"]]),
+                         labels=abs(pretty(.[["value"]]))) +
+      theme_bw() +
+      theme(axis.text=element_blank(),
+            axis.ticks=element_blank(),
+            panel.grid=element_blank()) +
+      ylab("Density") + xlab("Trinucleotide contexts") +
+      labs(title=paste0("Signatures ", dn_name, " and ", ref_name)) +
+      ylim(-max_abs, max_abs)
     }
 }
 
@@ -532,6 +547,42 @@ plot_custom_exposures=function(
   return(p)
 }
 
+
+
+get_color_palette = function(cosmic, degasperi, sig_cls_organ_all) {
+  
+  ref_names = unique(unlist(lapply(sig_cls_organ_all, unlist))) %>% 
+    purrr::keep(function(i) i %in% c(cosmic$sigs, degasperi$sigs))
+  set.seed(123)
+  cls_ref = unique(c(
+    yarrr::piratepal(palette="info2", mix.col="yellow", mix.p=0) %>% purrr::discard_at("pink"),
+    yarrr::piratepal(palette="appletv", mix.col="yellow", mix.p=0),
+    yarrr::piratepal(palette="nemo", mix.col="yellow", mix.p=0),
+    yarrr::piratepal(palette="espresso", mix.col="yellow", mix.p=0))) %>% 
+    sample(size=length(ref_names))
+  
+  seeds = c(33,2211,432) %>% setNames(names(sig_cls_organ_all))
+  cls_dn = cls = list()
+  for(organ_id in names(sig_cls_organ_all)) {
+    sig_cls_organ = sig_cls_organ_all[[tolower(organ_id)]]
+    
+    other_names = cls_dn %>% lapply(names) %>% unlist() %>% setNames(NULL)
+    dn_names = setdiff(unlist(sig_cls_organ), ref_names)
+    n_cls = dn_names %>% length()
+    
+    set.seed(seeds[[organ_id]])
+    cls_dn[[organ_id]] = yarrr::piratepal(palette="basel", mix.col="yellow", mix.p=0) %>% 
+      purrr::discard_at(c("pink", other_names, names(ref_names))) %>% 
+      sample(size=n_cls)
+    
+    cls[[organ_id]] = c(cls_ref %>% setNames(ref_names), 
+            cls_dn[[organ_id]] %>% setNames(dn_names))
+    
+    cls[[organ_id]] = cls[[organ_id]][!is.na(names(cls[[organ_id]]))]
+  }
+  
+  return(cls)
+}
 
 
 
