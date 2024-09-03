@@ -65,37 +65,9 @@ plots[["mapped_sigs"]] = plot_mapping_barplot(x_orig, cls_catalogues) +
 aetiology = read.csv("~/Google Drive/My Drive/work/basilica_shared/codes/sbs_aetiology.csv") %>% 
   dplyr::bind_rows(read.csv("~/Google Drive/My Drive/work/basilica_shared/codes/dbs_aetiology.csv"))
 
-sig_cls_organ_all = list(
-  breast = list(G0=c("SBS2", "SBS13", "DBS2", "DBS13", "DBS11"), 
-                G1=c("SBS3", "DBS2", "DBS13"), 
-                G10=c("SBS1", "SBS3", "SBS2", "SBS13", "SBSD11", "DBS11"), 
-                G11=c("SBS1", "SBS3", "SBS2", "SBS13", "SBSD11", "DBS14", "DBS13"), 
-                G13=c("SBS1", "SBS3", "SBS2", "SBS13", "SBSD11", "DBS13")),
-  lung = list(G0=c("SBS1", "SBS2", "SBS3", "SBS5", "SBS13", "DBS6", "DBS13"), 
-              G1=c("SBS3", "DBS2", "DBS13"), 
-              G10=c("SBS1", "SBS3", "SBS2", "SBS13", "SBSD11", "DBS11"), 
-              G11=c("SBS1", "SBS3", "SBS2", "SBS13", "SBSD11", "DBS14", "DBS13"), 
-              G13=c("SBS1", "SBS3", "SBS2", "SBS13", "SBSD11", "DBS13")),
-  colorectal = list(G0 = c("SBS2", "SBS13", "DBS2", "DBS13", "DBS11"), 
-                    G1 = c("SBS3", "DBS2", "DBS13"), 
-                    G10 = c("SBS1", "SBS3", "SBS2", "SBS13", "SBSD11", "DBS11"), 
-                    G11 = c("SBS1", "SBS3", "SBS2", "SBS13", "SBSD11", "DBS14", "DBS13"), 
-                    G13 = c("SBS1", "SBS3", "SBS2", "SBS13", "SBSD11", "DBS13"))
-)
-
 sig_cls_organ = sig_cls_organ_all[[tolower(organ_type)]]
 
-ref_names = unique(unlist(lapply(sig_cls_organ_all, unlist))) %>% 
-  purrr::keep(function(i) i %in% c(cosmic$sigs, degasperi$sigs))
-set.seed(123)
-cls_ref = yarrr::piratepal(palette="info2", mix.col="yellow", mix.p=0) %>% 
-  purrr::discard_at("pink") %>% sample()
-set.seed(5555)
-cls_dn = yarrr::piratepal(palette="basel", mix.col="yellow", mix.p=0) %>% 
-  purrr::discard_at("pink") %>% sample()
-
-cls = c(cls_ref %>% setNames(ref_names), 
-        setdiff(cls_dn, cls_ref) %>% setNames(setdiff(unlist(sig_cls_organ), ref_names)))
+cls = get_color_palette(cosmic, degasperi, sig_cls_organ_all)[[tolower(organ_type)]]
 
 plots_tmp = custom_centroid_plot(
   x=x, 
@@ -147,10 +119,12 @@ cls["Other"] = "gainsboro"
 cls = cls[!is.na(names(cls))]
 sigs_order = c(gtools::mixedsort(unique(unlist(sig_cls_organ))), "Other")
 
-cluster_names = gtools::mixedsort(get_cluster_labels(x))
+cluster_names = gtools::mixedsort(names(sig_cls_organ))
 n_samples = sapply(cluster_names, function(cl_id) get_cluster_assignments(x, clusters=cl_id) %>% nrow())
 plots[["exposures"]] = lapply(cluster_names, function(cl_id) {
-  pl = plot_exposures(x, signatures_list=sig_cls_organ[[cl_id]], 
+  # pl = plot_exposures(x, signatures_list=sig_cls_organ[[cl_id]], 
+  #                clusters=cl_id, color_palette=cls) +
+  pl = plot_exposures(x, signatures_list=sigs_order, 
                       clusters=cl_id, color_palette=cls) +
     scale_fill_manual(values=cls, breaks=sigs_order, limits=sigs_order) +
     scale_y_continuous(breaks=c(0,1)) +

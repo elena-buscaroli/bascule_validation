@@ -411,7 +411,9 @@ custom_centroid_plot = function(x, sig_cls, col_palette,
                                 dbs_aetiology_path) {
 
   # CENTROIDS
-  centroids = plot_centroids(x, signatures_list=unlist(sig_cls), cls=col_palette) +
+  cluster_levels = gtools::mixedsort(get_cluster_labels(x))
+  centroids = plot_centroids(x, signatures_list=unlist(sig_cls), 
+                             cls=col_palette, sample_levels=cluster_levels) +
     xlab("Clusters") + ylab("Relative exposures") +
     theme(plot.margin=unit(c(t=5.5,r=5.5,l=5.5,b=0),"pt"), 
           panel.grid=element_blank()) +
@@ -443,7 +445,9 @@ custom_centroid_plot = function(x, sig_cls, col_palette,
 
   # Plot the heatmap
   row_levels = c("Unknown", sort(heatmap_data$aetiology, decreasing=T) %>% purrr::discard_at("Unknown")) %>% unique()
-  heatmap = ggplot(heatmap_data, aes(x=clusters, y=factor(aetiology, levels=row_levels))) +
+  heatmap = ggplot(heatmap_data, 
+                   aes(x=factor(clusters, levels=cluster_levels), 
+                       y=factor(aetiology, levels=row_levels))) +
     geom_tile(aes(fill=factor(is.present)), 
               color="grey5", width=0.9, height=0.5) +
     scale_fill_manual(values=c("0"="white", "1"="gray50"), guide="none") +

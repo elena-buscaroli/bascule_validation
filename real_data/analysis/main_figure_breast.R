@@ -115,7 +115,7 @@ cls["Other"] = "gainsboro"
 cls = cls[!is.na(names(cls))]
 sigs_order = c(gtools::mixedsort(unique(unlist(sig_cls_organ))), "Other")
 
-cluster_names = names(sig_cls_organ)
+cluster_names = gtools::mixedsort(names(sig_cls_organ))
 n_samples = sapply(cluster_names, function(cl_id) get_cluster_assignments(x, clusters=cl_id) %>% nrow())
 plots[["exposures"]] = lapply(cluster_names, function(cl_id) {
   # pl = plot_exposures(x, signatures_list=sig_cls_organ[[cl_id]], 
