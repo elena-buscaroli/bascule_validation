@@ -1,10 +1,10 @@
 library(magrittr)
 library(ggplot2)
-source("~/GitHub/basilica_validation/paper/figure2/eval_aux_fns.R")
-source("~/GitHub/basilica_validation/paper/figure2/plots_aux_fns.R")
+source("~/GitHub/bascule_validation/paper/figure2/eval_aux_fns.R")
+source("~/GitHub/bascule_validation/paper/figure2/plots_aux_fns.R")
 
 df_path = "~/Dropbox/dropbox_shared/2022. Basilica/simulations/stats_dataframes/"
-stats_basilica = readRDS(paste0(df_path, "stats_clustering.matched.2011.Rds")) %>% 
+stats_bascule = readRDS(paste0(df_path, "stats_clustering.matched.2011.Rds")) %>% 
   compute_quantiles(colname="K_true")
 stats_compare = readRDS(paste0(df_path, "stats_matched.2011.compare.Rds")) %>% 
   compute_quantiles(colname="K_true") %>% 
@@ -14,8 +14,8 @@ stats_compare = readRDS(paste0(df_path, "stats_matched.2011.compare.Rds")) %>%
 
 pal_k_true = pal=c("tan2","#8FBC8B","thistle2")
 
-# panelA -> basilica validation: K_ratio by complexity, MSE counts, cosine sigs, NMI
-K_ratio = stats_basilica %>% 
+# panelA -> bascule validation: K_ratio by complexity, MSE counts, cosine sigs, NMI
+K_ratio = stats_bascule %>% 
   dplyr::filter(type == "SBS") %>% 
   compute_quantiles(colname="K_true") %>% 
   dplyr::select(-K_input_ratio, -K_dn_ratio) %>% 
@@ -26,17 +26,17 @@ K_ratio = stats_basilica %>%
 ## precision : TP / (TP + FP)
 ## recall : TP / (TP + FN)
 
-mse_counts = stats_basilica %>% 
+mse_counts = stats_bascule %>% 
   dplyr::select(-mse_expos, -mse_expos_missing, -dplyr::contains("cosine")) %>% 
   dplyr::filter(penalty=="Autoguide") %>% 
   plot_performance(fill="K_true_cat", pal=pal_k_true)
 
-cosine_sigs_expos = stats_basilica %>% 
+cosine_sigs_expos = stats_bascule %>% 
   dplyr::select(-dplyr::contains("mse"), -cosine_expos_missing) %>% 
   dplyr::filter(penalty=="Autoguide") %>% 
   plot_performance(fill="K_true_cat", pal=pal_k_true)
 
-clustering = stats_basilica %>% 
+clustering = stats_bascule %>% 
   dplyr::filter(penalty=="Autoguide", type=="SBS") %>% 
   dplyr::select(-ari) %>% 
   
@@ -45,7 +45,7 @@ clustering = stats_basilica %>%
 
 ## Comparison #####
 
-# panelB -> basilica comparison w other methods
+# panelB -> bascule comparison w other methods
 pal_methods = RColorBrewer::brewer.pal(3, name="Dark2")
 
 K_ratio_cmp = stats_compare %>% 
@@ -98,15 +98,15 @@ times_sparsesig = read.csv("~/Dropbox/dropbox_shared/2022. Basilica/simulations/
   dplyr::rename(execution_time=total_mins, simulation_name=name) %>% 
   dplyr::mutate(tool="SparseSignatures") %>% tibble::as_tibble() %>% 
   dplyr::select(simulation_name, execution_time, tool)
-times_basilica = read.csv("~/Dropbox/dropbox_shared/2022. Basilica/simulations/runtimes/basilica_exectimes.csv") %>% 
+times_bascule = read.csv("~/Dropbox/dropbox_shared/2022. Basilica/simulations/runtimes/bascule_exectimes.csv") %>% 
   dplyr::rename(execution_time=execution_time_SBS) %>% 
-  dplyr::mutate(tool="Basilica") %>% tibble::as_tibble() %>% 
+  dplyr::mutate(tool="Bascule") %>% tibble::as_tibble() %>% 
   dplyr::select(simulation_name, execution_time, tool)
 
-runtimes = dplyr::bind_rows(times_sigpr, times_sparsesig, times_basilica) %>% 
+runtimes = dplyr::bind_rows(times_sigpr, times_sparsesig, times_bascule) %>% 
   dplyr::rowwise() %>% 
   dplyr::mutate(processor=dplyr::case_when(
-    tool=="Basilica" && grep("N1000", simulation_name) ~ "GPU",
+    tool=="Bascule" && grep("N1000", simulation_name) ~ "GPU",
     .default="CPU"
   )) %>% 
   dplyr::mutate(N=strsplit(simulation_name, "[.]")[[1]][2] %>% stringr::str_remove_all("N") %>% as.numeric()) %>% 

@@ -1,9 +1,9 @@
-devtools::load_all("~/GitHub/simbasilica/")
-devtools::load_all("~/GitHub/basilica/")
+devtools::load_all("~/GitHub/simbascule/")
+devtools::load_all("~/GitHub/bascule/")
 run_id = "matched.2011"
 save_path = "~/Dropbox/dropbox_shared/2022. Basilica/simulations/stats_dataframes/"
-source("~/GitHub/basilica_validation/aux_fns/eval_aux_fns.R")
-source("~/GitHub/basilica_validation/aux_fns/plots_aux_fns.R")
+source("~/GitHub/bascule_validation/aux_fns/eval_aux_fns.R")
+source("~/GitHub/bascule_validation/aux_fns/plots_aux_fns.R")
 
 # Generate stats #####
 # runids = c("Autoguide", "ManualGuide")

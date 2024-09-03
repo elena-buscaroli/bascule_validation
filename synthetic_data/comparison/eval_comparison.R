@@ -1,9 +1,9 @@
-devtools::load_all("~/GitHub/simbasilica/")
-devtools::load_all("~/GitHub/basilica/")
+devtools::load_all("~/GitHub/simbascule/")
+devtools::load_all("~/GitHub/bascule/")
 run_id = "matched.2011.compare"
 save_path = "~/Dropbox/dropbox_shared/2022. Basilica/simulations/stats_dataframes/"
-source("~/GitHub/basilica_validation/eval_aux_fns.R")
-source("~/GitHub/basilica_validation/plots_aux_fns.R")
+source("~/GitHub/bascule_validation/eval_aux_fns.R")
+source("~/GitHub/bascule_validation/plots_aux_fns.R")
 
 # Generate stats dataframe ##### 
 # runids = c("Basilica", "SigProfiler", "SparseSignatures")

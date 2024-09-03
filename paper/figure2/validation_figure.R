@@ -1,30 +1,32 @@
 library(magrittr)
 library(ggplot2)
-source("~/GitHub/basilica_validation/aux_fns/eval_aux_fns.R")
-source("~/GitHub/basilica_validation/aux_fns/plots_aux_fns.R")
+devtools::load_all("~/GitHub/bascule/")
+source("~/GitHub/bascule_validation/synthetic_data/aux_fns/eval_aux_fns.R")
+source("~/GitHub/bascule_validation/synthetic_data/aux_fns/plots_aux_fns.R")
 
 df_path = "~/Dropbox/dropbox_shared/2022. Basilica/simulations/stats_dataframes/"
-stats_basilica = readRDS(paste0(df_path, "stats_matched.2011_KM.Rds")) %>% 
+stats_bascule = readRDS(paste0(df_path, "stats_matched.2011_KM.Rds")) %>% 
   compute_quantiles(colname="K_true")
 stats_compare = readRDS(paste0(df_path, "stats_matched.2011.compare.Rds")) %>% 
   compute_quantiles(colname="K_true") %>% 
-  dplyr::filter(type=="SBS")
+  dplyr::filter(type=="SBS") %>% 
+  dplyr::mutate(penalty=replace(penalty, penalty=="Basilica", "BASCULE"))
 
 plots = list()
 
 pal_k_true = wesanderson::wes_palette("Cavalcanti1", 6, type="continuous")[c(1,4,3)]
-pal_methods = c("#7fb3d5", "#FF8C00", "#8FBC8B", "#DB7093") %>% setNames(c("Basilica", "SigProfiler", "SparseSignatures","KMeans"))
+pal_methods = c("#7fb3d5", "#FF8C00", "#8FBC8B", "#DB7093") %>% setNames(c("BASCULE", "SigProfiler", "SparseSignatures","KMeans"))
 
 
 # Basilica ####
 
-plots[["nmi"]] = stats_basilica %>% 
+plots[["nmi"]] = stats_bascule %>% 
   dplyr::filter(type=="SBS") %>% 
   compute_quantiles(colname="K_true") %>% 
   dplyr::select(idd, N, K_true_cat, nmi, nmi_KM) %>% 
   
   tidyr::pivot_longer(cols=c("nmi","nmi_KM"), values_to="nmi", names_to="Method") %>% 
-  dplyr::mutate(Method=dplyr::case_when(Method=="nmi" ~ "Basilica",
+  dplyr::mutate(Method=dplyr::case_when(Method=="nmi" ~ "BASCULE",
                                         Method=="nmi_KM" ~ "KMeans")) %>% 
   
   dplyr::mutate(Method=reorder(Method, nmi, mean, decreasing=T)) %>% 
@@ -132,17 +134,19 @@ times_sparsesig = read.csv("~/Dropbox/dropbox_shared/2022. Basilica/simulations/
                 simulation_name=stringr::str_remove_all(simulation_name, ".Rds")) %>% 
   tibble::as_tibble() %>% 
   dplyr::select(simulation_name, execution_time, tool)
-times_basilica = read.csv("~/Dropbox/dropbox_shared/2022. Basilica/simulations/runtimes/basilica_exectimes.csv") %>% 
-  dplyr::rename(execution_time_basilica=execution_time_SBS) %>% tibble::as_tibble() %>% 
-  dplyr::mutate(tool="Basilica", execution_time=execution_time_basilica) %>%
-  dplyr::select(simulation_name, execution_time, execution_time_basilica, tool)
+times_bascule = read.csv("~/Dropbox/dropbox_shared/2022. Basilica/simulations/runtimes/bascule_exectimes.csv") %>% 
+  dplyr::rename(execution_time_bascule=execution_time_SBS) %>% tibble::as_tibble() %>% 
+  dplyr::mutate(tool="BASCULE", execution_time=execution_time_bascule) %>%
+  dplyr::select(simulation_name, execution_time, execution_time_bascule, tool)
 
 plots[["runtime"]] = dplyr::bind_rows(times_sigpr, 
                                       times_sparsesig, 
-                                      times_basilica %>% dplyr::select(-execution_time_basilica)) %>% 
-  dplyr::inner_join(times_basilica %>% dplyr::select(-execution_time, -tool)) %>% 
+                                      times_bascule %>% dplyr::select(-execution_time_bascule)) %>% 
+  dplyr::inner_join(times_bascule %>% dplyr::select(-execution_time, -tool)) %>% 
 
-  dplyr::mutate(time_gain=execution_time / execution_time_basilica) %>% 
+  dplyr::mutate(time_gain=execution_time / execution_time_bascule) %>% 
+  
+  dplyr::filter(tool!="BASCULE") %>% 
   
   dplyr::rowwise() %>% 
   dplyr::mutate(N=strsplit(simulation_name, "[.]")[[1]][2] %>% stringr::str_remove_all("N") %>% as.numeric()) %>% 
@@ -162,49 +166,112 @@ plots[["runtime"]] = dplyr::bind_rows(times_sigpr,
                      )
 
 
+## example fit #####
+
+# fit_simul = readRDS("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits/fits_dn.matched.2011/simul_fit.N500.G3.s11.matched.2011.Rds")
+# fit_simul = readRDS("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits/fits_dn.matched.2011/simul_fit.N150.G3.s22.matched.2011.Rds")
+# fit_simul = readRDS("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits/fits_dn.matched.2011/simul_fit.N150.G3.s12.matched.2011.Rds")
+fit_simul = readRDS("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits/fits_dn.matched.2011/simul_fit.N500.G3.s14.matched.2011.Rds")
+
+
+bas_mapped = fit_simul$fit.0.auto %>% 
+  convert_dn_names(reference_cat=get_signatures(fit_simul$dataset, matrix=T), cutoff=0.7) %>% 
+  merge_clusters()
+
+plot_exposures(bas_mapped)
+plot_exposures(fit_simul$dataset)
+
+# clusters_new = c("G3","G2","G1") %>% setNames(c("G0","G1","G3"))
+# clusters_new = c("G1","G3","G2") %>% setNames(c("G3","G1","G2"))
+# clusters_new = c("G1","G3","G2","Unmatched") %>% setNames(c("G0","G1","G2","G3"))
+clusters_new = c("G3","G1","G2","Unmatched") %>% setNames(c("G0","G1","G2","G3"))
+
+plots[["example"]] = get_exposure(bas_mapped, add_groups=T)[["SBS"]] %>% 
+  dplyr::rowwise() %>% 
+  dplyr::mutate(clusters=clusters_new[clusters], method="Predicted") %>% 
+  dplyr::ungroup() %>% 
+  
+  dplyr::bind_rows(
+    get_exposure(fit_simul$dataset, add_groups=T)[["SBS"]] %>% 
+      dplyr::mutate(method="Ground truth") 
+  ) %>% 
+  
+  dplyr::group_by(samples) %>%
+  dplyr::mutate(clusters=replace(clusters, length(unique(clusters))>1, "UM")) %>%
+  
+  ggplot() +
+  geom_bar(aes(x=samples, y=value, fill=sigs), stat="identity") +
+  facet_grid(factor(method, levels=c("Ground truth","Predicted")) ~ clusters, scales="free_x", space="free_x") +
+  scale_fill_manual(values=gen_palette(n=9)) +
+  
+  theme_bw() +
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank(), 
+        panel.grid.major.x=element_blank(), panel.grid.major.y=element_blank()) +
+  labs(fill="Signatures")
+
+
 
 # Panels #####
-panelsAB = ggplot()
+# panelsAB = ggplot()
+panelsAB = plots[["example"]] + ylab("") +
+  labs(title="Inference on a simulated dataset",
+       subtitle="N=500, K=5, G=3") +
+  theme(legend.position="bottom") + xlab("Samples") +
+  labs(fill="Signatures")
 
 panelC = plots[["recall"]] + ylab("Recall") +
   labs(title="Signatures detection accuracy") +
-  theme(legend.position="bottom") + xlab("# samples") 
+  theme(legend.position="none") + xlab("# samples") +
+  guides(fill=guide_legend(title="Method"),
+         color=guide_legend(title="Method"))
 
 panelD = plots[["mse_counts"]] + 
   labs(title="Reconstruction error") +
-  ylab("MSE") + xlab("# samples") 
+  ylab("MSE") + xlab("# samples") +
+  theme(legend.position="none") +
+  guides(fill=guide_legend(title="Method"),
+         color=guide_legend(title="Method"))
 
 panelE = plots[["cosine_sigs"]] + 
   labs(title="Signatures quality") +
-  ylab("Cosine similarity") + xlab("# samples") 
+  ylab("Cosine similarity") + xlab("# samples") +
+  theme(legend.position="none") +
+  guides(fill=guide_legend(title="Method"),
+         color=guide_legend(title="Method"))
 
 panelF = plots[["cosine_expos"]] +
   labs(title="Exposures quality") +
-  ylab("Cosine similarity") + xlab("# samples") 
+  ylab("Cosine similarity") + xlab("# samples") +
+  theme(legend.position="none") +
+  guides(fill=guide_legend(title="Method"),
+         color=guide_legend(title="Method"))
 
 panelG = plots[["nmi"]] +
   labs(title="Clustering accuracy") +
   ylab("Normalized mutual information") + 
-  xlab("# samples") 
+  xlab("# samples") + theme(legend.position="none") +
+  guides(fill=guide_legend(title="Method"),
+         color=guide_legend(title="Method"))
 
 panelH = plots[["runtime"]] + 
   labs(title="Runtime increment") +
   ylab("Relative time increment") + 
-  xlab("# samples") 
+  xlab("# samples") + theme(legend.position="none") +
+  guides(fill=guide_legend(title="Method"),
+         color=guide_legend(title="Method"))
 
 
 (patchwork::wrap_plots(panelsAB, panelC, panelG,
                         panelD, panelE, 
                         panelF, panelH,
-                        guides="collect",
-                        design="AAAABBCC\nDDEEFFGG") & 
-    theme(legend.position="bottom") &
-    guides(fill=guide_legend(title="Method"),
-           color=guide_legend(title="Method"))) +
-  patchwork::plot_annotation(tag_levels="A")
+                        # guides="collect",
+                        design="AAAABBCC\nDDEEFFGG")
+    # theme(legend.position="bottom") &
+  ) & patchwork::plot_annotation(tag_levels="A") &
+  theme
 
-ggsave("~/Dropbox/dropbox_shared/2022. Basilica/paper/figure2/draft_fig2.png", height=8, width=14)
-ggsave("~/Dropbox/dropbox_shared/2022. Basilica/paper/figure2/draft_fig2.pdf", height=8, width=14)
+ggsave("~/Dropbox/dropbox_shared/2022. Basilica/paper/figure2/draft_fig2BIS.png", height=8, width=14)
+ggsave("~/Dropbox/dropbox_shared/2022. Basilica/paper/figure2/draft_fig2BIS.pdf", height=8, width=14)
 
 
 

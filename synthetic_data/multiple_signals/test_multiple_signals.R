@@ -1,4 +1,4 @@
-devtools::load_all("~/GitHub/simbasilica/")
+devtools::load_all("~/GitHub/simbascule/")
 load_deps()
 
 private = list("SBS"=c("SBS17b", "SBS4", "SBS7c", "SBS13", "SBS20", "SBS22"),
@@ -210,7 +210,7 @@ saveRDS(plots,paste0(path, "datasets_", pattern, ".pdf"))
 simul_obj = generate_simulation_dataset_matched(N=150, G=2, private=private,
                                                 shared=shared,
                                                 py=py) %>%
-  create_basilica_obj_simul()
+  create_bascule_obj_simul()
 
 counts = get_input(simul_obj, matrix=TRUE)
 
@@ -223,7 +223,7 @@ x = fit(counts=counts, k_list=0:2, cluster=NULL, n_steps=1000,
                              "scale_factor_alpha"=5000, "tau"=0),
         seed_list=c(10,33,4), filter_dn=TRUE, store_fits=TRUE)
 x$description = "Using Dirichlet as beta prior, centroid computed from fixed cumulative, adding penalty in pyro.factor, try learning whole omega"
-saveRDS(x, "~/GitHub/simbasilica/nobuild/analysis_multiple_signals/ex_nmf3.Rds")
+saveRDS(x, "~/GitHub/simbascule/nobuild/analysis_multiple_signals/ex_nmf3.Rds")
 
 plot_scores(x)
 plot_signatures(x)
@@ -266,7 +266,7 @@ patchwork::wrap_plots(plot_exposures(simul_obj, types="DBS"), p_alpha_star_DBS, 
 patchwork::wrap_plots(plot_exposures(simul_obj, types="SBS"), plot_exposures(x, types="SBS"), ncol=1)
 heatmap(beta_weights, cluster_rows=F, cluster_cols=F)
 plot_signatures(x)
-# saveRDS(x, "~/GitHub/simbasilica/nobuild/analysis_multiple_signals/ex.Gamma.Rds")
+# saveRDS(x, "~/GitHub/simbascule/nobuild/analysis_multiple_signals/ex.Gamma.Rds")
 
 patchwork::wrap_plots(plot_signatures(simul_obj, types="DBS"),
                       plot_signatures(x, types="DBS"), ncol=1)
@@ -306,7 +306,7 @@ x_crc_Unif = fit(counts=counts, k_list=5:10, cluster=6, n_steps=3000,
                                  "scale_factor_alpha"=5000, "tau"=0),
             seed_list=c(10,33,4,57), filter_dn=TRUE, store_fits=TRUE)
 
-saveRDS(x_crc_Unif, "~/GitHub/simbasilica/nobuild/analysis_multiple_signals/crc_sbs_dbs.Unif.Rds")
+saveRDS(x_crc_Unif, "~/GitHub/simbascule/nobuild/analysis_multiple_signals/crc_sbs_dbs.Unif.Rds")
 
 
 x_crc_Gamma = fit(counts=counts, k_list=5:10, cluster=6, n_steps=3000,
@@ -317,7 +317,7 @@ x_crc_Gamma = fit(counts=counts, k_list=5:10, cluster=6, n_steps=3000,
                                       "scale_factor_alpha"=5000, "tau"=0),
                  seed_list=c(10,33,4,57), filter_dn=TRUE, store_fits=TRUE)
 
-saveRDS(x_crc_Gamma, "~/GitHub/simbasilica/nobuild/analysis_multiple_signals/crc_sbs_dbs.Gamma.Rds")
+saveRDS(x_crc_Gamma, "~/GitHub/simbascule/nobuild/analysis_multiple_signals/crc_sbs_dbs.Gamma.Rds")
 
 
 

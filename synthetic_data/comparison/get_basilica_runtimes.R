@@ -13,4 +13,4 @@ runtimes = lapply(files, function(fname) {
              execution_time_DBS=t_dbs)
 }) %>% bind_rows()
 
-write.csv(runtimes, "~/Dropbox/dropbox_shared/2022. Basilica/simulations/runtimes/basilica_exectimes.csv", row.names=F)
+write.csv(runtimes, "~/Dropbox/dropbox_shared/2022. Basilica/simulations/runtimes/bascule_exectimes.csv", row.names=F)
