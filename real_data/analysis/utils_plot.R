@@ -143,23 +143,33 @@ plot_exposure_comp = function(obj, map) {
 }
 
 
-
-
-plot_mapping_barplot = function(x_orig, cls_catalogues,
-                                degasperi_sbs="real_data/datasets/signatures_sbs.Rds",
-                                degasperi_dbs="real_data/datasets/signatures_dbs.Rds") {
-  degasperi <<- readRDS(degasperi_sbs) %>% 
+get_degasperi = function(degasperi_sbs="real_data/datasets/signatures_sbs.Rds",
+                         degasperi_dbs="real_data/datasets/signatures_dbs.Rds") {
+  readRDS(degasperi_sbs) %>% 
     wide_to_long(what="beta") %>% dplyr::mutate(type="SBS") %>% 
     dplyr::bind_rows(
       readRDS(degasperi_dbs) %>% 
         wide_to_long(what="beta") %>% dplyr::mutate(type="DBS")
     )
-  cosmic <<- COSMIC_sbs %>% 
+}
+
+get_cosmic = function() {
+  COSMIC_sbs %>% 
     wide_to_long(what="beta") %>% dplyr::mutate(type="SBS") %>% 
     dplyr::bind_rows(
       COSMIC_dbs %>% 
         wide_to_long(what="beta") %>% dplyr::mutate(type="DBS")
     )
+}
+
+
+
+plot_mapping_barplot = function(x_orig, cls_catalogues,
+                                degasperi_sbs="real_data/datasets/signatures_sbs.Rds",
+                                degasperi_dbs="real_data/datasets/signatures_dbs.Rds") {
+  degasperi <<- get_degasperi(degasperi_sbs=degasperi_sbs, 
+                              degasperi_dbs=degasperi_dbs)
+  cosmic <<- get_cosmic()
   
   reference_cat_cosmic = lapply(X=unique(cosmic$type), FUN=function(tid) 
     cosmic %>% dplyr::filter(type==tid) %>% dplyr::select(-type) %>% long_to_wide(what="beta")
