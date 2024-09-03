@@ -3,11 +3,12 @@
 # load basilica fit
 #-----------------------------
 # input:
-#   - [basilica object, context]
+#   - x        : basilica object
+#   - type     : context e.g., ("SBS", "DBS")
 # output:
-#   - fixed    (wide format)
-#   - denovo   (wide format)
-#   - exposure (wide format)
+#   - fixed    : fixed signatures  (wide format)
+#   - denovo   : denovo signatures (wide format)
+#   - exposure : exposure matrix   (wide format)
 load.basilica <- function(x, type) {
   fixed <- basilica:::get_fixed_signatures(x, matrix = TRUE)[[type]]
   denovo <- basilica:::get_denovo_signatures(x, types = type, matrix = TRUE)[[type]]
@@ -18,6 +19,20 @@ load.basilica <- function(x, type) {
 
 #===============================================================================
 
+
+# load Degasperi fit (based on organ type)
+#-----------------------------
+# input:
+#   - x        : basilica object   -  
+#   - reference_path : path to the reference catalogue from Degasperi study (character)
+#   - exposure_path  : path to the exposure matrix from Degasperi study (character)
+#   - common_names   : list of common signatures present in corresponding organ type in Degasperi study (character vector)
+#   - rare_names     : list of rare signatures present in corresponding organ type in Degasperi study (character vector)
+#   - organ_type     : tumor type (character)
+# output:
+#   - common   : common signatures (dataframe, wide format)
+#   - rare     : rare signatures   (dataframe, wide format)
+#   - exposure : exposure matrix   (dataframe, wide format)
 
 load.serena <- function(reference_path, exposure_path, common_names, rare_names, organ_type) {
   
@@ -73,6 +88,25 @@ load.serena <- function(reference_path, exposure_path, common_names, rare_names,
 #===============================================================================
 
 
+# quality control of basilica and Degasperi fit data
+#-----------------------------
+# input:
+#   - fixed            : fixed signatures (dataframe, wide format)
+#   - denovo           : denovo signatures (dataframe, wide format)
+#   - BasilicaExposure : exposure matrixx from basilica (dataframe, wide format)
+#   - common           : common signatures (dataframe, wide format)
+#   - rare             : rare signatures (dataframe, wide format)
+#   - SerenaExposure   : exposure matrix from Degasperi (dataframe, wide format)
+#   - reference        : reference catalogue (dataframe, wide format)
+# output:
+#   - fixed            : fixed signatures (dataframe, wide format)
+#   - denovo           : denovo signatures (dataframe, wide format)
+#   - BasilicaExposure : exposure matrixx from basilica (dataframe, wide format)
+#   - common           : common signatures (dataframe, wide format)
+#   - rare             : rare signatures (dataframe, wide format)
+#   - SerenaExposure   : exposure matrix from Degasperi (dataframe, wide format)
+#   - reference        : reference catalogue (dataframe, wide format)
+
 input.qc <- function(fixed, denovo, BasilicaExposure, common, rare, SerenaExposure, reference) {
 #run.QC <- function(basilica, serena, reference) {
   
@@ -109,17 +143,25 @@ input.qc <- function(fixed, denovo, BasilicaExposure, common, rare, SerenaExposu
 #===============================================================================
 
 
+# loading all fit data from both bascule and Degasperi
+#-----------------------------
 # input
-#   x -----> basilica object
-#   type --> ("SBS", "DBS")
+#   - basilica_obj    : basilica object
+#   - serena_ref_path : path to the reference catalogue from Degasperi study (character)
+#   - serena_exp_path : path to the exposure matrix from Degasperi study (character)
+#   - common_names    : list of common signatures present in corresponding organ type in Degasperi study (character vector)
+#   - rare_names      : list of rare signatures present in corresponding organ type in Degasperi study (character vector)
+#   - organ           : tumor type (character)
+#   - reference       : reference catalogue (dataframe, wide format)
+#   - type            : context e.g., ("SBS", "DBS")
 # output
-#   list of:
-#   - fixed
-#   - denovo
-#   - BasilicaExposure
-#   - common
-#   - rare
-#   - SerenaExposure
+#   - fixed            : fixed signatures from bascule (dataframe, wide format)
+#   - denovo           : denovo signatures from bascule (dataframe, wide format)
+#   - BasilicaExposure : exposure matrix from bascule (dataframe, wide format)
+#   - common           : common signatures from Degasperi (dataframe, wide format)
+#   - rare             : rare signatures from Degasperi (dataframe, wide format)
+#   - SerenaExposure   : exposure matrix from Degasperi (dataframe, wide format)
+
 load.all <- function(basilica_obj, serena_ref_path, serena_exp_path, common_names, rare_names, organ, reference, type) {
   
   basilica <- load.basilica(
@@ -155,9 +197,15 @@ load.all <- function(basilica_obj, serena_ref_path, serena_exp_path, common_name
 
 
 #===============================================================================
-#===============================================================================
-#===============================================================================
 
+
+# return the ordered (cosine similarity) paired signature (rows) datafrmae 
+#-----------------------------
+# input
+#   - cosine_matrix   : ?
+#   - threshold       : ?
+# output
+#   - filtered_data_B : ?
 
 mapper2 <- function(cosine_matrix, threshold=0.8) {
   # Convert to long format
@@ -175,6 +223,31 @@ mapper2 <- function(cosine_matrix, threshold=0.8) {
   return(filtered_data_B)
 }
 
+
+#===============================================================================
+
+
+# return the mapped signatures from Bascule and Degasperi study
+#-----------------------------
+# input
+#   - reference : reference catalogue (dataframe, wide format)
+#   - fixed     : fixed signatures from bascule (dataframe, wide format)
+#   - denovo    : denovo signatures from bascule (dataframe, wide format)
+#   - common    : common signatures from Degasperi study (dataframe, wide format)
+#   - rare      : rare signatures from Degasperi study (dataframe, wide format)
+#   - threshold : map two signatures with cosine similarity higher than threshold (numeric)
+# output
+#   - denovo_common    : paired mapped signatures - denovo vs. common (dataframe, wide format)
+#   - denovo_rare      : paired mapped signatures - denovo vs. rare (dataframe, wide format)
+#   - denovo_reference : paired mapped signatures - denovo vs. reference (dataframe, wide format)
+#   - fixed_common     : paired mapped signatures - fixed vs. common (dataframe, wide format)
+#   - fixed_rare       : paired mapped signatures - fixed vs. rare (dataframe, wide format)
+#   - fixed_reference  : paired mapped signatures - fixed vs. reference (dataframe, wide format)
+#   - common_reference : paired mapped signatures - common vs. reference (dataframe, wide format)
+#   - rare_reference   : paired mapped signatures - rare vs. reference (dataframe, wide format)
+#   - basilica_serena  : paired mapped signatures - fixed + denovo vs. common + rare (dataframe, wide format)
+#   - basilica_singles : signatures from Bascule not mapped to any signatures
+#   - serena_singles   : signatures from Degasperi not mapped to any signatures
 
 map.data2 <- function(
     reference, 
@@ -241,8 +314,6 @@ map.data2 <- function(
 
 
 #===============================================================================
-#===============================================================================
-#===============================================================================
 
 
 get_data <- function(system_type, organ_type, context_type) {
@@ -304,294 +375,9 @@ get_data <- function(system_type, organ_type, context_type) {
 }
 
 
-'
-source("/Users/azadsadr/Nextcloud/basilica/scripts/utils.R") # get_data
-
-saveRDS(
-  list(
-    breast_sbs = get_data(system_type = "mac", organ_type = "Breast", context_type = "SBS"), 
-    breast_dbs = get_data(system_type = "mac", organ_type = "Breast", context_type = "DBS"), 
-    lung_sbs = get_data(system_type = "mac", organ_type = "Lung", context_type = "SBS"), 
-    lung_dbs = get_data(system_type = "mac", organ_type = "Lung", context_type = "DBS"), 
-    colorectal_sbs = get_data(system_type = "mac", organ_type = "Colorectal", context_type = "SBS"), 
-    colorectal_dbs = get_data(system_type = "mac", organ_type = "Colorectal", context_type = "DBS")
-  ), file = "/Users/azadsadr/Nextcloud/basilica/viz_data.Rds"
-)
-'
 
 
-#===============================================================================
-#===============================================================================
-#===============================================================================
-
-# input:
-#   - obj       : load.all function output
-#   - map       : map.data2 function output
-#   - threshold : consider exposure values below this in basilica
-exposure_comp_zero <- function(obj, map, threshold) {
-  
-  total <- obj$SerenaExposure %>% nrow
-  
-  a <- map$basilica_serena
-  
-  svec <- c()
-  bvec <- c()
-  nvec <- c()
-  
-  for (i in 1:nrow(a)) {
-    b <- a[i,] %>% dplyr::pull(Basilica)
-    s <- a[i,] %>% dplyr::pull(Serena)
-    n <- paste0(a[i,] %>% dplyr::pull(1), "-", a[i,] %>% dplyr::pull(2))
-    
-    samples <- obj$SerenaExposure %>% basilica:::wide_to_long(what = "exposures") %>% subset(sigs == s & value == 0) %>% dplyr::pull(samples)
-    serena_zero <- samples %>% length
-    svec[length(svec) + 1] <- serena_zero
-    
-    vec <- obj$BasilicaExposure[samples, b]
-    basilica_low <- vec[vec < threshold] %>% length
-    bvec[length(bvec) + 1] <- basilica_low
-    
-    nvec[length(nvec) + 1] <- n
-    
-    #print(
-    #  paste0(
-    #    "total samples: ", total, 
-    #    " | serena-zero: ", serena_zero, 
-    #    " | basilica-low: ", basilica_low, 
-    #    " | percentage: ", round((basilica_low / serena_zero), 2)
-    #  )
-    #)
-  }
-  
-  df <- tibble::tibble(name = nvec, serena = svec, basilica = bvec, total = rep(total, nrow(a)))
-  
-  
-  return(df)
-}
 
 
-#===============================================================================
-#===============================================================================
-#===============================================================================
-
-# input  : 
-#  - denovo signatures (long format)
-#  - data object
-# output : 
-# - denovo signatures with mapped labels from reference catalogue (long format)
-map_denovo2reference <- function(x, data, type) {
-  
-  dn <- get_denovo_signatures(x)[[type]]
-  
-  map_obj <- data[[paste(tolower(type), "_map", sep = "")]][["denovo_reference"]]
-  
-  if ( (map_obj %>% nrow) > 0 ) {
-    denovo <- dn %>% left_join(map_obj, by = c("sigs" = "first"))
-    
-    denovo <- denovo %>%
-      mutate(sigs = ifelse(!is.na(second), paste0("R-", second), sigs)) %>%
-      select(-c(second, values))
-  }
-  
-  return(denovo)
-}
-
-#-------------------------------------------------------------------------------
-
-name_mapping <- function(x, data, type) {
-  dn <- map_denovo2reference(x, data, type)
-  if (type == "SBS") {
-    x$nmf$SBS$beta_denovo <- dn
-  } else if (type == "DBS") {
-    x$nmf$DBS$beta_denovo <- dn
-  } else {
-    warning("Context is unknown!")
-  }
-  return(x)
-}
-
-#-------------------------------------------------------------------------------
-
-
-map_basilica2serena <- function(signatures, map) {
-  
-  map_obj <- map$basilica_serena %>% dplyr::rename("value2" = "value")
-  
-  signatures <- signatures %>%
-    left_join(map_obj, by = c("sigs" = "Basilica"))
-  
-  signatures <- signatures %>%
-    mutate(sigs = ifelse(!is.na(Serena), paste0("S-", Serena), sigs)) %>%
-    select(-c(Serena, value2))
-  
-  return(signatures)
-}
-
-
-#===============================================================================
-#=================================== STORAGE ===================================
-#===============================================================================
-
-'
-# input: data.frame of cosine similarity matrix
-# output: return list of:
-#   - maximum value of cosine similarity
-#   - respective signatures
-#   - cosine similarity matrix where its max value is set to zero
-maxfinder <- function(x) {
-  
-  # check if data.frame has both dimnesion > 0
-  if ( (nrow(x)==0) | (ncol(x)==0) ) {
-    return(list(matrix=NULL, first=NULL, second=NULL, value=NULL, end=FALSE))
-  }
-  
-  # check if all values of data.frame are zero
-  if (all(x == 0)) {
-    return(list(matrix=NULL, first=NULL, second=NULL, value=NULL, end=TRUE))
-  }
-  
-  if ( (nrow(x)==1) & (ncol(x)==1) ) {
-    a <- rownames(x)
-    b <- colnames(x)
-    c <- x[1,1]
-    x[1,1] <- 0
-    return(list(matrix=x, first=a, second=b, value=c, end=FALSE))
-  }
-  else {
-    row <- which(x == max(x), arr.ind = T)[1]
-    col <- which(x == max(x), arr.ind = T)[2]
-    a <- rownames(x[row, ])
-    b <- colnames(x[col])
-    c <- max(x)
-    x[row, ] <- 0
-    x[, col] <- 0
-    return(list(matrix=x, first=a, second=b, value=c, end=FALSE))
-  }
-}
-
-
-#-------------------------------------------------------------------------------
-
-mapper <- function(x) {
-  ind <- max(2, min(nrow(x), ncol(x)))
-  
-  first <- c()
-  second <- c()
-  values <- c()
-  
-  for (i in 1:(ind-1)) {
-    
-    res <- maxfinder(x)
-    
-    if ( is.null(res[[1]]) ) {
-      print("invalid input!")
-      return(0)
-    }
-    else if ( res[[5]] ) {
-      break
-    }
-    else {
-      x <- res[[1]]
-      first[i] <- res[[2]]
-      second[i] <- res[[3]]
-      values[i] <- res[[4]]
-    }
-  }
-  
-  df <- data.frame(first, second, values)
-  return(df)
-}
-
-#-------------------------------------------------------------------------------
-
-# basilica_exposure # basilica brca exposure
-# serena_exposure   # serena brca exposure
-
-
-# reference --> reference signature (e.g., COSMIC)
-# fixed ------> basilica fixed signatures (wide)
-# denovo -----> basilica denovo signatures (wide)
-# common -----> serena common signatures (wide)
-# rare -------> serena rare signatures (wide)
-# threshold --> real number 
-## (if cosine similarity between a basilica signature and serena signature is
-## higher than threshold, we map them to eachother)
-map.data <- function(
-    reference, 
-    fixed, 
-    denovo, 
-    common, 
-    rare, 
-    threshold
-) {
-  
-  cmatrix1 <- basilica:::cosine.matrix(denovo, common)
-  denovo_common <- mapper(cmatrix1)
-  denovo_common <- subset(denovo_common, values >= threshold )
-  
-  cmatrix2 <- basilica:::cosine.matrix(denovo, rare)
-  denovo_rare <- mapper(cmatrix2)
-  denovo_rare <- subset(denovo_rare, values >= threshold )
-  
-  cmatrix3 <- basilica:::cosine.matrix(denovo, reference)
-  denovo_reference <- mapper(cmatrix3)
-  denovo_reference <- subset(denovo_reference, values >= threshold )
-  
-  cmatrix4 <- basilica:::cosine.matrix(fixed, common)
-  fixed_common <- mapper(cmatrix4)
-  fixed_common <- subset(fixed_common, values >= threshold )
-  
-  cmatrix5 <- basilica:::cosine.matrix(fixed, rare)
-  fixed_rare <- mapper(cmatrix5)
-  fixed_rare <- subset(fixed_rare, values >= threshold )
-  
-  cmatrix6 <- basilica:::cosine.matrix(fixed, reference)
-  fixed_reference <- mapper(cmatrix6)
-  fixed_reference <- subset(fixed_reference, values >= threshold )
-  
-  cmatrix7 <- basilica:::cosine.matrix(common, reference)
-  common_reference <- mapper(cmatrix7)
-  common_reference <- subset(common_reference, values >= threshold )
-  
-  cmatrix8 <- basilica:::cosine.matrix(rare, reference)
-  rare_reference <- mapper(cmatrix8)
-  rare_reference <- subset(rare_reference, values >= threshold )
-  
-  cmatrix9 <- basilica:::cosine.matrix(rbind(fixed, denovo), rbind(common, rare))
-  basilica_serena <- mapper(cmatrix9)
-  basilica_serena <- subset(basilica_serena, values >= threshold )
-  colnames(basilica_serena) <- c("Basilica", "Serena", "value")
-  
-  # aggregated fixed and denovo signatures (basilica)
-  all_basilica <- rbind(fixed, denovo)
-  # list of signatures name detected by basilica but un-explained by serena
-  ne_basilica <- rownames(all_basilica[!(rownames(all_basilica) %in% basilica_serena$Basilica), ])
-  
-  # aggregated common and rare signatures (serena)
-  all_serena <- rbind(common, rare)
-  # list of signatures name detected by serena but un-explained by basilica
-  ne_serena <- rownames(all_serena[!(rownames(all_serena) %in% basilica_serena$Serena), ])
-  
-  # -------------------------------- [ OUTPUT ] --------------------------------
-  
-  data <- list(
-    denovo_common = denovo_common, 
-    denovo_rare = denovo_rare, 
-    denovo_reference = denovo_reference, 
-    fixed_common = fixed_common, 
-    fixed_rare = fixed_rare, 
-    fixed_reference = fixed_reference, 
-    common_reference = common_reference, 
-    rare_reference = rare_reference, 
-    basilica_serena = basilica_serena, 
-    basilica_singles = ne_basilica, 
-    serena_singles = ne_serena
-  )
-  return(data)
-}
-
-#-------------------------------------------------------------------------------
-
-'
 
 
