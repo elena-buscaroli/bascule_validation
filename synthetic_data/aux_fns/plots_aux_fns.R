@@ -14,7 +14,7 @@ plt = function(df, fn, pal, fill, facet, grps_cols=NULL) {
 
 # N of signatures #####
 plot_K = function(all_stats, fill="", facet="type ~ metric", 
-                  pal=c("tan2","#8FBC8B","thistle2")) {
+                  pal=c("tan2","#8FBC8B","thistle2"), pattern="_ratio$") {
   list_cols = get_colnames_islist(all_stats)
   id_cols = get_id_cols(all_stats)
   grps_cols = get_grps_cols(all_stats, fill, facet)
@@ -30,7 +30,7 @@ plot_K = function(all_stats, fill="", facet="type ~ metric",
   p = all_stats %>% 
     dplyr::select(-dplyr::all_of(list_cols)) %>% 
     reshape2::melt(id=id_cols, variable.name="metric") %>% 
-    dplyr::filter(grepl("_ratio$", metric)) %>%
+    dplyr::filter(grepl(pattern, metric)) %>%
     plt(fn=vln_fn, pal=pal, fill=fill, facet=facet, grps_cols=grps_cols) +
     geom_hline(yintercept=1, color="grey60", linetype="dashed") +
     ylim(0,NA)
@@ -85,7 +85,8 @@ plot_performance_clustering = function(all_stats, fill="penalty", facet="~metric
   id_cols = get_id_cols(all_stats)
   grps_cols = get_grps_cols(all_stats, fill, facet)
   
-  bxplt_fn = geom_boxplot(aes(x=factor(N), y=value, fill=get(fill)), outlier.shape=NA)
+  bxplt_fn = geom_boxplot(aes(x=factor(N), y=value, fill=get(fill)), 
+                          outlier.shape=NA, lwd=.3)
 
   all_stats_sub = all_stats %>% 
     dplyr::select(-dplyr::all_of(list_cols)) %>%
@@ -129,19 +130,22 @@ get_colnames_islist = function(all_stats) {
 
 
 get_id_cols = function(all_stats) {
-  ids = c("N","G","seed","idd","fname","type","penalty","K_true_cat")
+  ids = c("N","G","seed","idd","fname","type",
+          "penalty","K_true_cat","label")
   return(intersect(ids, colnames(all_stats)))
 }
 
 
 get_metrics = function(all_stats) {
-  metrics = c("mse_counts","cosine_expos","cosine_expos_missing","cosine_sigs")
+  metrics = c("mse_counts","cosine_expos",
+              "cosine_expos_missing","cosine_sigs")
   return(intersect(metrics, colnames(all_stats)))
 }
 
 
 get_grps_cols = function(all_stats, fill, facet) {
-  c("N",fill,strsplit(facet,"~| |[+]")[[1]]) %>% purrr::discard(.p=function(x) x=="")
+  c("N",fill,strsplit(facet,"~| |[+]")[[1]]) %>% 
+    purrr::discard(.p=function(x) (x=="" | x=="."))
 }
 
 

@@ -54,10 +54,14 @@ plots[["nmi"]] = stats_bascule %>%
                fun.data="mean_cl_boot", show.legend=T,
                geom="line", linewidth=1) +
   
-  scale_fill_manual(values=pal_methods, breaks=names(pal_methods),
-                    limits=names(pal_methods), name="Method") +
-  scale_color_manual(values=pal_methods, breaks=names(pal_methods),
-                     limits=names(pal_methods), name="Method") +
+  scale_fill_manual(values=pal_methods, 
+                    # breaks=names(pal_methods),
+                    # limits=names(pal_methods), 
+                    name="Method") +
+  scale_color_manual(values=pal_methods, 
+                     # breaks=names(pal_methods),
+                     # limits=names(pal_methods), 
+                     name="Method") +
   theme_bw() + ylim(NA, 1)
   
 
@@ -84,10 +88,14 @@ plots[["recall"]] = stats_compare %>% dplyr::rowwise() %>%
   
   theme_bw() + 
   scale_y_continuous(breaks=scales::pretty_breaks(n=3), limits=c(NA, 1)) +
-  scale_fill_manual(values=pal_methods, breaks=names(pal_methods), 
-                    limits=names(pal_methods), name="Method") +
-  scale_color_manual(values=pal_methods, breaks=names(pal_methods), 
-                     limits=names(pal_methods), name="Method") 
+  scale_fill_manual(values=pal_methods, 
+                    # breaks=names(pal_methods), 
+                    # limits=names(pal_methods), 
+                    name="Method") +
+  scale_color_manual(values=pal_methods, 
+                     # breaks=names(pal_methods), 
+                     # limits=names(pal_methods), 
+                     name="Method") 
 
 
 ## mse ####
@@ -106,10 +114,14 @@ plots[["mse_counts"]] = stats_compare %>%
   theme_bw() + # facet_grid(~metric) +
   scale_y_continuous(breaks=scales::pretty_breaks(n=3), limits=c(0, NA),
                      labels=function(x) scales::scientific(x)) +
-  scale_fill_manual(values=pal_methods, breaks=names(pal_methods),
-                    limits=names(pal_methods), name="Method") +
-  scale_color_manual(values=pal_methods, breaks=names(pal_methods),
-                     limits=names(pal_methods), name="Method")
+  scale_fill_manual(values=pal_methods, 
+                    # breaks=names(pal_methods),
+                    # limits=names(pal_methods), 
+                    name="Method") +
+  scale_color_manual(values=pal_methods, 
+                     # breaks=names(pal_methods),
+                     # limits=names(pal_methods),
+                     name="Method")
 
 ## cosine sigs ####
 plots[["cosine_sigs"]] = stats_compare %>%
@@ -130,10 +142,14 @@ plots[["cosine_sigs"]] = stats_compare %>%
   theme_bw() + # facet_grid(~metric) +
   # scale_y_continuous(n.breaks=5) +
   scale_y_continuous(breaks=scales::pretty_breaks(n=3), limits=c(NA, 1)) +
-  scale_fill_manual(values=pal_methods, breaks=names(pal_methods),
-                    limits=names(pal_methods), name="Method") +
-  scale_color_manual(values=pal_methods, breaks=names(pal_methods),
-                     limits=names(pal_methods), name="Method") 
+  scale_fill_manual(values=pal_methods, 
+                    # breaks=names(pal_methods),
+                    # limits=names(pal_methods), 
+                    name="Method") +
+  scale_color_manual(values=pal_methods, 
+                     # breaks=names(pal_methods),
+                     # limits=names(pal_methods), 
+                     name="Method") 
 
 ## cosine expos ####
 plots[["cosine_expos"]] = stats_compare %>%
@@ -151,10 +167,14 @@ plots[["cosine_expos"]] = stats_compare %>%
   
   theme_bw() + # facet_grid(~metric) +
   scale_y_continuous(breaks=scales::pretty_breaks(n=3), limits=c(NA, 1)) +
-  scale_fill_manual(values=pal_methods, breaks=names(pal_methods),
-                    limits=names(pal_methods), name="Method") +
-  scale_color_manual(values=pal_methods, breaks=names(pal_methods),
-                     limits=names(pal_methods), name="Method") 
+  scale_fill_manual(values=pal_methods, 
+                    # breaks=names(pal_methods),
+                    # limits=names(pal_methods), 
+                    name="Method") +
+  scale_color_manual(values=pal_methods, 
+                     # breaks=names(pal_methods),
+                     # limits=names(pal_methods), 
+                     name="Method") 
 
 
 ## runtimes ####
@@ -196,10 +216,14 @@ plots[["runtime"]] = dplyr::bind_rows(times_sigpr,
   stat_summary(aes(group=tool), fun.data="mean_cl_boot", position=position_dodge(width=.15), 
                geom="line", linewidth=1, show.legend=T) +
   theme_bw() +
-  scale_fill_manual(values=pal_methods, breaks=names(pal_methods),
-                    limits=names(pal_methods), name="Method") +
-  scale_color_manual(values=pal_methods, breaks=names(pal_methods),
-                     limits=names(pal_methods), name="Method") + 
+  scale_fill_manual(values=pal_methods, 
+                    # breaks=names(pal_methods),
+                    # limits=names(pal_methods), 
+                    name="Method") +
+  scale_color_manual(values=pal_methods, 
+                     # breaks=names(pal_methods),
+                     # limits=names(pal_methods), 
+                     name="Method") + 
   scale_y_continuous(limits=c(1, NA))
 
 
@@ -272,8 +296,8 @@ panelsAB = plots[["example"]] + ylab("") +
 panelC = plots[["recall"]] + ylab("Recall") +
   labs(title="Signatures detection accuracy") +
   xlab("# samples") +
-  guides(fill=guide_legend(title="Method"),
-         color=guide_legend(title="Method"))
+  guides(fill=guide_legend(title="Method", nrow=2),
+         color=guide_legend(title="Method", nrow=2))
 
 panelD = plots[["mse_counts"]] + 
   labs(title="Reconstruction error") +
@@ -313,7 +337,7 @@ a = patchwork::wrap_plots(
   panelC, panelG,
   panelD, panelE, 
   panelF, panelH,
-  guides="collect",
+  # guides="collect",
   design="AAAABBCC\nDDEEFFGG"
 ) & theme(legend.position="bottom") & theme_legend & theme_text &
   patchwork::plot_annotation(tag_levels="A")
@@ -323,8 +347,8 @@ a = patchwork::wrap_plots(
 # ggsave("~/Dropbox/dropbox_shared/2022. Basilica/paper/figure2/draft_fig2BIS.pdf", 
 #        height=120, width=210, units="cm")
 
-ggsave("paper/figure2/figure2.pdf", plot=a,
-       height=140, width=210, units="mm")
+ggsave("paper/figure2/figure2_TEST.pdf", plot=a,
+       height=210, width=300, units="mm")
        # height=120, width=210, units="mm")
 
 # 210

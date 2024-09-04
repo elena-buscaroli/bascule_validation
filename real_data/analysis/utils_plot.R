@@ -335,6 +335,7 @@ plot_scores_nmf = function(x, types=get_types(x), remove_outliers=FALSE) {
     theme_bw() + labs(title="Model selection scores") +
     xlab("No. of Denovo Signatures") + ylab("BIC") +
     scale_x_continuous(breaks=scores %>% dplyr::pull(value_fit) %>% unique()) + 
+    scale_y_continuous(labels=function(x) format(x, scientific = TRUE)) +
     theme(legend.title=element_blank(), legend.position="none")
 }
 
@@ -416,13 +417,15 @@ plot_centroids_etiology = function(
 
 
 # plot centroids by giving the significant signatures in each cluster
-custom_centroid_plot = function(x, sig_cls, col_palette,
+custom_centroid_plot = function(x, sig_cls, clusters,
+                                col_palette,
                                 sbs_aetiology_path, 
                                 dbs_aetiology_path) {
 
   # CENTROIDS
-  cluster_levels = gtools::mixedsort(get_cluster_labels(x))
-  centroids = plot_centroids(x, signatures_list=unlist(sig_cls), 
+  cluster_levels = clusters # gtools::mixedsort(get_cluster_labels(x))
+  centroids = plot_centroids(x, signatures_list=unlist(sig_cls),
+                             clusters=cluster_levels,
                              cls=col_palette, sample_levels=cluster_levels) +
     xlab("Clusters") + ylab("Relative exposures") +
     theme(plot.margin=unit(c(t=5.5,r=5.5,l=5.5,b=0),"pt"), 
@@ -451,17 +454,19 @@ custom_centroid_plot = function(x, sig_cls, col_palette,
     group_by(clusters, aetiology) %>%
     summarise(count=n()) %>% dplyr::ungroup() %>% 
     mutate(is.present=ifelse(count > 0, 1, 0))
-  
 
   # Plot the heatmap
   row_levels = c("Unknown", sort(heatmap_data$aetiology, decreasing=T) %>% purrr::discard_at("Unknown")) %>% unique()
-  heatmap = ggplot(heatmap_data, 
+  heatmap = ggplot(heatmap_data %>% dplyr::mutate(tmp="TMP"), 
                    aes(x=factor(clusters, levels=cluster_levels), 
                        y=factor(aetiology, levels=row_levels))) +
     geom_tile(aes(fill=factor(is.present)), 
               color="grey5", width=0.9, height=0.5) +
-    scale_fill_manual(values=c("0"="white", "1"="gray50"), guide="none") +
+    facet_grid(tmp~.) +
+    scale_fill_manual(values=c("0"="white", "1"="gray50")) +
     scale_y_discrete(position="right") +
+    guides(y.sec=ggh4x::guide_axis_manual(breaks=c(0,1), labels=c(0,1), 
+                                          title="Relative exposures")) + 
     theme_bw() +
     labs(x="Clusters", y="Aetiology") + ylab("") +
     theme(plot.margin=unit(c(t=0,r=5.5,l=5.5,b=5.5),"pt")) +
@@ -507,6 +512,7 @@ plot_mirrored_sigs = function(denovo_cat, ref_cat,
     ggplot(.) +
       geom_bar(aes(x=context, y=value, fill=Catalogue), show.legend=T, 
                stat="identity", position="identity") +
+      geom_hline(yintercept=0, lwd=.3) +
       facet_grid(~variant) +
       scale_fill_manual(values=cls_catalogues, 
                         breaks=breaks,
