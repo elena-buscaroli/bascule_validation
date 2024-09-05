@@ -94,6 +94,9 @@ clustering = stats_bascule %>%
 
 pal_methods = RColorBrewer::brewer.pal(3, name="Dark2")
 
+stats_compare = stats_compare %>% 
+  dplyr::mutate(penalty=replace(penalty,penalty=="Basilica","BASCULE"))
+
 precision_cmp = stats_compare %>% dplyr::rowwise() %>%
   dplyr::mutate(FN=length(assigned_missing$missing_fn),
                 FP=length(assigned_missing$added_fp),
@@ -162,7 +165,7 @@ times_sparsesig = read.csv("~/Dropbox/dropbox_shared/2022. Basilica/simulations/
   dplyr::select(simulation_name, execution_time, tool)
 times_bascule = read.csv("~/Dropbox/dropbox_shared/2022. Basilica/simulations/runtimes/bascule_exectimes.csv") %>% 
   dplyr::rename(execution_time=execution_time_SBS) %>% 
-  dplyr::mutate(tool="Bascule") %>% tibble::as_tibble() %>% 
+  dplyr::mutate(tool="BASCULE") %>% tibble::as_tibble() %>% 
   dplyr::select(simulation_name, execution_time, tool)
 
 runtimes_cmp = dplyr::bind_rows(times_sigpr, times_sparsesig, times_bascule) %>% 
@@ -188,95 +191,111 @@ runtimes_cmp = dplyr::bind_rows(times_sigpr, times_sparsesig, times_bascule) %>%
 # Figure BASCULE ####
 
 panelAa = K_ratio + xlab("# samples") + ylab("Recall") + 
-  labs(tag="A", title="Recall of retrieved signatures") +
+  labs(tag="A", title="Signatures detection accuracy (recall)",
+       subtitle="Recall of identified signatures") +
   guides(fill=guide_legend(title="# signatures")) + 
   theme(legend.position="bottom")
 
 panelAb = precision + xlab("# samples") + ylab("Precision") + 
-  labs(tag="B", title="Precision of retrieved signatures") +
+  labs(tag="B", title="Signatures detection accuracy (precision)",
+       subtitle="Precision of identified signatures") +
   guides(fill=guide_legend(title="# signatures")) + 
   theme(legend.position="bottom")
 
 panelB = mse_counts + 
-  labs(tag="C", title="Mean squared error of mutation counts") +
+  labs(tag="C", title="Reconstruction error",
+       subtitle="MSE between inferred and true mutation counts") +
   xlab("# samples") + theme(legend.position="bottom") +
   guides(fill=guide_legend(title="# signatures"))
 
 panelC = cosine_sigs + 
-  labs(tag="D", title="Cosine similarity of signatures") +
+  labs(tag="D", title="Signatures quality",
+       subtitle="CS between inferred and true signature profiles") +
   xlab("# samples") + theme(legend.position="bottom") +
   guides(fill=guide_legend(title="# signatures"))
 
 panelD = cosine_expos + 
-  labs(tag="E", title="Cosine similarity of exposures") +
+  labs(tag="E", title="Exposures quality",
+       subtitle="CS between inferred and true exposures") +
   xlab("# samples") + theme(legend.position="bottom") +
   guides(fill=guide_legend(title="# signatures"))
 
 panelE = clustering + xlab("# samples") + ylab("Value") +
-  labs(tag="F", title="Clustering accuracy") +
+  labs(tag="F", title="Clustering accuracy",
+       subtitle="ARI and NMI between inferred and true assignments") +
   guides(fill=guide_legend(title="# signatures"))
 
 figure1 = patchwork::wrap_plots(panelAa, panelAb, 
                                 panelB, panelC, 
                                 panelD, panelE, 
-                                nrow=2, guides="collect") &
-  theme_text & theme_legend & theme(legend.position="bottom") &
+                                # guides="collect",
+                                ncol=2) &
+  theme_text & theme_legend & theme(legend.position="right") &
   patchwork::plot_annotation(tag_levels="A")
 
 ggsave(filename="paper/figure2/figure2_SUP1.pdf", plot=figure1,
-       width=210, height=150, units="mm")
+       width=210, height=210, units="mm")
+ggsave(filename="paper/figure2/figure2_SUP1.png", plot=figure1,
+       width=210, height=210, units="mm")
 
 # Figure comparison SBS #####
 
 panelAa = recall_cmp + xlab("# samples") + ylab("Recall") + 
-  labs(tag="A", title="Recall of retrieved signatures") +
+  labs(tag="A", title="Signatures detection accuracy (recall)",
+       subtitle="Recall of identified signatures") +
   guides(fill=guide_legend(title="Method")) + 
   theme(legend.position="bottom")
 
 panelAb = precision_cmp + xlab("# samples") + ylab("Precision") + 
-  labs(tag="B", title="Precision of retrieved signatures") +
+  labs(tag="B", title="Signatures detection accuracy (precision)",
+       subtitle="Precision of identified signatures") +
   guides(fill=guide_legend(title="Method")) + 
   theme(legend.position="bottom")
 
 panelB = mse_counts_cmp + 
-  labs(tag="C", title="Mean squared error of mutation counts") +
+  labs(tag="C", title="Reconstruction error",
+       subtitle="MSE between inferred and true mutation counts") +
   xlab("# samples") + theme(legend.position="bottom") +
   guides(fill=guide_legend(title="Method"))
 
 panelC = cosine_sigs_cmp + 
-  labs(tag="D", title="Cosine similarity of signatures") +
+  labs(tag="D", title="Signatures quality",
+       subtitle="CS between inferred and true signature profiles") +
   xlab("# samples") + theme(legend.position="bottom") +
   guides(fill=guide_legend(title="Method"))
 
 panelD = cosine_expos_cmp + 
-  labs(tag="E", title="Cosine similarity of exposures",
-       subtitle="Computed on matched exposures") +
+  labs(tag="E", title="Exposures quality",
+       subtitle="CS between inferred and true exposures of matched signatures") +
   xlab("# samples") + theme(legend.position="bottom") +
   guides(fill=guide_legend(title="Method"))
 
 panelE = cosine_expos_missing_cmp + xlab("# samples") + 
   ylab("Cosine similarity") +
-  labs(tag="F", title="Cosine similarity of exposures",
-       subtitle="Computed on matched and unmatched exposures") +
+  labs(tag="F", title="Exposures quality (all signatures)",
+       subtitle="CS between inferred and true exposures of all signatures") +
   guides(fill=guide_legend(title="Method"))
 
 figure2 = patchwork::wrap_plots(panelAa, panelAb, 
                                 panelB, panelC, 
                                 panelD, panelE, 
-                                nrow=2, guides="collect") &
-  theme_text & theme_legend & theme(legend.position="bottom") &
+                                # guides="collect",
+                                ncol=2) &
+  theme_text & theme_legend & theme(legend.position="right") &
   patchwork::plot_annotation(tag_levels="A")
 
 ggsave(filename="paper/figure2/figure2_SUP2.pdf", plot=figure2,
-       width=210, height=180, units="mm")
-
+       width=210, height=250, units="mm")
+ggsave(filename="paper/figure2/figure2_SUP2.png", plot=figure2,
+       width=210, height=250, units="mm")
 
 runtimes = runtimes_cmp + xlab("# samples") + ylab("Time (minutes)") +
-  labs(title="Fit runtime") +
+  labs(title="Fit runtime",
+       subtitle="Execution time (minutes) required to fit the model") +
   guides(fill=guide_legend(title="Method")) +
   theme_text + theme_legend + theme(legend.position="bottom")
 
 ggsave(filename="paper/figure2/figure2_SUP3.pdf", plot=runtimes,
        width=120, height=100, units="mm")
-
-
+ggsave(filename="paper/figure2/figure2_SUP3.png", plot=runtimes,
+       width=120, height=100, units="mm")

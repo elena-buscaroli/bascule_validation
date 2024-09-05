@@ -17,7 +17,7 @@ source("real_data/analysis/utils_plot.R")
 
 data = readRDS(paste0("~/Google Drive/My Drive/work/basilica_shared/compiled_fits/", tolower(organ_type), "_data.Rds", sep="") )
 x_orig = merge_clusters(data$x_after, cutoff=0.8)
-x = convert_dn_names(x_orig, reference_cat=list(SBS=COSMIC_sbs_filt, DBS=COSMIC_dbs), cutoff=0.8)
+x = convert_dn_names(x_orig, reference_cat=list(SBS=COSMIC_sbs, DBS=COSMIC_dbs), cutoff=0.8)
 class(x_orig) = "bascule_obj"
 class(x) = "bascule_obj"
 

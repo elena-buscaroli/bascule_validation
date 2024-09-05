@@ -55,11 +55,11 @@ plots[["nmi"]] = stats_bascule %>%
                geom="line", linewidth=1) +
   
   scale_fill_manual(values=pal_methods, 
-                    # breaks=names(pal_methods),
+                    breaks=names(pal_methods),
                     # limits=names(pal_methods), 
                     name="Method") +
   scale_color_manual(values=pal_methods, 
-                     # breaks=names(pal_methods),
+                     breaks=names(pal_methods),
                      # limits=names(pal_methods), 
                      name="Method") +
   theme_bw() + ylim(NA, 1)
@@ -89,11 +89,11 @@ plots[["recall"]] = stats_compare %>% dplyr::rowwise() %>%
   theme_bw() + 
   scale_y_continuous(breaks=scales::pretty_breaks(n=3), limits=c(NA, 1)) +
   scale_fill_manual(values=pal_methods, 
-                    # breaks=names(pal_methods), 
+                    breaks=names(pal_methods),
                     # limits=names(pal_methods), 
                     name="Method") +
   scale_color_manual(values=pal_methods, 
-                     # breaks=names(pal_methods), 
+                     breaks=names(pal_methods),
                      # limits=names(pal_methods), 
                      name="Method") 
 
@@ -115,11 +115,11 @@ plots[["mse_counts"]] = stats_compare %>%
   scale_y_continuous(breaks=scales::pretty_breaks(n=3), limits=c(0, NA),
                      labels=function(x) scales::scientific(x)) +
   scale_fill_manual(values=pal_methods, 
-                    # breaks=names(pal_methods),
+                    breaks=names(pal_methods),
                     # limits=names(pal_methods), 
                     name="Method") +
   scale_color_manual(values=pal_methods, 
-                     # breaks=names(pal_methods),
+                     breaks=names(pal_methods),
                      # limits=names(pal_methods),
                      name="Method")
 
@@ -143,11 +143,11 @@ plots[["cosine_sigs"]] = stats_compare %>%
   # scale_y_continuous(n.breaks=5) +
   scale_y_continuous(breaks=scales::pretty_breaks(n=3), limits=c(NA, 1)) +
   scale_fill_manual(values=pal_methods, 
-                    # breaks=names(pal_methods),
+                    breaks=names(pal_methods),
                     # limits=names(pal_methods), 
                     name="Method") +
   scale_color_manual(values=pal_methods, 
-                     # breaks=names(pal_methods),
+                     breaks=names(pal_methods),
                      # limits=names(pal_methods), 
                      name="Method") 
 
@@ -168,11 +168,11 @@ plots[["cosine_expos"]] = stats_compare %>%
   theme_bw() + # facet_grid(~metric) +
   scale_y_continuous(breaks=scales::pretty_breaks(n=3), limits=c(NA, 1)) +
   scale_fill_manual(values=pal_methods, 
-                    # breaks=names(pal_methods),
+                    breaks=names(pal_methods),
                     # limits=names(pal_methods), 
                     name="Method") +
   scale_color_manual(values=pal_methods, 
-                     # breaks=names(pal_methods),
+                     breaks=names(pal_methods),
                      # limits=names(pal_methods), 
                      name="Method") 
 
@@ -217,11 +217,11 @@ plots[["runtime"]] = dplyr::bind_rows(times_sigpr,
                geom="line", linewidth=1, show.legend=T) +
   theme_bw() +
   scale_fill_manual(values=pal_methods, 
-                    # breaks=names(pal_methods),
+                    breaks=names(pal_methods),
                     # limits=names(pal_methods), 
                     name="Method") +
   scale_color_manual(values=pal_methods, 
-                     # breaks=names(pal_methods),
+                     breaks=names(pal_methods),
                      # limits=names(pal_methods), 
                      name="Method") + 
   scale_y_continuous(limits=c(1, NA))
@@ -288,45 +288,51 @@ plots[["example"]] = input_df %>%
 # panelsAB = ggplot()
 panelsAB = plots[["example"]] + ylab("") +
   labs(title="Inference on a simulated dataset",
-       caption="N=500, K=5, G=3") +
+       subtitle="Dataset with 500 samples, 5 signatures and 3 groups") +
   theme(legend.position="bottom") + xlab("Samples") +
   labs(fill="Signatures") + ylab("Relative exposures") +
   scale_y_continuous(breaks=c(0,1))
 
 panelC = plots[["recall"]] + ylab("Recall") +
-  labs(title="Signatures detection accuracy") +
+  labs(title="Signatures detection accuracy",
+       subtitle="Recall of identified signatures") +
   xlab("# samples") +
-  guides(fill=guide_legend(title="Method", nrow=2),
-         color=guide_legend(title="Method", nrow=2))
+  guides(fill=guide_legend(title="Method"),
+         color=guide_legend(title="Method"))
 
 panelD = plots[["mse_counts"]] + 
-  labs(title="Reconstruction error") +
-  ylab("MSE") + xlab("# samples") +
+  labs(title="Reconstruction error",
+       subtitle="MSE between inferred and true mutation counts") +
+  ylab("Mean squared error") + xlab("# samples") +
   guides(fill=guide_legend(title="Method"),
          color=guide_legend(title="Method"))
 
 panelE = plots[["cosine_sigs"]] + 
-  labs(title="Signatures quality") +
+  labs(title="Signatures quality",
+       subtitle="CS between inferred and true signature profiles") +
   ylab("Cosine similarity") + xlab("# samples") +
   guides(fill=guide_legend(title="Method"),
          color=guide_legend(title="Method"))
 
 panelF = plots[["cosine_expos"]] +
-  labs(title="Exposures quality") +
+  labs(title="Exposures quality",
+       subtitle="CS between inferred and true exposures") +
   ylab("Cosine similarity") + xlab("# samples") +
   guides(fill=guide_legend(title="Method"),
          color=guide_legend(title="Method"))
 
 panelG = plots[["nmi"]] +
-  labs(title="Clustering accuracy") +
-  ylab("Normalized mutual information") + 
+  labs(title="Clustering accuracy",
+       subtitle="NMI between inferred and true assignments") +
+  ylab("Normalised mutual information") + 
   xlab("# samples") + 
   guides(fill=guide_legend(title="Method"),
          color=guide_legend(title="Method"))
 
 panelH = plots[["runtime"]] + 
-  labs(title="Runtime increment") +
-  ylab("Relative time increment") + 
+  labs(title="Runtime comparison",
+       subtitle="Ratio of runtimes between competitors and BASCULE") +
+  ylab("Runtime ratio") + 
   xlab("# samples") + 
   guides(fill=guide_legend(title="Method"),
          color=guide_legend(title="Method"))
@@ -337,9 +343,11 @@ a = patchwork::wrap_plots(
   panelC, panelG,
   panelD, panelE, 
   panelF, panelH,
+  design="AAAA\nBBCC\nDDEE\nFFGG"
   # guides="collect",
-  design="AAAABBCC\nDDEEFFGG"
+  # design="AAAABBCC\nDDEEFFGG"
 ) & theme(legend.position="bottom") & theme_legend & theme_text &
+  theme(legend.position="right") &
   patchwork::plot_annotation(tag_levels="A")
 
 # ggsave("~/Dropbox/dropbox_shared/2022. Basilica/paper/figure2/draft_fig2BIS.png", 
@@ -347,9 +355,11 @@ a = patchwork::wrap_plots(
 # ggsave("~/Dropbox/dropbox_shared/2022. Basilica/paper/figure2/draft_fig2BIS.pdf", 
 #        height=120, width=210, units="cm")
 
-ggsave("paper/figure2/figure2_TEST.pdf", plot=a,
-       height=210, width=300, units="mm")
-       # height=120, width=210, units="mm")
+ggsave("paper/figure2/figure2_v2.pdf", plot=a,
+       height=210, width=210, units="mm")
+
+ggsave("paper/figure2/figure2_v2.png", plot=a,
+       height=210, width=210, units="mm", dpi=1000)
 
 # 210
 
@@ -388,7 +398,7 @@ stats_compare %>%
   dplyr::summarise(mean_mean_mse=mean(value)) %>% 
   dplyr::mutate(method_type=replace(Method, Method!="BASCULE", "Competitor")) %>% 
   
-  dplyr::group_by(method_type) %>% 
+  dplyr::group_by(Method) %>% 
   dplyr::summarise(max_mse=max(mean_mean_mse))
 
 
@@ -403,7 +413,7 @@ stats_compare %>%
   dplyr::summarise(mean_mean_cs=mean(value)) %>% 
   dplyr::mutate(method_type=replace(Method, Method!="BASCULE", "Competitor")) %>% 
   
-  dplyr::group_by(method_type) %>% 
+  dplyr::group_by(Method) %>% 
   dplyr::summarise(min_mean_mean_cs=min(mean_mean_cs))
 
 
@@ -418,6 +428,31 @@ stats_compare %>%
   dplyr::summarise(mean_mean_cs=median(value)) %>% 
   dplyr::mutate(method_type=replace(Method, Method!="BASCULE", "Competitor")) %>% 
   
-  dplyr::group_by(method_type) %>% 
+  dplyr::group_by(Method) %>% 
   dplyr::summarise(min_mean_mean_cs=min(mean_mean_cs))
+
+
+## Runtime ####
+
+dplyr::bind_rows(times_sigpr, 
+                 times_sparsesig, 
+                 times_bascule %>% dplyr::select(-execution_time_bascule)) %>% 
+  dplyr::inner_join(times_bascule %>% dplyr::select(-execution_time, -tool)) %>% 
+  
+  dplyr::mutate(time_gain=execution_time / execution_time_bascule) %>% 
+  
+  dplyr::filter(tool!="BASCULE") %>% 
+  
+  dplyr::rowwise() %>% 
+  dplyr::mutate(N=strsplit(simulation_name, "[.]")[[1]][2] %>% stringr::str_remove_all("N") %>% as.numeric()) %>% 
+  
+  dplyr::mutate(tool=reorder(tool, time_gain, mean, decreasing=T)) %>% 
+  
+  dplyr::filter(N==1000) %>% 
+  
+  dplyr::group_by(tool) %>% 
+  dplyr::summarise(mean_gain=mean(time_gain),
+                   sd_gain=sd(time_gain))
+
+
 
