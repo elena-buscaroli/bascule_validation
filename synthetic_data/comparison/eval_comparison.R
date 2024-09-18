@@ -6,7 +6,7 @@ source("~/GitHub/bascule_validation/eval_aux_fns.R")
 source("~/GitHub/bascule_validation/plots_aux_fns.R")
 
 # Generate stats dataframe ##### 
-# runids = c("Basilica", "SigProfiler", "SparseSignatures")
+# runids = c("BASCULE", "SigProfiler", "SparseSignatures")
 # fitnames = c("fit.0", "sigprofiler", "sparsesignatures")
 # 
 # path = paste0("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits/fits_dn.", run_id, "/")
