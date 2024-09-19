@@ -1,6 +1,6 @@
 library(dplyr)
 
-fits_path = "~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits/fits_dn.matched.2011/"
+fits_path = "./synthetic_data_validation/data/all_fits/"
 files = list.files(fits_path, full.names=T, pattern=".Rds")
 
 runtimes = lapply(files, function(fname) {
@@ -13,4 +13,4 @@ runtimes = lapply(files, function(fname) {
              execution_time_DBS=t_dbs)
 }) %>% bind_rows()
 
-write.csv(runtimes, "~/Dropbox/dropbox_shared/2022. Basilica/simulations/runtimes/bascule_exectimes.csv", row.names=F)
+write.csv(runtimes, "./synthetic_data_validation/data/bascule_exectimes.csv", row.names=F)
