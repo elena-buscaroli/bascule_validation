@@ -1,21 +1,22 @@
 devtools::load_all("~/GitHub/simbascule/")
 devtools::load_all("~/GitHub/bascule/")
-run_id = "matched.2011.compare"
+# run_id = "matched.2011.compare"
+run_id = "matched.2011.compare_LAST"
 save_path = "~/Dropbox/dropbox_shared/2022. Basilica/simulations/stats_dataframes/"
 source("~/GitHub/bascule_validation/eval_aux_fns.R")
 source("~/GitHub/bascule_validation/plots_aux_fns.R")
 
 # Generate stats dataframe ##### 
-# runids = c("BASCULE", "SigProfiler", "SparseSignatures")
-# fitnames = c("fit.0", "sigprofiler", "sparsesignatures")
-# 
-# path = paste0("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits/fits_dn.", run_id, "/")
-# files = list.files(path, full.names=T, pattern=".Rds")
-# 
-# all_stats = lapply(files, function(fname) {
-#   stats_single_data(fname, names_fits=fitnames %>% setNames(runids))
-# }) %>% dplyr::bind_rows()
-# saveRDS(all_stats, paste0(save_path, "stats_", run_id, ".Rds"))
+runids = c("BASCULE", "SigProfiler", "SparseSignatures", "SignatureToolsLib")
+fitnames = c("fit.0", "sigprofiler", "sparsesignatures", "signaturetoolslib")
+
+path = paste0("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits/fits_dn.", run_id, "/")
+files = list.files(path, full.names=T, pattern=".Rds")
+
+all_stats = lapply(files, function(fname) {
+  stats_single_data(fname, names_fits=fitnames %>% setNames(runids))
+}) %>% dplyr::bind_rows()
+saveRDS(all_stats, paste0(save_path, "stats_", run_id, ".Rds"))
 
 
 

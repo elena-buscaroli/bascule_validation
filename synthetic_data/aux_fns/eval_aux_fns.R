@@ -165,7 +165,7 @@ eval_single_fit_matched = function(x.fit, x.simul, cutoff=0.8) {
     ari_nmi = compute_ari_nmi(groups_simul=get_cluster_assignments(x.simul) %>% dplyr::arrange(samples) %>% dplyr::pull(clusters), 
                               groups_fit=get_cluster_assignments(x.fit) %>% dplyr::arrange(samples) %>% dplyr::pull(clusters))
     
-    KM_groups = run_kmeans_multiple_signals(x.fit)
+    KM_groups = run_kmeans_multiple_signals(x.fit)  # function from simbasilica
     ari_nmi_KM = compute_ari_nmi(groups_simul=get_cluster_assignments(x.simul) %>% dplyr::arrange(samples) %>% dplyr::pull(clusters), 
                                  groups_fit=KM_groups %>% dplyr::arrange(samples) %>% dplyr::pull(clusters))
   }
@@ -240,3 +240,82 @@ eval_single_fit_matched = function(x.fit, x.simul, cutoff=0.8) {
 }
 
 
+
+
+# Clustering ####
+
+## KL clustering #####
+
+library(flexclust)
+
+# KL divergence function
+kl_divergence = function(p, q) {
+  p = p + 1e-10  # Avoid log(0)
+  q = q + 1e-10
+  sum(p * log(p / q))
+}
+
+# Custom K-Means with KL divergence
+kl_kmeans = function(data, k) {
+  kl_dist = function(x, centers) {
+    apply(centers, 1, function(c) apply(x, 1, kl_divergence, q=c))
+  }
+  
+  # Convert KL divergence into a distance function
+  kl_family = as.distFunction(kl_dist, "KL-KMeans")
+  
+  # Run k-means with KL divergence
+  result = kcca(data, k, family=kl_family)
+  
+  return(result)
+}
+
+# # Example usage
+# set.seed(42)
+# data = matrix(runif(100 * 5, min=0.01, max=1), nrow=100, ncol=5)  # Generate stochastic vectors
+# data = data / rowSums(data)  # Normalize rows to sum to 1
+# 
+# result = kl_kmeans(data, k=3)
+# print(table(clusters(result)))  # Cluster assignment counts
+
+
+## JS divergence spectral clustering ####
+
+library(kernlab)  # For Spectral Clustering
+library(proxy)    # For custom distance functions
+
+# Define Jensen-Shannon distance
+js_divergence = function(p, q) {
+  m = (p + q) / 2
+  kl_p_m = sum(p * log(p / (m + 1e-10)))
+  kl_q_m = sum(q * log(q / (m + 1e-10)))
+  0.5 * (kl_p_m + kl_q_m)
+}
+
+# Compute pairwise Jensen-Shannon distances
+js_dist_matrix = function(data) {
+  as.matrix(proxy::dist(data, method=js_divergence))
+}
+
+# Convert to similarity matrix
+similarity_matrix = function(dist_matrix) {
+  sigma = mean(dist_matrix)  # Scale factor
+  exp(-dist_matrix^2 / (2 * sigma^2))
+}
+
+# Spectral clustering function
+spectral_js_clustering = function(data, k) {
+  dist_matrix = js_dist_matrix(data)
+  sim_matrix = similarity_matrix(dist_matrix)
+  clusters = specc(as.kernelMatrix(sim_matrix), centers=k)
+  return(clusters)
+}
+
+
+# # Example usage
+# set.seed(42)
+# data = matrix(runif(100 * 5, min=0.01, max=1), nrow=100, ncol=5)  # Generate stochastic vectors
+# data = data / rowSums(data)  # Normalize rows to sum to 1
+# 
+# clusters = spectral_js_clustering(data, k=3)
+# print(table(clusters))  # Cluster assignment counts
