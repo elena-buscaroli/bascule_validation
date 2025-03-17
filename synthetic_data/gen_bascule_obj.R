@@ -13,15 +13,23 @@ create_bascule_obj = function(counts, expos, sigs) {
 
 main_path = "~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits_generative_model/"
 fits_path = file.path(main_path, "all_fits/fits_dn.matched.2011/")
-sp_path = file.path(main_path, "sigprofiler/NMF_100/")
+sp_path = file.path(main_path, "sigprofiler_BestSolution/NMF_100/")
 ss_path = file.path(main_path, "sparsesignatures/last/")
 ss_signature_selection = file.path(ss_path, "signature_selection.csv") %>% 
   read.csv(header=FALSE, col.names=c("filename", "lambd_a", "lambd_b", "K")) %>% 
   mutate(file_id=paste(stringr::str_remove_all(K, "_Signatures"), lambd_a, lambd_b, sep="_")) %>% 
   as_tibble()
 stl_path = file.path(main_path, "signaturetoolslib/")
+
 save_path = file.path(main_path, "all_fits/fits_dn.matched.2011.compare_LAST/")
 dir.create(save_path)
+
+stopifnot(dir.exists(c(main_path, fits_path, sp_path, ss_path, stl_path)))
+
+cli::cli_text("BASCULE fits: {fits_path}\n
+              SigProfiler fits: {sp_path}\n
+              SparseSignatures fits: {ss_path}\n
+              SignatureToolsLib fits: {stl_path}")
 
 fitsnames = list.files(fits_path, pattern="simul_fit")
 
@@ -33,7 +41,7 @@ lapply(fitsnames, function(fname) {
   simu_fit = readRDS(paste0(fits_path, fname))
 
   counts = get_input(simu_fit$dataset)[["SBS"]] %>% dplyr::select(-clusters)
-  x.sp = x.ss = NULL
+  x.sp = x.ss = x.stl = NULL
   
   ## signature tools lib ####
   try({

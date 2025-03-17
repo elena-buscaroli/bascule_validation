@@ -134,7 +134,7 @@ stats_single_data = function(fname, names_fits=list("NoPenalty"="fit.0", "Penalt
   
   stats = lapply(names(fits), function(ff) {
     print(ff)
-    eval_single_fit_matched(fits[[ff]], x.simul) %>%
+    eval_single_fit_matched(x.fit=fits[[ff]], x.simul=x.simul) %>%
       dplyr::bind_rows() %>% 
       dplyr::mutate(penalty=ff)
   }) %>% dplyr::bind_rows()
@@ -157,7 +157,7 @@ stats_single_data = function(fname, names_fits=list("NoPenalty"="fit.0", "Penalt
 
 eval_single_fit_matched = function(x.fit, x.simul, cutoff=0.8) {
   x.fit = x.fit %>% rename_dn_expos()
-  assigned_missing_all = get_assigned_missing(x.fit=x.fit, x.simul=x.simul, cutoff=cutoff)
+  assigned_missing_all = get_assigned_missing(x=x.fit, x.simul=x.simul, cutoff=cutoff)
   
   # clustering stuff ####
   ari_nmi = ari_nmi_KM = list(NA, NA)
@@ -165,7 +165,9 @@ eval_single_fit_matched = function(x.fit, x.simul, cutoff=0.8) {
     ari_nmi = compute_ari_nmi(groups_simul=get_cluster_assignments(x.simul) %>% dplyr::arrange(samples) %>% dplyr::pull(clusters), 
                               groups_fit=get_cluster_assignments(x.fit) %>% dplyr::arrange(samples) %>% dplyr::pull(clusters))
     
-    KM_groups = run_kmeans_multiple_signals(x.fit)  # function from simbasilica
+    KM_groups = run_clustering(x.fit, method="kmeans")
+    # KL.KM_groups = run_clustering(x.fit, method="kl_kmeans")
+    # JS.SC_groups = run_clustering(x.fit, method="js_spectral")
     ari_nmi_KM = compute_ari_nmi(groups_simul=get_cluster_assignments(x.simul) %>% dplyr::arrange(samples) %>% dplyr::pull(clusters), 
                                  groups_fit=KM_groups %>% dplyr::arrange(samples) %>% dplyr::pull(clusters))
   }
@@ -244,39 +246,75 @@ eval_single_fit_matched = function(x.fit, x.simul, cutoff=0.8) {
 
 # Clustering ####
 
-## KL clustering #####
+# method in "kmeans", "kl_kmeans" or "js_spectral"
+run_clustering = function(x.fit, method) {
+  max_g = x.fit$clustering$pyro$params$init_params$pi %>% length()
+  expos = get_exposure(x.fit, matrix=T) %>% dplyr::bind_cols()
 
-library(flexclust)
-
-# KL divergence function
-kl_divergence = function(p, q) {
-  p = p + 1e-10  # Avoid log(0)
-  q = q + 1e-10
-  sum(p * log(p / q))
-}
-
-# Custom K-Means with KL divergence
-kl_kmeans = function(data, k) {
-  kl_dist = function(x, centers) {
-    apply(centers, 1, function(c) apply(x, 1, kl_divergence, q=c))
+  if (method == "kmeans") {
+    gap_stats = cluster::clusGap(expos, FUNcluster=kmeans, K.max=max_g, nstart=25)
+    best_K = cluster::maxSE(gap_stats$Tab[, "gap"], gap_stats$Tab[, "SE.sim"], method="Tibs2001SEmax")
+    res = kmeans(expos, centers=best_K, nstart=25)
+  } else if (method == "kl_kmeans") {
+    gap_stats = cluster::clusGap(expos, FUNcluster=kl_kmeans, K.max=max_g)
+    best_K = cluster::maxSE(gap_stats$Tab[, "gap"], gap_stats$Tab[, "SE.sim"], method="Tibs2001SEmax")
+    res = kl_kmeans(expos, best_K)
+  } else if (method == "js_spectral") {
+    gap_stats = cluster::clusGap(expos, FUNcluster=js_spectral, K.max=max_g)
+    best_K = cluster::maxSE(gap_stats$Tab[, "gap"], gap_stats$Tab[, "SE.sim"], method="Tibs2001SEmax")
+    js_spectral(expos, best_K)
   }
   
-  # Convert KL divergence into a distance function
-  kl_family = as.distFunction(kl_dist, "KL-KMeans")
+  return(tibble::tibble(samples=names(res$cluster), clusters=res$cluster))
   
-  # Run k-means with KL divergence
-  result = kcca(data, k, family=kl_family)
-  
-  return(result)
+  # gap_stats = cluster::clusGap(expos, FUNcluster=kmeans, K.max=max_g, nstart=25)
+  # best_K = cluster::maxSE(gap_stats$Tab[, "gap"], gap_stats$Tab[, "SE.sim"], method="Tibs2001SEmax")
+  # 
+  # km = kmeans(expos, centers=best_K, nstart=25)
+  # return(tibble::tibble(samples=names(km$cluster), clusters=km$cluster))
 }
 
-# # Example usage
-# set.seed(42)
-# data = matrix(runif(100 * 5, min=0.01, max=1), nrow=100, ncol=5)  # Generate stochastic vectors
-# data = data / rowSums(data)  # Normalize rows to sum to 1
-# 
-# result = kl_kmeans(data, k=3)
-# print(table(clusters(result)))  # Cluster assignment counts
+## KL clustering #####
+
+# kl_dist = function(p, q) {
+#   p = p / sum(p)
+#   q = q / sum(q)
+#   kl_div = sum(p * log(p / q), na.rm=TRUE)
+#   return(kl_div)
+# }
+
+## KL distance matrix
+# kl_distance_matrix = function(input_mat) {
+#   n = nrow(input_mat)
+#   dist_mat = matrix(0, n, n)
+#   
+#   for (i in 1:(n - 1)) {
+#     for (j in (i + 1):n) {
+#       dist_mat[i, j] = kl_dist(input_mat[i, ], input_mat[j, ])
+#       dist_mat[j, i] = dist_mat[i, j]  # Symmetric matrix
+#     }
+#   }
+#   as.dist(dist_mat)  # Convert matrix to dist object
+# }
+
+kl_distance_matrix = function(input_mat) {
+  distance_mat = matrix(nrow=nrow(input_mat), ncol=nrow(input_mat))
+  input_mat = as.matrix(input_mat)
+  for (i in 1:nrow(input_mat)) {
+    for (j in 1:nrow(input_mat)) {
+      distance_mat[i,j] = seewave::kl.dist(input_mat[i,], input_mat[j,], base=2)$D
+    }
+  }
+  rownames(distance_mat) = colnames(distance_mat) = rownames(input_mat)
+  return(distance_mat)
+} 
+
+# Custom K-Means with KL divergence
+kl_kmeans = function(input_mat, k) {
+  kl_dist_mat = kl_distance_matrix(input_mat)
+  res = cluster::pam(kl_dist_mat, k=k)
+  return(res)
+}
 
 
 ## JS divergence spectral clustering ####
@@ -293,8 +331,8 @@ js_divergence = function(p, q) {
 }
 
 # Compute pairwise Jensen-Shannon distances
-js_dist_matrix = function(data) {
-  as.matrix(proxy::dist(data, method=js_divergence))
+js_dist_matrix = function(input_mat) {
+  as.matrix(proxy::dist(input_mat, method=js_divergence))
 }
 
 # Convert to similarity matrix
@@ -304,18 +342,10 @@ similarity_matrix = function(dist_matrix) {
 }
 
 # Spectral clustering function
-spectral_js_clustering = function(data, k) {
-  dist_matrix = js_dist_matrix(data)
+js_spectral = function(input_mat, k) {
+  dist_matrix = js_dist_matrix(input_mat)
   sim_matrix = similarity_matrix(dist_matrix)
   clusters = specc(as.kernelMatrix(sim_matrix), centers=k)
   return(clusters)
 }
 
-
-# # Example usage
-# set.seed(42)
-# data = matrix(runif(100 * 5, min=0.01, max=1), nrow=100, ncol=5)  # Generate stochastic vectors
-# data = data / rowSums(data)  # Normalize rows to sum to 1
-# 
-# clusters = spectral_js_clustering(data, k=3)
-# print(table(clusters))  # Cluster assignment counts
