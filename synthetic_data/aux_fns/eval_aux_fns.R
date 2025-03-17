@@ -166,10 +166,15 @@ eval_single_fit_matched = function(x.fit, x.simul, cutoff=0.8) {
                               groups_fit=get_cluster_assignments(x.fit) %>% dplyr::arrange(samples) %>% dplyr::pull(clusters))
     
     KM_groups = run_clustering(x.fit, method="kmeans")
-    # KL.KM_groups = run_clustering(x.fit, method="kl_kmeans")
-    # JS.SC_groups = run_clustering(x.fit, method="js_spectral")
+    KL.KM_groups = run_clustering(x.fit, method="kl_kmeans")
+    KL.KM_groups = run_clustering(x.fit, method="js_spectral")
+    
     ari_nmi_KM = compute_ari_nmi(groups_simul=get_cluster_assignments(x.simul) %>% dplyr::arrange(samples) %>% dplyr::pull(clusters), 
                                  groups_fit=KM_groups %>% dplyr::arrange(samples) %>% dplyr::pull(clusters))
+    ari_nmi_KL = compute_ari_nmi(groups_simul=get_cluster_assignments(x.simul) %>% dplyr::arrange(samples) %>% dplyr::pull(clusters), 
+                                 groups_fit=KL.KM_groups %>% dplyr::arrange(samples) %>% dplyr::pull(clusters))
+    ari_nmi_JS = compute_ari_nmi(groups_simul=get_cluster_assignments(x.simul) %>% dplyr::arrange(samples) %>% dplyr::pull(clusters), 
+                                 groups_fit=KL.KM_groups %>% dplyr::arrange(samples) %>% dplyr::pull(clusters))
   }
 
   lapply(get_types(x.fit), function(tid) {
@@ -252,20 +257,26 @@ run_clustering = function(x.fit, method) {
   expos = get_exposure(x.fit, matrix=T) %>% dplyr::bind_cols()
 
   if (method == "kmeans") {
-    gap_stats = cluster::clusGap(expos, FUNcluster=kmeans, K.max=max_g, nstart=25)
+    gap_stats = cluster::clusGap(expos, FUNcluster=kmeans, K.max=max_g, nstart=25, B=50)
     best_K = cluster::maxSE(gap_stats$Tab[, "gap"], gap_stats$Tab[, "SE.sim"], method="Tibs2001SEmax")
-    res = kmeans(expos, centers=best_K, nstart=25)
+    res_tmp = kmeans(expos, centers=best_K, nstart=25)
+
   } else if (method == "kl_kmeans") {
-    gap_stats = cluster::clusGap(expos, FUNcluster=kl_kmeans, K.max=max_g)
+    kl_dist_mat = kl_distance_matrix(expos)
+    gap_stats = cluster::clusGap(kl_dist_mat, FUNcluster=kl_pam, K.max=max_g, B=50)
     best_K = cluster::maxSE(gap_stats$Tab[, "gap"], gap_stats$Tab[, "SE.sim"], method="Tibs2001SEmax")
-    res = kl_kmeans(expos, best_K)
+    res_tmp = kl_pam(expos, best_K)
+    
   } else if (method == "js_spectral") {
-    gap_stats = cluster::clusGap(expos, FUNcluster=js_spectral, K.max=max_g)
+    dist_matrix = js_dist_matrix(expos)
+    sim_matrix = similarity_matrix(dist_matrix)
+    gap_stats = cluster::clusGap(sim_matrix, FUNcluster=js_spectral, K.max=max_g, B=50)
     best_K = cluster::maxSE(gap_stats$Tab[, "gap"], gap_stats$Tab[, "SE.sim"], method="Tibs2001SEmax")
-    js_spectral(expos, best_K)
+    res_tmp = js_spectral(sim_matrix, best_K)
+    
   }
   
-  return(tibble::tibble(samples=names(res$cluster), clusters=res$cluster))
+  return(tibble::tibble(samples=names(res_tmp$cluster), clusters=res_tmp$cluster))
   
   # gap_stats = cluster::clusGap(expos, FUNcluster=kmeans, K.max=max_g, nstart=25)
   # best_K = cluster::maxSE(gap_stats$Tab[, "gap"], gap_stats$Tab[, "SE.sim"], method="Tibs2001SEmax")
@@ -276,45 +287,55 @@ run_clustering = function(x.fit, method) {
 
 ## KL clustering #####
 
-# kl_dist = function(p, q) {
-#   p = p / sum(p)
-#   q = q / sum(q)
-#   kl_div = sum(p * log(p / q), na.rm=TRUE)
-#   return(kl_div)
-# }
+library(flexclust)
 
-## KL distance matrix
-# kl_distance_matrix = function(input_mat) {
-#   n = nrow(input_mat)
-#   dist_mat = matrix(0, n, n)
-#   
-#   for (i in 1:(n - 1)) {
-#     for (j in (i + 1):n) {
-#       dist_mat[i, j] = kl_dist(input_mat[i, ], input_mat[j, ])
-#       dist_mat[j, i] = dist_mat[i, j]  # Symmetric matrix
-#     }
-#   }
-#   as.dist(dist_mat)  # Convert matrix to dist object
-# }
+kl_divergence = function(p, q) {
+  p = p + 1e-10  # Avoid log(0)
+  q = q + 1e-10
+  sum(p * log(p / q))
+}
+
+
+kl_dist_matrix = function(input_mat) {
+  as.matrix(proxy::dist(input_mat, method=kl_divergence))
+}
+
+# Custom K-Means with KL divergence
+kl_kmeans = function(input_mat, k) {
+  # kl_dist = function(x, centers) {
+  #   apply(centers, 1, function(c) apply(x, 1, kl_divergence, q=c))
+  # }
+  
+  # Convert KL divergence into a distance function
+  # kl_family = kccaFamily(dist=kl_distance_matrix, name="KL_distance")
+  
+  # Run k-means with KL divergence
+  result = flexclust::kcca(input_mat, k, family=kl_dist_matrix)
+  
+  return(result)
+}
+
+
 
 kl_distance_matrix = function(input_mat) {
-  distance_mat = matrix(nrow=nrow(input_mat), ncol=nrow(input_mat))
+  distance_mat = matrix(0, nrow=nrow(input_mat), ncol=nrow(input_mat))
   input_mat = as.matrix(input_mat)
   for (i in 1:nrow(input_mat)) {
-    for (j in 1:nrow(input_mat)) {
+    for (j in 1:i) {
       distance_mat[i,j] = seewave::kl.dist(input_mat[i,], input_mat[j,], base=2)$D
+      distance_mat[j,i] = distance_mat[i,j]
     }
   }
   rownames(distance_mat) = colnames(distance_mat) = rownames(input_mat)
   return(distance_mat)
-} 
-
-# Custom K-Means with KL divergence
-kl_kmeans = function(input_mat, k) {
-  kl_dist_mat = kl_distance_matrix(input_mat)
-  res = cluster::pam(kl_dist_mat, k=k)
-  return(res)
 }
+# 
+# kl_pam = function(kl_dist_mat, k) {
+#   # res = cluster::pam(kl_dist_mat, k=k, nstart=25)
+#   res = Optimal_Clusters_Medoids(kl_dist_mat, clusters = k, distance_metric = "precomputed")
+#   res$cluster = res$clustering
+#   return(res)
+# }
 
 
 ## JS divergence spectral clustering ####
@@ -322,7 +343,7 @@ kl_kmeans = function(input_mat, k) {
 library(kernlab)  # For Spectral Clustering
 library(proxy)    # For custom distance functions
 
-# Define Jensen-Shannon distance
+# Jensen-Shannon distance
 js_divergence = function(p, q) {
   m = (p + q) / 2
   kl_p_m = sum(p * log(p / (m + 1e-10)))
@@ -342,10 +363,11 @@ similarity_matrix = function(dist_matrix) {
 }
 
 # Spectral clustering function
-js_spectral = function(input_mat, k) {
-  dist_matrix = js_dist_matrix(input_mat)
-  sim_matrix = similarity_matrix(dist_matrix)
-  clusters = specc(as.kernelMatrix(sim_matrix), centers=k)
-  return(clusters)
+# js_spectral = function(input_mat, k) {
+js_spectral = function(sim_matrix, k) {
+  # dist_matrix = js_dist_matrix(input_mat)
+  # sim_matrix = similarity_matrix(dist_matrix)
+  res = kernlab::specc(as.kernelMatrix(sim_matrix), centers=k)
+  return(list(cluster=res@.Data))
 }
 
