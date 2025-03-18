@@ -4,7 +4,8 @@ devtools::load_all("~/GitHub/bascule/")
 # run_id = "matched.2011.compare"
 run_id = "matched.2011.compare_LAST"
 
-main_path = "~/Dropbox/dropbox_shared/2022. Basilica/simulations/"
+# main_path = "~/Dropbox/dropbox_shared/2022. Basilica/simulations/"
+main_path = "/orfeo/cephfs/scratch/cdslab/ebusca00/signatures/"
 
 save_path = file.path(main_path, "stats_dataframes/")
 
@@ -19,13 +20,15 @@ fitnames = c("fit.0", "sigprofiler", "sparsesignatures", "signaturetoolslib")
 path = file.path(main_path, paste0("fits_generative_model/all_fits/fits_dn.", run_id, "/"))
 
 cli::cli_text("Files path: {path}\n
-              Output path: {save_path}")
+              Output path: {save_path}\n")
 
 files = list.files(path, full.names=T, pattern=".Rds")
 
-all_stats = lapply(files, function(fname) {
+library(parallel)
+n_cores = detectCores()
+all_stats = mclapply(files, function(fname) {
   stats_single_data(fname, names_fits=fitnames %>% setNames(runids))
-}) %>% dplyr::bind_rows()
+}, mc.cores=n_cores/2) %>% dplyr::bind_rows()
 
 saveRDS(all_stats, paste0(save_path, "stats_", run_id, ".Rds"))
 

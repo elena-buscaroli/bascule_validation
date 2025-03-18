@@ -134,7 +134,7 @@ stats_single_data = function(fname, names_fits=list("NoPenalty"="fit.0", "Penalt
   
   stats = lapply(names(fits), function(ff) {
     print(ff)
-    eval_single_fit_matched(x.fit=fits[[ff]], x.simul=x.simul) %>%
+    eval_single_fit_matched(x.fit=fits[[ff]], x.simul=x.simul, fname=fname) %>%
       dplyr::bind_rows() %>% 
       dplyr::mutate(penalty=ff)
   }) %>% dplyr::bind_rows()
@@ -155,30 +155,54 @@ stats_single_data = function(fname, names_fits=list("NoPenalty"="fit.0", "Penalt
 
 
 
-eval_single_fit_matched = function(x.fit, x.simul, cutoff=0.8) {
+eval_single_fit_matched = function(x.fit, x.simul, fname=NULL, cutoff=0.8) {
+  add_unassigned = rep(FALSE, length.out=length(get_types(x.fit))) %>% setNames(get_types(x.fit))
+  for (tid in get_types(x.fit)) {
+    if("unassigned" %in% colnames(get_exposure(x.fit, matrix=T)[[tid]])) {
+      x.fit$nmf[[tid]]$exposure = x.fit$nmf[[tid]]$exposure %>% dplyr::filter(sigs!="unassigned")
+      add_unassigned[[tid]] = TRUE
+    }
+  }
+  
   x.fit = x.fit %>% rename_dn_expos()
   assigned_missing_all = get_assigned_missing(x=x.fit, x.simul=x.simul, cutoff=cutoff)
   
-  # clustering stuff ####
-  ari_nmi = ari_nmi_KM = list(NA, NA)
+  # for (tid in get_types(x.fit)) {
+  #   expos = get_exposure(x.fit, matrix=T)[[tid]]
+  #   if (add_unassigned[[tid]]) {
+  #     print("INSIDE IF")
+  #     expos$unassigned = 1 - rowSums(expos)
+  #     x.fit$nmf[[tid]]$exposure = expos %>% wide_to_long(what="exposures")
+  #   }
+  # }
+
+
+  ari_nmi = ari_nmi_KM = ari_nmi_KL = ari_nmi_JS = list(NA, NA)
   if (have_groups(x.fit)) {
     ari_nmi = compute_ari_nmi(groups_simul=get_cluster_assignments(x.simul) %>% dplyr::arrange(samples) %>% dplyr::pull(clusters), 
                               groups_fit=get_cluster_assignments(x.fit) %>% dplyr::arrange(samples) %>% dplyr::pull(clusters))
     
-    KM_groups = run_clustering(x.fit, method="kmeans")
-    KL.KM_groups = run_clustering(x.fit, method="kl_kmeans")
-    JS.spect_groups = run_clustering(x.fit, method="js_spectral")
+    clustering_fname = fname %>% stringr::str_replace_all("simul_fit", "clustering")
     
-    clustering_fits = list(KMeans=KM_groups$obj,
-                           KL_KMeans=KL.KM_groups$obj,
-                           JS_spectral=JS.spect_groups$obj)
-    
-    saveRDS(clustering_fits, file=fname %>% stringr::str_replace_all("simul_fit", "clustering"))
-    
-    # x.kmeans = x.kl = x.js = x.fit
-    # x.kmeans$clustering$clusters = KM_groups
-    # x.kl$clustering$clusters = KL.KM_groups
-    # x.js$clustering$clusters = JS.spect_groups
+    if (!is.null(fname) & file.exists(clustering_fname)) {
+      clustering_fits = readRDS(clustering_fname)
+      KM_groups = clustering_fits$KMeans
+      KL.KM_groups = clustering_fits$KL_KMeans
+      JS.spect_groups = clustering_fits$JS_spectral
+    } else {
+      KM_groups = run_clustering(x.fit, method="kmeans")
+      cat("Kmeans done.\n")
+      KL.KM_groups = run_clustering(x.fit, method="kl_kmeans")
+      cat("KL-Kmeans done.\n")
+      JS.spect_groups = run_clustering(x.fit, method="js_spectral")
+      cat("Spectral clustering done.\n")
+      
+      clustering_fits = list(KMeans=KM_groups,
+                             KL_KMeans=KL.KM_groups,
+                             JS_spectral=JS.spect_groups)
+      
+      if (!is.null(fname)) saveRDS(clustering_fits, file=clustering_fname)
+    }
     
     ari_nmi_KM = compute_ari_nmi(groups_simul=get_cluster_assignments(x.simul) %>% dplyr::arrange(samples) %>% dplyr::pull(clusters), 
                                  groups_fit=KM_groups %>% dplyr::arrange(samples) %>% dplyr::pull(clusters))
@@ -267,18 +291,18 @@ eval_single_fit_matched = function(x.fit, x.simul, cutoff=0.8) {
 # Clustering ####
 
 # method in "kmeans", "kl_kmeans" or "js_spectral"
-run_clustering = function(x.fit, method) {
+run_clustering = function(x.fit, method, B=50) {
   max_g = x.fit$clustering$pyro$params$init_params$pi %>% length()
   expos = get_exposure(x.fit, matrix=T) %>% dplyr::bind_cols()
 
   if (method == "kmeans") {
-    gap_stats = cluster::clusGap(expos, FUNcluster=kmeans, K.max=max_g, nstart=25, B=50, spaceH0="original")
+    gap_stats = cluster::clusGap(expos, FUNcluster=kmeans, K.max=max_g, nstart=25, B=B, spaceH0="original")
     best_K = cluster::maxSE(gap_stats$Tab[, "gap"], gap_stats$Tab[, "SE.sim"], method="Tibs2001SEmax")
     res_tmp = kmeans(expos, centers=best_K, nstart=25)
     fit_obj = res_tmp
 
   } else if (method == "kl_kmeans") {
-    gap_stats = cluster::clusGap(expos, FUNcluster=kl_kmeans, K.max=max_g, B=50, spaceH0="original")
+    gap_stats = cluster::clusGap(expos, FUNcluster=kl_kmeans, K.max=max_g, B=B, spaceH0="original")
     best_K = cluster::maxSE(gap_stats$Tab[, "gap"], gap_stats$Tab[, "SE.sim"], method="Tibs2001SEmax")
     res_tmp = kl_kmeans(expos, best_K)
     fit_obj = res_tmp$fit_obj
@@ -286,7 +310,7 @@ run_clustering = function(x.fit, method) {
   } else if (method == "js_spectral") {
     dist_matrix = js_dist_matrix(expos)
     sim_matrix = similarity_matrix(dist_matrix)
-    gap_stats = cluster::clusGap(sim_matrix, FUNcluster=js_spectral, K.max=max_g, B=50, spaceH0="original")
+    gap_stats = cluster::clusGap(sim_matrix, FUNcluster=js_spectral, K.max=max_g, B=B, spaceH0="original")
     best_K = cluster::maxSE(gap_stats$Tab[, "gap"], gap_stats$Tab[, "SE.sim"], method="Tibs2001SEmax")
     res_tmp = js_spectral(sim_matrix, best_K)
     fit_obj = res_tmp$fit_obj
