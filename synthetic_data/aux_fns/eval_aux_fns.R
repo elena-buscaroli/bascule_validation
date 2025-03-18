@@ -304,16 +304,26 @@ run_clustering = function(x.fit, method, B=50) {
   } else if (method == "kl_kmeans") {
     gap_stats = cluster::clusGap(expos, FUNcluster=kl_kmeans, K.max=max_g, B=B, spaceH0="original")
     best_K = cluster::maxSE(gap_stats$Tab[, "gap"], gap_stats$Tab[, "SE.sim"], method="Tibs2001SEmax")
-    res_tmp = kl_kmeans(expos, best_K)
-    fit_obj = res_tmp$fit_obj
+    if (best_K > 1) {
+      res_tmp = kl_kmeans(expos, best_K)
+      fit_obj = res_tmp$fit_obj
+    } else {
+      res_tmp = list(cluster=rep(1, nrow(expos)) %>% setNames(rownames(expos)))
+      fit_obj = NULL
+    }
     
   } else if (method == "js_spectral") {
     dist_matrix = js_dist_matrix(expos)
     sim_matrix = similarity_matrix(dist_matrix)
     gap_stats = cluster::clusGap(sim_matrix, FUNcluster=js_spectral, K.max=max_g, B=B, spaceH0="original")
     best_K = cluster::maxSE(gap_stats$Tab[, "gap"], gap_stats$Tab[, "SE.sim"], method="Tibs2001SEmax")
-    res_tmp = js_spectral(sim_matrix, best_K)
-    fit_obj = res_tmp$fit_obj
+    if (best_K > 1) {
+      res_tmp = js_spectral(sim_matrix, best_K)
+      fit_obj = res_tmp$fit_obj
+    } else {
+      res_tmp = list(cluster=rep(1, nrow(expos)) %>% setNames(rownames(expos)))
+      fit_obj = NULL
+    }
     
   }
   

@@ -1,8 +1,13 @@
+args = commandArgs(trailingOnly=TRUE)
+dataset_id = args[1]  # either "generative_model/all_fits/" or "SigFitTest"
+
 devtools::load_all("~/GitHub/simbascule/")
 devtools::load_all("~/GitHub/bascule/")
 
 # run_id = "matched.2011.compare"
 run_id = "matched.2011.compare_LAST"
+
+out_id = paste0(run_id, ".", dataset_id %>% stringr::str_remove_all("/all_fits/"))
 
 # main_path = "~/Dropbox/dropbox_shared/2022. Basilica/simulations/"
 main_path = "/orfeo/cephfs/scratch/cdslab/ebusca00/signatures/"
@@ -17,10 +22,13 @@ runids = c("BASCULE", "SigProfiler", "SparseSignatures", "SignatureToolsLib")
 fitnames = c("fit.0", "sigprofiler", "sparsesignatures", "signaturetoolslib")
 
 # path = paste0("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits_generative_model/all_fits/fits_dn.", run_id, "/")
-path = file.path(main_path, paste0("fits_generative_model/all_fits/fits_dn.", run_id, "/"))
+# path = file.path(main_path, paste0("fits_generative_model/all_fits/fits_dn.", run_id, "/"))
+path = file.path(main_path, paste0("fits_", dataset_id, "/fits_dn.", run_id, "/"))
 
 cli::cli_text("Files path: {path}\n
               Output path: {save_path}\n")
+
+stopifnot(all(file.exists(c(path, save_path))))
 
 files = list.files(path, full.names=T, pattern=".Rds")
 
@@ -28,14 +36,14 @@ library(parallel)
 n_cores = detectCores()
 all_stats = mclapply(files, function(fname) {
   stats_single_data(fname, names_fits=fitnames %>% setNames(runids))
-}, mc.cores=n_cores/2) %>% dplyr::bind_rows()
+}, mc.cores=n_cores/4) %>% dplyr::bind_rows()
 
-saveRDS(all_stats, paste0(save_path, "stats_", run_id, ".Rds"))
+saveRDS(all_stats, paste0(save_path, "stats_", out_id, ".Rds"))
 
 
 
 # Make plots #####
-all_stats = readRDS(paste0(save_path, "stats_", run_id, ".Rds")) %>% 
+all_stats = readRDS(paste0(save_path, "stats_", out_id, ".Rds")) %>% 
   compute_quantiles(colname="K_true") %>% 
   dplyr::filter(type=="SBS")
 
@@ -52,7 +60,7 @@ plot_list[["performance_grps"]] = all_stats %>% plot_performance(fill="penalty",
 
 
 # Save plots #####
-saveRDS(plot_list, paste0(save_path, "stats_", run_id, "_plots.Rds"))
+saveRDS(plot_list, paste0(save_path, "stats_", out_id, "_plots.Rds"))
 
 patchwork::wrap_plots(plot_list, design="CCCCC\nAABBB") &
   theme(legend.position="bottom")

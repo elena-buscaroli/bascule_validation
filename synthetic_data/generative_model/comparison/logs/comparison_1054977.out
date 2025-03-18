@@ -1,0 +1,596 @@
+
+CondaError: Run 'conda init' before 'conda activate'
+
+ℹ Loading simbascule
+ℹ Loading bascule
+✔ Loading bascule. Support : <https://caravagnalab.github.io/bascule/>
+
+Attaching package: ‘kernlab’
+
+The following object is masked from ‘package:flexclust’:
+
+    kcca
+
+The following object is masked from ‘package:bascule’:
+
+    alpha
+
+
+Attaching package: ‘proxy’
+
+The following objects are masked from ‘package:stats’:
+
+    as.dist, dist
+
+The following object is masked from ‘package:base’:
+
+    as.matrix
+
+Files path:
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST/
+
+Output path:
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//stats_dataframes/
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s1.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s10.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s11.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s12.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s13.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s14.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s15.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s16.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s17.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s18.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s19.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s2.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s20.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s21.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s22.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s23.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s24.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s25.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s26.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s27.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s28.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s29.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s3.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s30.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s4.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s5.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s6.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s7.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s8.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s9.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G3.s1.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s1.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s10.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s11.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s12.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s13.matched.2011.Rds
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s8.matched.2011.Rds
+[1] "SigProfiler"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s27.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s24.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s26.matched.2011.Rds
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "BASCULE"
+[1] "SignatureToolsLib"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s16.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s1.matched.2011.Rds
+[1] "BASCULE"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s9.matched.2011.Rds
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s3.matched.2011.Rds
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s23.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s14.matched.2011.Rds
+[1] "BASCULE"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s18.matched.2011.Rds
+[1] "SignatureToolsLib"
+[1] "BASCULE"
+[1] "SigProfiler"
+[1] "BASCULE"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s5.matched.2011.Rds
+[1] "SparseSignatures"
+[1] "BASCULE"
+[1] "SignatureToolsLib"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "BASCULE"
+[1] "SignatureToolsLib"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s6.matched.2011.Rds
+[1] "SigProfiler"
+[1] "SignatureToolsLib"
+[1] "SparseSignatures"
+[1] "BASCULE"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s19.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s14.matched.2011.Rds
+[1] "SigProfiler"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s15.matched.2011.Rds
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s30.matched.2011.Rds
+[1] "BASCULE"
+[1] "BASCULE"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s7.matched.2011.Rds
+[1] "SigProfiler"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "BASCULE"
+[1] "SigProfiler"
+[1] "SignatureToolsLib"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+[1] "BASCULE"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s21.matched.2011.Rds
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s2.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s20.matched.2011.Rds
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s25.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s17.matched.2011.Rds
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+[1] "BASCULE"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s22.matched.2011.Rds
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "SigProfiler"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s28.matched.2011.Rds
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+[1] "SigProfiler"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+[1] "SparseSignatures"
+[1] "BASCULE"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s12.matched.2011.Rds
+[1] "SigProfiler"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s29.matched.2011.Rds
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s10.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s4.matched.2011.Rds
+[1] "BASCULE"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s13.matched.2011.Rds
+[1] "BASCULE"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s11.matched.2011.Rds
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"[1]
+[1] "BASCULE" "BASCULE"
+[1] "BASCULE"[1]
+
+ "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SigProfiler"
+[1] "SigProfiler"
+[1] "SigProfiler"
+[1] "SigProfiler"
+[1] "SigProfiler"
+[1] "SigProfiler"
+[1] "SignatureToolsLib"
+[1][1] "SparseSignatures"
+ "SigProfiler"
+[1][1] "SigProfiler"[1] "SparseSignatures"
+ "SparseSignatures"
+
+[1] "SparseSignatures"
+[1] "SparseSignatures"
+[1] "SparseSignatures"
+[1][1] "SigProfiler"[1] "SignatureToolsLib"
+
+ "SparseSignatures"[1][1]
+[1] "SignatureToolsLib"[1][1][1] "SignatureToolsLib" "SigProfiler"[1] "SigProfiler"
+ "SigProfiler"[1] "SignatureToolsLib"[1] "SigProfiler" "SparseSignatures"
+[1]
+[1][1] "SigProfiler"
+[1][1] "SigProfiler"/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s3.matched.2011.Rds
+[1][1]
+[1][1] "SigProfiler" "SigProfiler"
+
+[1]
+
+[1] "SparseSignatures"[1] "SigProfiler"
+[1] "SignatureToolsLib"
+[1] "SigProfiler"
+
+ "SigProfiler" "SigProfiler"
+ "SignatureToolsLib"
+
+[1] "SigProfiler" "SigProfiler"/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s16.matched.2011.Rds
+
+ "SigProfiler"[1] "SignatureToolsLib"[1][1][1]
+ "SigProfiler"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G6.s13.matched.2011.Rds
+[1]
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s4.matched.2011.Rds
+[1][1] "SignatureToolsLib"[1][1][1] "SparseSignatures"
+
+
+ "SigProfiler"[1]
+[1] "SigProfiler" "SigProfiler"
+[1] "SigProfiler"[1][1]/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s19.matched.2011.Rds
+ "SparseSignatures"
+ "SparseSignatures"
+[1]
+ "SigProfiler"
+ "SparseSignatures"
+
+
+ "SparseSignatures"[1] "SparseSignatures"[1] "SparseSignatures" "SparseSignatures"
+
+ "BASCULE"
+
+ "SparseSignatures"
+ "SparseSignatures"[1] "SignatureToolsLib"/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s27.matched.2011.Rds
+[1] "BASCULE"
+
+[1]
+
+ "SparseSignatures"
+
+
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s5.matched.2011.Rds
+[1] "SparseSignatures"[1][1][1][1][1][1][1] "SparseSignatures" "SignatureToolsLib"
+
+ "SparseSignatures" "SignatureToolsLib"[1][1] "SignatureToolsLib"
+[1][1][1] "SignatureToolsLib"
+ "SparseSignatures"[1] "SparseSignatures"[1][1] "BASCULE"
+[1][1][1][1]
+
+ "SparseSignatures"[1]/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s9.matched.2011.Rds
+ "SparseSignatures" "SparseSignatures" "SignatureToolsLib"[1] "SignatureToolsLib"
+
+[1]/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s15.matched.2011.Rds
+
+ "SignatureToolsLib"
+ "SparseSignatures"
+[1] "SignatureToolsLib" "SignatureToolsLib"
+ "SignatureToolsLib" "SignatureToolsLib" "SignatureToolsLib"[1]
+ "BASCULE"
+
+
+ "SparseSignatures"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s25.matched.2011.Rds
+ "BASCULE"
+[1]
+[1][1]
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s30.matched.2011.Rds
+
+
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s18.matched.2011.Rds
+[1] "SignatureToolsLib"
+ "BASCULE"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G6.s10.matched.2011.Rds
+ "BASCULE" "SignatureToolsLib"
+ "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s28.matched.2011.Rds
+
+[1]
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G6.s15.matched.2011.Rds
+
+[1][1] "SignatureToolsLib"[1] "SignatureToolsLib" "BASCULE" "SignatureToolsLib"
+
+[1]
+[1] "SignatureToolsLib"
+ "BASCULE"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G6.s12.matched.2011.Rds
+
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G6.s14.matched.2011.Rds
+[1] "BASCULE"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s8.matched.2011.Rds
+[1]/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s24.matched.2011.Rds
+ "BASCULE"
+[1] "BASCULE"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s6.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s22.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s21.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G6.s11.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s2.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s17.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s29.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s26.matched.2011.Rds
+[1] "BASCULE"
+[1]/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G6.s1.matched.2011.Rds
+ "BASCULE"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s23.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s7.matched.2011.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G3.s20.matched.2011.Rds
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"[1]
+ "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"[1] "BASCULE"[1][1]
+
+ "BASCULE"
+ "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+Kmeans done.
+Kmeans done.
+Kmeans done.
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Kmeans done.
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Kmeans done.
+Kmeans done.
+Kmeans done.
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Also defined by ‘kernlab’
+Kmeans done.
+Kmeans done.
+Kmeans done.
+Kmeans done.
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Kmeans done.
+Kmeans done.
+Kmeans done.
+Kmeans done.
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Kmeans done.
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Kmeans done.
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Kmeans done.
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Kmeans done.
+Kmeans done.
+Kmeans done.
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Kmeans done.
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Kmeans done.
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Kmeans done.
+Kmeans done.
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Kmeans done.
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Kmeans done.
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Kmeans done.
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Kmeans done.
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Kmeans done.
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Kmeans done.
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Kmeans done.
+Kmeans done.
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Kmeans done.
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Kmeans done.
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Kmeans done.
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+slurmstepd: error: *** JOB 1054977 ON fat001 CANCELLED AT 2025-03-18T23:48:54 ***

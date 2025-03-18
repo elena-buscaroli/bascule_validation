@@ -1,0 +1,135 @@
+
+CondaError: Run 'conda init' before 'conda activate'
+
+ℹ Loading simbascule
+ℹ Loading bascule
+✔ Loading bascule. Support : <https://caravagnalab.github.io/bascule/>
+
+Attaching package: ‘kernlab’
+
+The following object is masked from ‘package:flexclust’:
+
+    kcca
+
+The following object is masked from ‘package:bascule’:
+
+    alpha
+
+
+Attaching package: ‘proxy’
+
+The following objects are masked from ‘package:stats’:
+
+    as.dist, dist
+
+The following object is masked from ‘package:base’:
+
+    as.matrix
+
+Files path:
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST/
+
+Output path:
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//stats_dataframes/
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//clustering.N1000.G1.s1.matched.2011.Rds
+[1] "BASCULE"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s1.matched.2011.Rds
+[1] "BASCULE"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s10.matched.2011.Rds
+[1] "BASCULE"
+Kmeans done.
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+KL-Kmeans done.
+Spectral clustering done.
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s11.matched.2011.Rds
+[1] "BASCULE"
+Kmeans done.
+KL-Kmeans done.
+Spectral clustering done.
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s12.matched.2011.Rds
+[1] "BASCULE"
+Kmeans done.
+KL-Kmeans done.
+Spectral clustering done.
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s13.matched.2011.Rds
+[1] "BASCULE"
+Kmeans done.
+KL-Kmeans done.
+Spectral clustering done.
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s14.matched.2011.Rds
+[1] "BASCULE"
+Kmeans done.
+KL-Kmeans done.
+Spectral clustering done.
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s15.matched.2011.Rds
+[1] "BASCULE"
+Kmeans done.
+KL-Kmeans done.
+Spectral clustering done.
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s16.matched.2011.Rds
+[1] "BASCULE"
+Kmeans done.
+KL-Kmeans done.
+Spectral clustering done.
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s17.matched.2011.Rds
+[1] "BASCULE"
+Kmeans done.
+KL-Kmeans done.
+Spectral clustering done.
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s18.matched.2011.Rds
+[1] "BASCULE"
+Kmeans done.
+KL-Kmeans done.
+Spectral clustering done.
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s19.matched.2011.Rds
+[1] "BASCULE"
+Kmeans done.
+KL-Kmeans done.
+Spectral clustering done.
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_generative_model/all_fits/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s2.matched.2011.Rds
+[1] "BASCULE"
+Kmeans done.
+Error in initCenters(x, k, family, control) : 
+  number of clusters must be at least 2
+Calls: %>% ... run_clustering -> kl_kmeans -> <Anonymous> -> initCenters
+In addition: There were 50 or more warnings (use warnings() to see the first 50)
+Execution halted
