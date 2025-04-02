@@ -1,15 +1,19 @@
 devtools::load_all("~/GitHub/simbascule/")
 devtools::load_all("~/GitHub/bascule/")
-run_id = "matched.2011"
-save_path = "~/Dropbox/dropbox_shared/2022. Basilica/simulations/stats_dataframes/"
-source("~/GitHub/bascule_validation/aux_fns/eval_aux_fns.R")
-source("~/GitHub/bascule_validation/aux_fns/plots_aux_fns.R")
+library(tidyverse)
 
-# Generate stats #####
+run_id = "matched.2011.compare_LAST"
+dataset_id = "generative_model"
+
+save_path = "~/Dropbox/dropbox_shared/2022. Basilica/simulations/stats_dataframes/"
+source("~/GitHub/bascule_validation/synthetic_data/aux_fns/eval_aux_fns.R")
+source("~/GitHub/bascule_validation/synthetic_data/aux_fns/plots_aux_fns.R")
+
+# # Generate stats #####
 # runids = c("Autoguide", "ManualGuide")
 # fitnames = c("fit.0.auto", "fit.0.man")
 # 
-# path = paste0("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits/fits_dn.", run_id, "/")
+# path = paste0("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits_", dataset_id, "/fits_dn.", run_id, "/")
 # files = list.files(path, full.names=T, pattern=".Rds")
 # 
 # all_stats = lapply(files, function(fname) {
@@ -20,29 +24,32 @@ source("~/GitHub/bascule_validation/aux_fns/plots_aux_fns.R")
 
 
 # Plots #####
-all_stats = readRDS(paste0(save_path, "stats_", run_id, "_KM.Rds")) %>% 
+# all_stats = readRDS(paste0(save_path, "stats_", run_id, "_KM.Rds")) %>% 
+all_stats = readRDS(paste0(save_path, "stats_", run_id, ".", dataset_id, ".Rds")) %>% 
+  filter(penalty=="BASCULE") %>%
+  # select(N, G, seed, idd, fname, penalty, starts_with("nmi"), starts_with("ari")) %>% unique()
   compute_quantiles(colname="K_true")
 
 plot_list = list("p1"=list(), "p2"=list())
 ## fixed/dn retrieved ####
 plot_list$p1[["K"]] = all_stats %>% 
-  compute_quantiles(colname="K_true") %>% 
-  dplyr::filter(penalty=="Autoguide") %>% 
+  # compute_quantiles(colname="K_true") %>% 
+  # dplyr::filter(penalty=="Autoguide") %>% 
   plot_K()
 
 plot_list$p2[["K"]] = all_stats %>% 
-  compute_quantiles(colname="K_true") %>% 
-  dplyr::filter(penalty=="Autoguide") %>% 
+  # compute_quantiles(colname="K_true") %>% 
+  # dplyr::filter(penalty=="Autoguide") %>% 
   plot_K(fill="K_true_cat")
 
 
 ## quality metrics #####
 plot_list$p1[["performance"]] = all_stats %>% 
-  dplyr::filter(penalty=="Autoguide") %>% 
+  # dplyr::filter(penalty=="Autoguide") %>% 
   plot_performance()
 
 plot_list$p2[["performance"]] = all_stats %>%
-  dplyr::filter(penalty=="Autoguide") %>%
+  # dplyr::filter(penalty=="Autoguide") %>%
   plot_performance(fill="K_true_cat")
 
 

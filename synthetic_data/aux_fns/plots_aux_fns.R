@@ -95,7 +95,7 @@ plot_performance_clustering = function(all_stats, fill="penalty", facet="~metric
     dplyr::filter(metric %in% c("ari","nmi"))
   
   ylim = get_l_u(all_stats_sub, grps_cols)
-    
+
   all_stats_sub %>% 
     plt(fn=bxplt_fn, pal=pal, fill=fill, facet=facet, grps_cols=grps_cols) +
     geom_hline(yintercept=1, color="grey70", linetype="dashed") +

@@ -296,14 +296,16 @@ run_clustering = function(x.fit, method, B=50) {
   expos = get_exposure(x.fit, matrix=T) %>% dplyr::bind_cols()
 
   if (method == "kmeans") {
-    gap_stats = cluster::clusGap(expos, FUNcluster=kmeans, K.max=max_g, nstart=25, B=B, spaceH0="original")
+    gap_stats = cluster::clusGap(expos, FUNcluster=kmeans, K.max=max_g, nstart=25, B=B)
     best_K = cluster::maxSE(gap_stats$Tab[, "gap"], gap_stats$Tab[, "SE.sim"], method="Tibs2001SEmax")
     res_tmp = kmeans(expos, centers=best_K, nstart=25)
     fit_obj = res_tmp
 
   } else if (method == "kl_kmeans") {
-    gap_stats = cluster::clusGap(expos, FUNcluster=kl_kmeans, K.max=max_g, B=B, spaceH0="original")
-    best_K = cluster::maxSE(gap_stats$Tab[, "gap"], gap_stats$Tab[, "SE.sim"], method="Tibs2001SEmax")
+    # gap_stats = cluster::clusGap(expos, FUNcluster=kl_kmeans, K.max=max_g, B=B)
+    # best_K = cluster::maxSE(gap_stats$Tab[, "gap"], gap_stats$Tab[, "SE.sim"], method="Tibs2001SEmax")
+    best_K = kl_kmeans_bestK(expos, kmin=2, kmax=max_g)
+    
     if (best_K > 1) {
       res_tmp = kl_kmeans(expos, best_K)
       fit_obj = res_tmp$fit_obj
@@ -315,7 +317,7 @@ run_clustering = function(x.fit, method, B=50) {
   } else if (method == "js_spectral") {
     dist_matrix = js_dist_matrix(expos)
     sim_matrix = similarity_matrix(dist_matrix)
-    gap_stats = cluster::clusGap(sim_matrix, FUNcluster=js_spectral, K.max=max_g, B=B, spaceH0="original")
+    gap_stats = cluster::clusGap(sim_matrix, FUNcluster=js_spectral, K.max=max_g, B=B)
     best_K = cluster::maxSE(gap_stats$Tab[, "gap"], gap_stats$Tab[, "SE.sim"], method="Tibs2001SEmax")
     if (best_K > 1) {
       res_tmp = js_spectral(sim_matrix, best_K)
@@ -350,9 +352,60 @@ kl_family = flexclust::kccaFamily(dist=kl_distance_row, cent=function(x) colMean
 
 # Custom K-Means with KL divergence
 kl_kmeans = function(input_mat, k) {
-  res = flexclust::kcca(as.matrix(input_mat), k, family=kl_family)
+  # min_val = min(input_mat)  # Find the smallest value
+  # input_mat_shifted = input_mat - min_val + 1e-10  # Shift to ensure positivity
+  # input_mat_normalized = input_mat_shifted / rowSums(input_mat_shifted)
+  
+  res = flexclust::kcca(as.matrix(input_mat), k=k, family=kl_family)
   
   return(list(cluster=res@cluster, fit_obj=res))
+}
+
+kl_kmeans_bestK = function(input_mat, kmin, kmax) {
+  k_range = kmin:kmax
+  N = nrow(input_mat)
+  global_centroid = colMeans(input_mat)  # compute global centroid
+  ch_values = numeric(length(k_range))
+  
+  for (i in seq_along(k_range)) {
+    k_i = k_range[i]
+    
+    if (k_i == 1) {
+      # centroids = matrix(colMeans(input_mat), nrow=1)  # compute cluster centroids
+      # colnames(centroids) = colnames(input_mat)
+      # clusters = rep(1, length.out=nrow(input_mat)) %>% setNames(rownames(input_mat))  # retrieve the cluster assignments
+
+      total_kl_distance = sum(sapply(1:nrow(input_mat), function(row_idx) {
+        seewave::kl.dist(input_mat[row_idx, ], global_centroid, base=2)$D
+      }))
+      
+      ch_values[i] = total_kl_distance / N  # avg total distance
+      
+    } else {
+      kcca_model = flexclust::kcca(as.matrix(input_mat), k=k_i, family=kl_family)  # run KL-Kmeans clustering
+      centroids = kcca_model@centers  # compute cluster centroids
+      clusters = kcca_model@cluster  # retrieve the cluster assignments
+      
+      # compute Within-cluster KL divergence (W_k)
+      W_k = sum(sapply(sort(unique(clusters)), function(j) {
+        cluster_points = input_mat[clusters == j, , drop = FALSE]
+        if (nrow(cluster_points) > 1) {
+          sum(apply(cluster_points, 1, function(row) {
+            seewave::kl.dist(row, centroids[j, ], base=2)$D
+          }))
+        } else { 0 }
+      }))
+      
+      # compute Between-cluster KL divergence (B_k)
+      B_k = sum(sapply(sort(unique(clusters)), function(j) {
+        seewave::kl.dist(centroids[j, ], global_centroid, base=2)$D
+      }))
+      
+      ch_values[i] = B_k / W_k * ((N - 1) / (k_i - 1))  # compute CH-like index
+    }
+  }
+  
+  k_range[which.max(ch_values)]  # select the best k (highest CH value)
 }
 
 

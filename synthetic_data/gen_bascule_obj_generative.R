@@ -12,7 +12,7 @@ create_bascule_obj = function(counts, expos, sigs) {
 }
 
 main_path = "~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits_generative_model/"
-fits_path = file.path(main_path, "all_fits/fits_dn.matched.2011/")
+fits_path = file.path(main_path, "all_fits/fits_dn.clustering.matched.2011/")
 sp_path = file.path(main_path, "sigprofiler_BestSolution/NMF_100/")
 ss_path = file.path(main_path, "sparsesignatures/last/")
 ss_signature_selection = file.path(ss_path, "signature_selection.csv") %>% 
