@@ -1,10 +1,11 @@
-args = commandArgs(trailingOnly=TRUE)
-dataset_id = args[1]  # either "generative_model/all_fits/" or "SigFitTest"
+dataset_id = "generative_model/all_fits/"
+
+# args = commandArgs(trailingOnly=TRUE)
+# dataset_id = args[1]  # either "generative_model/all_fits/" or "SigFitTest"
 
 devtools::load_all("~/GitHub/simbascule/")
 devtools::load_all("~/GitHub/bascule/")
 
-# dataset_id = "generative_model/all_fits/"
 # run_id = "matched.2011.compare"
 run_id = "matched.2011.compare_LAST"
 
@@ -67,56 +68,56 @@ plot_list[["performance_grps"]] = all_stats %>% plot_performance(fill="penalty",
 # Save plots #####
 saveRDS(plot_list, paste0(save_path, "stats_", out_id, "_plots.Rds"))
 
-patchwork::wrap_plots(plot_list, design="CCCCC\nAABBB") &
+patchwork::wrap_plots(plot_list, design="CCCCC\nCCCCC\nAABBB") &
   theme(legend.position="bottom")
-ggsave(paste0(save_path, "stats_", run_id, ".pdf"), width=10, height=10)
+ggsave(paste0(save_path, "stats_", run_id, ".pdf"), width=12, height=8)
 
 
 
 
-# save plots for each fit #####
-lapply(files, function(fname) {
-  tmp = strsplit(fname, split="/")[[1]]; fit_id = tmp[length(tmp)]
-  simul_fit = readRDS(fname)
-  x.simul = simul_fit$dataset
-  types = get_types(x.simul)
-  
-  plots = lapply(fitnames, function(fitname) {
-    x.fit = simul_fit[[fitname]] %>%
-      # rename_dn_expos() %>%
-      merge_clusters()
-    assigned_missing = get_assigned_missing(x.fit=x.fit, x.simul=x.simul)
-    added = sapply(assigned_missing, function(i) i[["added_fp"]]) %>% unlist() %>% paste(collapse=",")
-    missing = sapply(assigned_missing, function(i) i[["missing_fn"]]) %>% unlist() %>% paste(collapse=",")
-    
-    caption = paste("Added signatures (FP):", added, "- Missing signatures (FN):", missing)
-    
-    patchwork::wrap_plots(plot_fit(x.fit),
-                          plot_fit(x.simul), ncol=1) &
-      patchwork::plot_annotation(title=paste0(fit_id, " , fitname: ", fitname),
-                                 subtitle="Fit (top) and simulated (bottom)",
-                                 caption=caption)
-  })
-  
-  QC = lapply(fitnames, function(fitname) {
-    x.fit = simul_fit[[fitname]] %>%
-      merge_clusters()
-    assigned_missing = get_assigned_missing(x.fit=x.fit, x.simul=x.simul)
-    added = sapply(assigned_missing, function(i) i[["added_fp"]]) %>% unlist() %>% paste(collapse=",")
-    missing = sapply(assigned_missing, function(i) i[["missing_fn"]]) %>% unlist() %>% paste(collapse=",")
-    
-    caption = paste("Added signatures (FP):", added, "- Missing signatures (FN):", missing)
-    
-    plot_QC(x.fit) & patchwork::plot_annotation(title=paste0(fit_id, " , fitname: ", fitname), caption=caption)
-  })
-  
-  pdf(stringr::str_replace_all(fname, ".Rds", ".pdf") %>% stringr::str_replace_all("simul_fit","plots_fit"), width=20, height=16)
-  print(plots)
-  dev.off()
-  
-  pdf(stringr::str_replace_all(fname, ".Rds", ".pdf") %>% stringr::str_replace_all("simul_fit","plots_QC"), width=20, height=16)
-  print(QC)
-  dev.off()
-  
-})
+# # save plots for each fit #####
+# lapply(files, function(fname) {
+#   tmp = strsplit(fname, split="/")[[1]]; fit_id = tmp[length(tmp)]
+#   simul_fit = readRDS(fname)
+#   x.simul = simul_fit$dataset
+#   types = get_types(x.simul)
+#   
+#   plots = lapply(fitnames, function(fitname) {
+#     x.fit = simul_fit[[fitname]] %>%
+#       # rename_dn_expos() %>%
+#       merge_clusters()
+#     assigned_missing = get_assigned_missing(x.fit=x.fit, x.simul=x.simul)
+#     added = sapply(assigned_missing, function(i) i[["added_fp"]]) %>% unlist() %>% paste(collapse=",")
+#     missing = sapply(assigned_missing, function(i) i[["missing_fn"]]) %>% unlist() %>% paste(collapse=",")
+#     
+#     caption = paste("Added signatures (FP):", added, "- Missing signatures (FN):", missing)
+#     
+#     patchwork::wrap_plots(plot_fit(x.fit),
+#                           plot_fit(x.simul), ncol=1) &
+#       patchwork::plot_annotation(title=paste0(fit_id, " , fitname: ", fitname),
+#                                  subtitle="Fit (top) and simulated (bottom)",
+#                                  caption=caption)
+#   })
+#   
+#   QC = lapply(fitnames, function(fitname) {
+#     x.fit = simul_fit[[fitname]] %>%
+#       merge_clusters()
+#     assigned_missing = get_assigned_missing(x.fit=x.fit, x.simul=x.simul)
+#     added = sapply(assigned_missing, function(i) i[["added_fp"]]) %>% unlist() %>% paste(collapse=",")
+#     missing = sapply(assigned_missing, function(i) i[["missing_fn"]]) %>% unlist() %>% paste(collapse=",")
+#     
+#     caption = paste("Added signatures (FP):", added, "- Missing signatures (FN):", missing)
+#     
+#     plot_QC(x.fit) & patchwork::plot_annotation(title=paste0(fit_id, " , fitname: ", fitname), caption=caption)
+#   })
+#   
+#   pdf(stringr::str_replace_all(fname, ".Rds", ".pdf") %>% stringr::str_replace_all("simul_fit","plots_fit"), width=20, height=16)
+#   print(plots)
+#   dev.off()
+#   
+#   pdf(stringr::str_replace_all(fname, ".Rds", ".pdf") %>% stringr::str_replace_all("simul_fit","plots_QC"), width=20, height=16)
+#   print(QC)
+#   dev.off()
+#   
+# })
 

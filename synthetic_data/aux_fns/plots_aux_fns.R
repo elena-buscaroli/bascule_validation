@@ -22,8 +22,8 @@ plot_K = function(all_stats, fill="", facet="type ~ metric",
   vln_fn = geom_violin(aes(x=factor(N), y=value), draw_quantiles=c(.5), 
                        position=position_dodge(width=1.2))
   if (fill != "") {
-    vln_fn = geom_violin(aes(x=factor(N), y=value, fill=get(fill)), 
-                         draw_quantiles=c(.5), lwd=.3, 
+    vln_fn = geom_violin(aes(x=factor(N), y=value, color=get(fill), fill=get(fill)), 
+                         draw_quantiles=c(.5), lwd=.3, alpha=0.7,
                          position=position_dodge(width=.7))
   } else { pal = c() }
   
@@ -32,7 +32,7 @@ plot_K = function(all_stats, fill="", facet="type ~ metric",
     reshape2::melt(id=id_cols, variable.name="metric") %>% 
     dplyr::filter(grepl(pattern, metric)) %>%
     plt(fn=vln_fn, pal=pal, fill=fill, facet=facet, grps_cols=grps_cols) +
-    geom_hline(yintercept=1, color="grey60", linetype="dashed") +
+    geom_hline(yintercept=1, linewidth=0.1, color="grey60", linetype="dashed") +
     ylim(0,NA)
   
   if (fill=="") p + geom_jitter(aes(x=factor(N), y=value), size=.5, alpha=.7)
@@ -50,7 +50,8 @@ plot_performance = function(all_stats, fill="", facet="type ~ variable",
   
   bxplt_fn = geom_boxplot(aes(x=factor(N), y=value), outlier.shape=NA)
   if (fill != "") {
-    bxplt_fn = geom_boxplot(aes(x=factor(N), y=value, fill=get(fill)), outlier.shape=NA, lwd=0.3)
+    bxplt_fn = geom_boxplot(aes(x=factor(N), y=value, color=get(fill), fill=get(fill)), 
+                            outlier.shape=NA, lwd=0.3, alpha=0.7)
   } else { pal = c() }
   
   cosine = mse = NULL
