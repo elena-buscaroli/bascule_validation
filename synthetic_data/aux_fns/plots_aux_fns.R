@@ -132,7 +132,7 @@ get_colnames_islist = function(all_stats) {
 
 get_id_cols = function(all_stats) {
   ids = c("N","G","seed","idd","fname","type",
-          "penalty","K_true_cat","label")
+          "penalty","K_true_cat","label","source","nMuts")
   return(intersect(ids, colnames(all_stats)))
 }
 

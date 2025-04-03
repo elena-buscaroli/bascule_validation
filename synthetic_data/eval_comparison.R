@@ -1,4 +1,5 @@
 dataset_id = "generative_model/all_fits/"
+# dataset_id = "SigFitTest"
 
 # args = commandArgs(trailingOnly=TRUE)
 # dataset_id = args[1]  # either "generative_model/all_fits/" or "SigFitTest"
@@ -20,8 +21,15 @@ source("~/GitHub/bascule_validation/synthetic_data/aux_fns/eval_aux_fns.R")
 source("~/GitHub/bascule_validation/synthetic_data/aux_fns/plots_aux_fns.R")
 
 # Generate stats dataframe ##### 
-runids = c("BASCULE", "SigProfiler", "SparseSignatures", "SignatureToolsLib")
-fitnames = c("x.fit0.auto", "sigprofiler", "sparsesignatures", "signaturetoolslib")
+if ( grepl("generative_model", dataset_id) ) {
+  runids = c("BASCULE", "SigProfiler", "SparseSignatures", "SignatureToolsLib_E", "SignatureToolsLib")
+  fitnames = c("x.fit0.auto", "sigprofiler", "sparsesignatures", "signaturetoolslib_E", "signaturetoolslib")
+}
+
+if ( grepl("SigFitTest", dataset_id) ) {
+  runids = c("BASCULE", "BASCULE_refined", "SigProfiler", "SparseSignatures", "SignatureToolsLib")
+  fitnames = c("fit.0", "fit_refined.0", "sigprofiler", "sparsesignatures", "signaturetoolslib")
+}
 
 # path = paste0("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits_generative_model/all_fits/fits_dn.", run_id, "/")
 # path = file.path(main_path, paste0("fits_generative_model/all_fits/fits_dn.", run_id, "/"))

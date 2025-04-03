@@ -139,6 +139,14 @@ stats_single_data = function(fname, names_fits=list("NoPenalty"="fit.0", "Penalt
       dplyr::mutate(penalty=ff)
   }) %>% dplyr::bind_rows()
   
+  source = nMuts = NULL
+  idd_tmp = stringr::str_remove_all(idd, ".Rds")
+  idd_tmp = stringr::str_remove_all(idd_tmp, paste0(".", dataset_id))
+  try({
+    source = strsplit(idd_tmp, "[.]")[[1]][5]
+    nMuts = strsplit(idd_tmp, "[.]")[[1]][6]
+  })
+  
   return(
     tibble::tibble(fname=fname,
                    "N"=(stringr::str_replace_all(idd, "N", "") %>% strsplit(split="[.]"))[[1]][2] %>%
@@ -147,6 +155,8 @@ stats_single_data = function(fname, names_fits=list("NoPenalty"="fit.0", "Penalt
                      as.numeric(),
                    "seed"=(stringr::str_replace_all(idd, "s", "") %>% strsplit(split="[.]"))[[1]][4] %>%
                      as.numeric(),
+                   "source"=source,
+                   "nMuts"=nMuts,
                    "idd"=idd) %>%
       dplyr::select(N, G, seed, idd, dplyr::everything()) %>%
       dplyr::bind_cols(stats)
@@ -178,6 +188,7 @@ eval_single_fit_matched = function(x.fit, x.simul, fname=NULL, cutoff=0.8) {
 
 
   ari_nmi = ari_nmi_KM = ari_nmi_KL = ari_nmi_JS = list(NA, NA)
+  sil_ch_TRUE = sil_ch_DP = sil_ch_KM = sil_ch_KL = sil_ch_JS = list(NA, NA)
   if (have_groups(x.fit)) {
     ari_nmi = compute_ari_nmi(groups_simul=get_cluster_assignments(x.simul) %>% dplyr::arrange(samples) %>% dplyr::pull(clusters), 
                               groups_fit=get_cluster_assignments(x.fit) %>% dplyr::arrange(samples) %>% dplyr::pull(clusters))
@@ -216,6 +227,15 @@ eval_single_fit_matched = function(x.fit, x.simul, fname=NULL, cutoff=0.8) {
                                  groups_fit=KL.KM_groups %>% dplyr::arrange(samples) %>% dplyr::pull(clusters))
     ari_nmi_JS = compute_ari_nmi(groups_simul=get_cluster_assignments(x.simul) %>% dplyr::arrange(samples) %>% dplyr::pull(clusters), 
                                  groups_fit=JS.spect_groups %>% dplyr::arrange(samples) %>% dplyr::pull(clusters))
+    
+    expos = get_exposure(x.fit, matrix=T) %>% dplyr::bind_cols()
+    d_matrix = js_dist_matrix(as.matrix(expos))
+    sil_ch_TRUE = compute_sil_ch(expos, d_matrix, x.simul$clustering$clusters$clusters %>% as.factor() %>% as.numeric())
+    sil_ch_DP = compute_sil_ch(expos, d_matrix, stringr::str_remove_all(x.fit$clustering$clusters$clusters, "G") %>% as.numeric())
+    sil_ch_KM = compute_sil_ch(expos, d_matrix, KM_groups %>% dplyr::arrange(samples) %>% dplyr::pull(clusters))
+    sil_ch_KL = compute_sil_ch(expos, d_matrix, KL.KM_groups %>% dplyr::arrange(samples) %>% dplyr::pull(clusters))
+    sil_ch_JS = compute_sil_ch(expos, d_matrix, JS.spect_groups %>% dplyr::arrange(samples) %>% dplyr::pull(clusters))
+    
   }
 
   lapply(get_types(x.fit), function(tid) {
@@ -273,6 +293,11 @@ eval_single_fit_matched = function(x.fit, x.simul, fname=NULL, cutoff=0.8) {
       "nmi_KL"=ari_nmi_KL[[2]],
       "ari_JS"=ari_nmi_JS[[1]],
       "nmi_JS"=ari_nmi_JS[[2]],
+      "scores_TRUE"=list(sil_ch_TRUE),
+      "scores_DP"=list(sil_ch_DP),
+      "scores_KM"=list(sil_ch_KM),
+      "scores_KL"=list(sil_ch_KL),
+      "scores_JS"=list(sil_ch_JS),
       
       "type"=tid
     ) %>% 
@@ -313,7 +338,7 @@ run_clustering = function(x.fit, method, B=50) {
     }
 
   } else if (method == "kl_kmeans") {
-    best_K = kl_kmeans_bestK(expos, kmin=2, kmax=max_g)
+    best_K = kl_kmeans_bestK(expos, kmin=1, kmax=max_g)
     
     if (best_K > 1) {
       res_tmp = kl_kmeans(expos, best_K)
@@ -324,9 +349,9 @@ run_clustering = function(x.fit, method, B=50) {
     }
     
   } else if (method == "js_spectral") {
-    dist_matrix = js_dist_matrix(expos)
-    sim_matrix = similarity_matrix(dist_matrix)
-    best_K = js_spectral_bestK(sim_matrix, kmin=2, kmax=max_g, js_dist_matrix=dist_matrix)
+    d_matrix = js_dist_matrix(expos)
+    sim_matrix = similarity_matrix(d_matrix)
+    best_K = js_spectral_bestK(sim_matrix, kmin=1, kmax=max_g, d_matrix=d_matrix)
     
     if (best_K > 1) {
       res_tmp = js_spectral(sim_matrix, best_K)
@@ -396,6 +421,11 @@ kl_kmeans_bestK = function(input_mat, kmin, kmax) {
   for (i in seq_along(k_range)) {
     k_i = k_range[i]
     
+    if (k_i == 1) {
+      sil_values[i] = 0
+      next
+    }
+    
     kcca_model = kl_kmeans(input_mat, k=k_i) # flexclust::kcca(as.matrix(input_mat), k=k_i, family=kl_family)
     sil = cluster::silhouette(kcca_model$cluster, as.dist(kl_dist_matrix))
     sil_values[i] = mean(sil[, 3])
@@ -412,8 +442,8 @@ library(proxy)
 
 js_divergence = function(p, q) {
   m = (p + q) / 2
-  kl_p_m = sum(p * log(p / (m + 1e-10)))
-  kl_q_m = sum(q * log(q / (m + 1e-10)))
+  kl_p_m = sum(p * log(p / (m + 1e-10), base=2))
+  kl_q_m = sum(q * log(q / (m + 1e-10), base=2))
   0.5 * (kl_p_m + kl_q_m)
 }
 
@@ -432,19 +462,78 @@ js_spectral = function(sim_matrix, k) {
   return(list(cluster=res@.Data, fit_obj=res))
 }
 
-js_spectral_bestK = function(sim_matrix, kmin, kmax, js_dist_matrix) {
+js_spectral_bestK = function(sim_matrix, kmin, kmax, d_matrix) {
   k_range = kmin:kmax
   sil_values = numeric(length(k_range))
   
   for (i in seq_along(k_range)) {
     k_i = k_range[i]
+    
+    if (k_i == 1) {
+      sil_values[i] = 0
+      next
+    }
 
     sc_model = js_spectral(sim_matrix, k=k_i) # kernlab::specc(as.kernelMatrix(sim_matrix), centers=k_i)
-    sil = cluster::silhouette(sc_model$cluster, as.dist(js_dist_matrix))
+    sil = cluster::silhouette(sc_model$cluster, as.dist(d_matrix))
     sil_values[i] = mean(sil[, 3])
   }
   
   return(k_range[which.max(sil_values)])
+}
+
+
+
+## Scores #####
+
+compute_sil_ch = function(input_mat, d_matrix, labels) {
+  list("sil"=silhouette_js(d_matrix, labels),
+       "ch"=js_ch_index(input_mat, labels))
+}
+
+
+## JS Silhouette score #####
+
+silhouette_js = function(d_matrix, labels) {
+  # d_matrix = js_dist_matrix(input_mat)
+  
+  if (length(unique(labels)) == 1) return(0)
+  
+  sil = cluster::silhouette(labels, d_matrix)
+  return(mean(sil[, 3]))
+}
+
+
+
+## JS Calinski-Harabasz Index #####
+
+js_ch_index = function(input_mat, labels) {
+  unique_labels = unique(labels)
+  k = length(unique_labels)
+  N = nrow(input_mat)
+  
+  if (k == 1) return(NA)
+  
+  global_centroid = colMeans(input_mat)
+  
+  cluster_centroids = lapply(unique_labels, function(label) {
+    colMeans(input_mat[labels == label, , drop = FALSE])
+  }) %>% setNames(unique_labels)
+
+  bss_js = sum(sapply(unique_labels, function(label) {
+    n_cluster = sum(labels == label)
+    centroid = cluster_centroids[[as.character(label)]]
+    n_cluster * js_divergence(centroid, global_centroid)^2
+  }))
+  
+  wss_js = sum(sapply(1:N, function(i) {
+    cluster_id = labels[i]
+    js_divergence(input_mat[i, ], cluster_centroids[[as.character(cluster_id)]])^2
+  }))
+  
+  js_ch_index = (bss_js / (k - 1)) / (wss_js / (N - k))
+  
+  return(js_ch_index)
 }
 
 

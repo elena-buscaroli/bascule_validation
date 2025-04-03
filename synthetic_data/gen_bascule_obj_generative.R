@@ -19,7 +19,7 @@ ss_signature_selection = file.path(ss_path, "signature_selection.csv") %>%
   read.csv(header=FALSE, col.names=c("filename", "lambd_a", "lambd_b", "K")) %>% 
   mutate(file_id=paste(stringr::str_remove_all(K, "_Signatures"), lambd_a, lambd_b, sep="_")) %>% 
   as_tibble()
-stl_path = file.path(main_path, "signaturetoolslib/")
+stl_path = file.path(main_path, "signaturetoolslib_E/")
 
 save_path = file.path(main_path, "all_fits/fits_dn.matched.2011.compare_LAST/")
 dir.create(save_path)
