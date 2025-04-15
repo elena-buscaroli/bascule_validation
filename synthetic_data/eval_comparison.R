@@ -1,4 +1,4 @@
-dataset_id = "generative_model/all_fits/"
+# dataset_id = "generative_model/all_fits/"
 # dataset_id = "SigFitTest"
 
 # args = commandArgs(trailingOnly=TRUE)
@@ -27,8 +27,8 @@ if ( grepl("generative_model", dataset_id) ) {
 }
 
 if ( grepl("SigFitTest", dataset_id) ) {
-  runids = c("BASCULE", "BASCULE_refined", "SigProfiler", "SparseSignatures", "SignatureToolsLib")
-  fitnames = c("fit.0", "fit_refined.0", "sigprofiler", "sparsesignatures", "signaturetoolslib")
+  runids = c("BASCULE", "SigProfiler", "SparseSignatures", "SignatureToolsLib_E", "SignatureToolsLib")
+  fitnames = c("fit_refined.0", "sigprofiler", "sparsesignatures", "signaturetoolslib_E", "signaturetoolslib")
 }
 
 # path = paste0("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits_generative_model/all_fits/fits_dn.", run_id, "/")
@@ -51,6 +51,13 @@ if (!file.exists(paste0(save_path, "stats_", out_id, ".Rds"))) {
   # }, mc.cores=n_cores/4
   }
   ) %>% dplyr::bind_rows()
+  
+  # files_tmp = list.files(path, full.names=T, pattern=glob2rx("simul_fit*.G1.*.Rds"))
+  # all_stats_tmp = fn(files_tmp[1:3], function(fname) {
+  #   stats_single_data(fname, names_fits=fitnames %>% setNames(runids))
+  #   # }, mc.cores=n_cores/4
+  # }
+  # ) %>% dplyr::bind_rows()
   
   saveRDS(all_stats, paste0(save_path, "stats_", out_id, ".Rds"))
 }

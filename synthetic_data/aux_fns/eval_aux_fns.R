@@ -1,5 +1,5 @@
 compute_quantiles = function(all_stats, colname) {
-  qq = all_stats[[colname]] %>% quantile(c(0.33,0.66,1.))
+  qq=all_stats[[colname]] %>% quantile(c(0.33,0.66,1.))
   
   all_stats %>% 
     dplyr::mutate("{colname}_cat":=dplyr::case_when(
@@ -8,8 +8,6 @@ compute_quantiles = function(all_stats, colname) {
     .data[[colname]] > qq[[2]] & .data[[colname]] <= qq[[3]] ~ paste0(qq[[2]]+1,"-",qq[[3]])
   ))
 }
-
-
 
 
 make_boxplot = function(all_stats, colname) {
@@ -23,17 +21,8 @@ make_boxplot = function(all_stats, colname) {
 }
 
 
-
-make_plots_stats = function(all_stats) {
+make_plots_stats=function(all_stats) {
   stats_tmp = all_stats
-    # dplyr::select(N, G, seed, penalty, dplyr::contains("cosine_fixed")) %>%
-    # dplyr::rowwise() %>%
-    # dplyr::mutate(cosine_fixed_SBS=ifelse(length(cosine_fixed_SBS)>0,
-    #                                       list(unlist(cosine_fixed_SBS)),
-    #                                       cosine_fixed_SBS),
-    #               cosine_fixed_DBS=ifelse(length(cosine_fixed_DBS)>0,
-    #                                       list(unlist(cosine_fixed_DBS)),
-    #                                       cosine_fixed_DBS))
 
   sim1 = make_boxplot(stats_tmp %>% tidyr::unnest(cosine_fixed_SBS), "cosine_fixed_SBS") + labs(title="cosine_fixed_SBS")
   sim2 = make_boxplot(stats_tmp %>% tidyr::unnest(cosine_fixed_DBS), "cosine_fixed_DBS") + labs(title="cosine_fixed_DBS")
@@ -65,7 +54,6 @@ make_plots_stats = function(all_stats) {
     patchwork::wrap_plots(mse_counts, cosine_expos, cosine_sigs, k_ratio, sim1, sim2, ncol=3)
   )
 }
-
 
 
 make_plots_stats_compare = function(all_stats, boxplot=TRUE) {
@@ -120,7 +108,6 @@ make_plots_stats_compare = function(all_stats, boxplot=TRUE) {
 }
 
 
-
 stats_single_data = function(fname, names_fits=list("NoPenalty"="fit.0", "PenaltyN"="fit.N")) {
   cat(paste0(fname, "\n"))
   simul_fit = readRDS(fname)
@@ -130,7 +117,7 @@ stats_single_data = function(fname, names_fits=list("NoPenalty"="fit.0", "Penalt
     simul_fit[[fitname]] %>% merge_clusters()) %>% 
     setNames(names(names_fits))
   
-  idd = strsplit(fname, "/")[[1]]; idd = idd[[length(idd)]]
+  idd = strsplit(fname, "/")[[1]]; idd=idd[[length(idd)]]
   
   stats = lapply(names(fits), function(ff) {
     print(ff)
@@ -164,30 +151,20 @@ stats_single_data = function(fname, names_fits=list("NoPenalty"="fit.0", "Penalt
 }
 
 
-
 eval_single_fit_matched = function(x.fit, x.simul, fname=NULL, cutoff=0.8) {
   add_unassigned = rep(FALSE, length.out=length(get_types(x.fit))) %>% setNames(get_types(x.fit))
   for (tid in get_types(x.fit)) {
     if("unassigned" %in% colnames(get_exposure(x.fit, matrix=T)[[tid]])) {
-      x.fit$nmf[[tid]]$exposure = x.fit$nmf[[tid]]$exposure %>% dplyr::filter(sigs!="unassigned")
-      add_unassigned[[tid]] = TRUE
+      x.fit$nmf[[tid]]$exposure=x.fit$nmf[[tid]]$exposure %>% dplyr::filter(sigs!="unassigned")
+      add_unassigned[[tid]]=TRUE
     }
   }
   
   x.fit = x.fit %>% rename_dn_expos()
   assigned_missing_all = get_assigned_missing(x=x.fit, x.simul=x.simul, cutoff=cutoff)
   
-  # for (tid in get_types(x.fit)) {
-  #   expos = get_exposure(x.fit, matrix=T)[[tid]]
-  #   if (add_unassigned[[tid]]) {
-  #     print("INSIDE IF")
-  #     expos$unassigned = 1 - rowSums(expos)
-  #     x.fit$nmf[[tid]]$exposure = expos %>% wide_to_long(what="exposures")
-  #   }
-  # }
-
-
   ari_nmi = ari_nmi_KM = ari_nmi_KL = ari_nmi_JS = list(NA, NA)
+  clustering_fits = NULL
   sil_ch_TRUE = sil_ch_DP = sil_ch_KM = sil_ch_KL = sil_ch_JS = list(NA, NA)
   if (have_groups(x.fit)) {
     ari_nmi = compute_ari_nmi(groups_simul=get_cluster_assignments(x.simul) %>% dplyr::arrange(samples) %>% dplyr::pull(clusters), 
@@ -196,30 +173,22 @@ eval_single_fit_matched = function(x.fit, x.simul, fname=NULL, cutoff=0.8) {
     clustering_fname = fname %>% stringr::str_replace_all("simul_fit", "clustering")
     
     KM_groups = KL.KM_groups = JS.spect_groups = NULL
-    # if (!is.null(fname) & file.exists(clustering_fname)) {
-    #   clustering_fits = readRDS(clustering_fname)
-    #   KM_groups = clustering_fits$KMeans
-    #   KL.KM_groups = clustering_fits$KL_KMeans
-    #   JS.spect_groups = clustering_fits$JS_spectral
-    # }
     if (is.null(KM_groups)) {
-      KM_groups = run_clustering(x.fit, method="kmeans")
+      KM_groups = run_clustering(x.fit, method="kmeans", B=10)
       cat("Kmeans done.\n")
     }
     if (is.null(KL.KM_groups)) {
-      KL.KM_groups = run_clustering(x.fit, method="kl_kmeans")
+      KL.KM_groups = run_clustering(x.fit, method="kl_kmeans", B=10)
       cat("KL-Kmeans done.\n")
     }
     if (is.null(JS.spect_groups)) {
-      JS.spect_groups = run_clustering(x.fit, method="js_spectral")
+      JS.spect_groups = run_clustering(x.fit, method="js_spectral", B=10)
       cat("Spectral clustering done.\n")
     }
       
     clustering_fits = list(KMeans=KM_groups,
                            KL_KMeans=KL.KM_groups,
                            JS_spectral=JS.spect_groups)
-    
-    # if (!is.null(fname)) saveRDS(clustering_fits, file=clustering_fname)
     
     ari_nmi_KM = compute_ari_nmi(groups_simul=get_cluster_assignments(x.simul) %>% dplyr::arrange(samples) %>% dplyr::pull(clusters), 
                                  groups_fit=KM_groups %>% dplyr::arrange(samples) %>% dplyr::pull(clusters))
@@ -235,15 +204,14 @@ eval_single_fit_matched = function(x.fit, x.simul, fname=NULL, cutoff=0.8) {
     sil_ch_KM = compute_sil_ch(expos, d_matrix, KM_groups %>% dplyr::arrange(samples) %>% dplyr::pull(clusters))
     sil_ch_KL = compute_sil_ch(expos, d_matrix, KL.KM_groups %>% dplyr::arrange(samples) %>% dplyr::pull(clusters))
     sil_ch_JS = compute_sil_ch(expos, d_matrix, JS.spect_groups %>% dplyr::arrange(samples) %>% dplyr::pull(clusters))
-    
   }
 
   lapply(get_types(x.fit), function(tid) {
-    sigs.fit = get_signatures(x.fit, matrix=T)[[tid]]; sigs.simul = get_signatures(x.simul, matrix=T)[[tid]]
+    sigs.fit = get_signatures(x.fit, matrix=T)[[tid]]; sigs.simul=get_signatures(x.simul, matrix=T)[[tid]]
     sigs_fixed.fit = get_fixed_signatures(x.fit, matrix=T)[[tid]]
     sigs_dn.fit = get_denovo_signatures(x.fit, matrix=T)[[tid]]
     
-    expos.fit = get_exposure(x.fit, matrix=T)[[tid]]; expos.simul = get_exposure(x.simul, matrix=T)[[tid]]
+    expos.fit = get_exposure(x.fit, matrix=T)[[tid]]; expos.simul=get_exposure(x.simul, matrix=T)[[tid]]
     
     assigned_missing = assigned_missing_all[[tid]]
     assigned = assigned_missing$assigned_tp
@@ -298,6 +266,7 @@ eval_single_fit_matched = function(x.fit, x.simul, fname=NULL, cutoff=0.8) {
       "scores_KM"=list(sil_ch_KM),
       "scores_KL"=list(sil_ch_KL),
       "scores_JS"=list(sil_ch_JS),
+      "clustering_fits"=list(clustering_fits),
       
       "type"=tid
     ) %>% 
@@ -327,7 +296,7 @@ run_clustering = function(x.fit, method, B=50) {
   expos = get_exposure(x.fit, matrix=T) %>% dplyr::bind_cols()
 
   if (method == "kmeans") {
-    best_K = kmeans_bestK(expos, kmin=2, kmax=max_g)
+    best_K = kmeans_bestK(expos, kmax=max_g, B=B)
     
     if (best_K > 1) {
       res_tmp = kmeans(expos, centers=best_K, nstart=25)
@@ -338,7 +307,7 @@ run_clustering = function(x.fit, method, B=50) {
     }
 
   } else if (method == "kl_kmeans") {
-    best_K = kl_kmeans_bestK(expos, kmin=1, kmax=max_g)
+    best_K = kl_kmeans_bestK(input_mat=expos, kmax=max_g, B=B)
     
     if (best_K > 1) {
       res_tmp = kl_kmeans(expos, best_K)
@@ -349,18 +318,15 @@ run_clustering = function(x.fit, method, B=50) {
     }
     
   } else if (method == "js_spectral") {
-    d_matrix = js_dist_matrix(expos)
-    sim_matrix = similarity_matrix(d_matrix)
-    best_K = js_spectral_bestK(sim_matrix, kmin=1, kmax=max_g, d_matrix=d_matrix)
+    best_K = js_spectral_bestK(input_mat=expos, kmax=max_g, B=B)
     
     if (best_K > 1) {
-      res_tmp = js_spectral(sim_matrix, best_K)
+      res_tmp = js_spectral(input_mat=expos, k=best_K)
       fit_obj = res_tmp$fit_obj
     } else {
       res_tmp = list(cluster=rep(1, nrow(expos)) %>% setNames(rownames(expos)))
       fit_obj = NULL
     }
-    
   }
   
   return(tibble::tibble(samples=rownames(expos), clusters=res_tmp$cluster, obj=list(fit_obj)))
@@ -369,22 +335,9 @@ run_clustering = function(x.fit, method, B=50) {
 
 ## Kmeans #####
 
-kmeans_bestK = function(input_mat, kmin, kmax) {
-  k_range = kmin:kmax
-  sil_values = numeric(length(k_range))
-  
-  km_dist_matrix = dist(input_mat)
-  
-  for (i in seq_along(k_range)) {
-    k_i = k_range[i]
-    
-    set.seed(i)
-    kmeans_model = kmeans(as.matrix(input_mat), centers=k_i, nstart=25)
-    sil = cluster::silhouette(kmeans_model$cluster, km_dist_matrix)
-    sil_values[i] = mean(sil[, 3])
-  }
-  
-  return(k_range[which.max(sil_values)])
+kmeans_bestK = function(input_mat, kmax, B) {
+  gap_stats = cluster::clusGap(input_mat, FUNcluster=kmeans, K.max=kmax, B=B)
+  return(cluster::maxSE(gap_stats$Tab[, "gap"], gap_stats$Tab[, "SE.sim"], method="Tibs2001SEmax"))
 }
 
 ## KL clustering #####
@@ -406,32 +359,21 @@ kl_distance_row = function(x, centers) {
 kl_family = flexclust::kccaFamily(dist=kl_distance_row, cent=function(x) colMeans(x), name="KL_dist")
 
 kl_kmeans = function(input_mat, k) {
+  if (k == 1) 
+    return(list(cluster=rep(1, length.out=nrow(input_mat)), fit_obj=NA))
+  
   set.seed(k)
   res = flexclust::kcca(as.matrix(input_mat), k=k, family=kl_family)
   return(list(cluster=res@cluster, fit_obj=res))
 }
 
-kl_kmeans_bestK = function(input_mat, kmin, kmax) {
-  k_range = kmin:kmax
-  sil_values = numeric(length(k_range))
+kl_kmeans_bestK = function(input_mat, kmax, B) {
+  gap_stats = gap_stat_custom(input_mat=input_mat, kmax=kmax, B=B,
+                              cluster_fn=kl_kmeans, distance_fn=kl_family@dist)
+  return(gap_stats$best_k)
   
-  kl_dist_matrix = kl_distance_row(as.matrix(input_mat), centers=as.matrix(input_mat))
-  cat("KL distance matrix done\n")
-  
-  for (i in seq_along(k_range)) {
-    k_i = k_range[i]
-    
-    if (k_i == 1) {
-      sil_values[i] = 0
-      next
-    }
-    
-    kcca_model = kl_kmeans(input_mat, k=k_i) # flexclust::kcca(as.matrix(input_mat), k=k_i, family=kl_family)
-    sil = cluster::silhouette(kcca_model$cluster, as.dist(kl_dist_matrix))
-    sil_values[i] = mean(sil[, 3])
-  }
-  
-  return(k_range[which.max(sil_values)])
+  # gap_stats = cluster::clusGap(input_mat, FUNcluster=kl_kmeans, K.max=kmax, B=10, spaceH0="original")
+  # return(cluster::maxSE(gap_stats$Tab[, "gap"], gap_stats$Tab[, "SE.sim"], method="Tibs2001SEmax"))
 }
 
 
@@ -456,30 +398,28 @@ similarity_matrix = function(dist_matrix) {
   exp(-dist_matrix^2 / (2 * sigma^2))
 }
 
-js_spectral = function(sim_matrix, k) {
+js_spectral = function(k, input_mat=NULL, sim_matrix=NULL) {
+  N = max(nrow(input_mat), nrow(sim_matrix))
+  if (k == 1)
+    return(list(cluster=rep(1, length.out=N), fit_obj=NA))
+  
+  if (is.null(sim_matrix)) {
+    d_matrix = js_dist_matrix(input_mat)
+    sim_matrix = similarity_matrix(d_matrix)
+  }
+  
   set.seed(k)
   res = kernlab::specc(as.kernelMatrix(sim_matrix), centers=k)
   return(list(cluster=res@.Data, fit_obj=res))
 }
 
-js_spectral_bestK = function(sim_matrix, kmin, kmax, d_matrix) {
-  k_range = kmin:kmax
-  sil_values = numeric(length(k_range))
-  
-  for (i in seq_along(k_range)) {
-    k_i = k_range[i]
-    
-    if (k_i == 1) {
-      sil_values[i] = 0
-      next
-    }
+js_spectral_bestK = function(input_mat, kmax, B) {
+  gap_stats = gap_stat_custom(input_mat=input_mat, kmax=kmax, B=B,
+                              cluster_fn=js_spectral, distance_fn=js_divergence)
+  return(gap_stats$best_k)
 
-    sc_model = js_spectral(sim_matrix, k=k_i) # kernlab::specc(as.kernelMatrix(sim_matrix), centers=k_i)
-    sil = cluster::silhouette(sc_model$cluster, as.dist(d_matrix))
-    sil_values[i] = mean(sil[, 3])
-  }
-  
-  return(k_range[which.max(sil_values)])
+  # gap_stats = cluster::clusGap(sim_matrix, FUNcluster=js_spectral, K.max=kmax, B=10, spaceH0="original")
+  # return(cluster::maxSE(gap_stats$Tab[, "gap"], gap_stats$Tab[, "SE.sim"], method="Tibs2001SEmax"))
 }
 
 
@@ -495,9 +435,7 @@ compute_sil_ch = function(input_mat, d_matrix, labels) {
 ## JS Silhouette score #####
 
 silhouette_js = function(d_matrix, labels) {
-  # d_matrix = js_dist_matrix(input_mat)
-  
-  if (length(unique(labels)) == 1) return(0)
+  if (length(unique(labels)) == 1) labels[1] = labels[1] + 1
   
   sil = cluster::silhouette(labels, d_matrix)
   return(mean(sil[, 3]))
@@ -508,16 +446,17 @@ silhouette_js = function(d_matrix, labels) {
 ## JS Calinski-Harabasz Index #####
 
 js_ch_index = function(input_mat, labels) {
+  
+  if (length(unique(labels)) == 1) labels[1]=labels[1] + 1
+  
   unique_labels = unique(labels)
   k = length(unique_labels)
   N = nrow(input_mat)
   
-  if (k == 1) return(NA)
-  
   global_centroid = colMeans(input_mat)
   
   cluster_centroids = lapply(unique_labels, function(label) {
-    colMeans(input_mat[labels == label, , drop = FALSE])
+    colMeans(input_mat[labels == label, , drop=FALSE])
   }) %>% setNames(unique_labels)
 
   bss_js = sum(sapply(unique_labels, function(label) {
@@ -536,4 +475,63 @@ js_ch_index = function(input_mat, labels) {
   return(js_ch_index)
 }
 
+
+
+
+## Custom gap statistics #####
+
+gap_stat_custom = function(input_mat, kmax, cluster_fn, distance_fn, B=10, seed=123) {
+  set.seed(seed)
+  n = nrow(input_mat)
+  d = ncol(input_mat)
+  gap_values = numeric(kmax)
+  log_wks_null = matrix(0, nrow=B, ncol=kmax)
+  log_wks_obs = numeric(kmax)
+  
+  compute_dispersion = function(null_input_mat, cluster_labs, distance_fn) {
+    total_disp = 0
+    for (k in unique(cluster_labs)) {
+      cluster_points = null_input_mat[cluster_labs == k, , drop=FALSE]
+      if (nrow(cluster_points) > 1) {
+        centroid = as.matrix(colMeans(cluster_points)) %>% t()
+        dists = apply(cluster_points, 1, function(x) distance_fn(as.matrix(x) %>% t(), centroid))
+        total_disp = total_disp + sum(dists)
+      }
+    }
+    return(total_disp)
+  }
+  
+  for (k in 1:kmax) {
+    clusters_obs = cluster_fn(input_mat=input_mat, k=k)
+    Wk_obs = compute_dispersion(input_mat, clusters_obs$cluster, distance_fn)
+    log_wks_obs[k] = log(Wk_obs)
+    
+    for (b in 1:B) {
+      set.seed(b+k)
+      null_input_mat = t(apply(input_mat, 1, function(x) { dirmult::rdirichlet(n=1, alpha=x*10) + 1e-10 }))
+      clusters_null = cluster_fn(input_mat=null_input_mat, k=k)
+      Wk_null = compute_dispersion(null_input_mat, clusters_null$cluster, distance_fn)
+      log_wks_null[b, k] = log(Wk_null)
+      cat(".")
+    }
+    
+    gap_values[k] = mean(log_wks_null[, k]) - log_wks_obs[k]
+    cat("\n")
+  }
+  
+  # 1-SE rule: pick the smallest k such that Gap(k) >= Gap(k+1) - s_{k+1}
+  sdk = apply(log_wks_null, 2, sd) * sqrt(1 + 1/B)
+  best_k = 1
+  for (k in 1:(length(gap_values) - 1)) {
+    if (gap_values[k] >= gap_values[k + 1] - sdk[k + 1]) {
+      best_k = k
+      break
+    }
+  }
+  
+  return(list(gap=gap_values,
+              logWk_obs=log_wks_obs,
+              logWk_null=log_wks_null,
+              best_k=best_k))
+}
 
