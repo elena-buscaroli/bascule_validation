@@ -1,13 +1,17 @@
 library(magrittr)
 library(ggplot2)
+library(tidyverse)
 devtools::load_all("~/GitHub/bascule/")
 source("~/GitHub/bascule_validation/synthetic_data/aux_fns/eval_aux_fns.R")
 source("~/GitHub/bascule_validation/synthetic_data/aux_fns/plots_aux_fns.R")
 
 df_path = "~/Dropbox/dropbox_shared/2022. Basilica/simulations/stats_dataframes/"
-stats_bascule = readRDS(paste0(df_path, "stats_matched.2011_KM.Rds")) %>% 
+# stats_bascule = readRDS(paste0(df_path, "stats_matched.2011_KM.Rds")) %>% 
+#   compute_quantiles(colname="K_true")
+stats_bascule = readRDS(paste0(df_path, "stats_matched.2011.compare_LAST.generative_model.Rds")) %>% 
+  filter(penalty=="BASCULE", type=="SBS") %>%
   compute_quantiles(colname="K_true")
-stats_compare = readRDS(paste0(df_path, "stats_matched.2011.compare.Rds")) %>% 
+stats_compare = readRDS(paste0(df_path, "stats_matched.2011.compare_LAST.generative_model.Rds")) %>% 
   compute_quantiles(colname="K_true") %>% 
   dplyr::filter(type=="SBS") %>% 
   dplyr::mutate(penalty=replace(penalty, penalty=="Basilica", "BASCULE"))
@@ -30,8 +34,8 @@ theme_text = theme(axis.title=element_text(size=7.4),
 plots = list()
 
 pal_k_true = wesanderson::wes_palette("Cavalcanti1", 6, type="continuous")[c(1,4,3)]
-pal_methods = c("#7fb3d5", "#FF8C00", "#8FBC8B", "#DB7093") %>% 
-  setNames(c("BASCULE", "SigProfiler", "SparseSignatures","KMeans"))
+pal_methods = c("#7fb3d5", "#FF8C00", "#8FBC8B", "#DB7093", RColorBrewer::brewer.pal(4, name="Dark2")) %>% 
+  setNames(c("BASCULE", "SigProfiler", "SparseSignatures","SignatureToolsLib_E","KMeans","KL-KMeans","JS-Spectral"))
 
 
 # Basilica ####
@@ -39,11 +43,13 @@ pal_methods = c("#7fb3d5", "#FF8C00", "#8FBC8B", "#DB7093") %>%
 plots[["nmi"]] = stats_bascule %>% 
   dplyr::filter(type=="SBS") %>% 
   compute_quantiles(colname="K_true") %>% 
-  dplyr::select(idd, N, K_true_cat, nmi, nmi_KM) %>% 
+  dplyr::select(idd, N, G, K_true_cat, starts_with("nmi")) %>% 
   
-  tidyr::pivot_longer(cols=c("nmi","nmi_KM"), values_to="nmi", names_to="Method") %>% 
+  tidyr::pivot_longer(cols=starts_with("nmi"), values_to="nmi", names_to="Method") %>% 
   dplyr::mutate(Method=dplyr::case_when(Method=="nmi" ~ "BASCULE",
-                                        Method=="nmi_KM" ~ "KMeans")) %>% 
+                                        Method=="nmi_KM" ~ "KMeans",
+                                        Method=="nmi_KL" ~ "KL-KMeans",
+                                        Method=="nmi_JS" ~ "JS-Spectral")) %>% 
   
   dplyr::mutate(Method=reorder(Method, nmi, mean, decreasing=T)) %>% 
   
@@ -63,7 +69,8 @@ plots[["nmi"]] = stats_bascule %>%
                      # limits=names(pal_methods), 
                      name="Method") +
   theme_bw() + ylim(NA, 1)
-  
+
+plots[["nmi"]]
 
 
 # Comparison ####
@@ -96,7 +103,7 @@ plots[["recall"]] = stats_compare %>% dplyr::rowwise() %>%
                      breaks=names(pal_methods),
                      # limits=names(pal_methods), 
                      name="Method") 
-
+plots[["recall"]]
 
 ## mse ####
 plots[["mse_counts"]] = stats_compare %>%
@@ -122,6 +129,7 @@ plots[["mse_counts"]] = stats_compare %>%
                      breaks=names(pal_methods),
                      # limits=names(pal_methods),
                      name="Method")
+plots[["mse_counts"]]
 
 ## cosine sigs ####
 plots[["cosine_sigs"]] = stats_compare %>%
@@ -150,6 +158,7 @@ plots[["cosine_sigs"]] = stats_compare %>%
                      breaks=names(pal_methods),
                      # limits=names(pal_methods), 
                      name="Method") 
+plots[["cosine_sigs"]]
 
 ## cosine expos ####
 plots[["cosine_expos"]] = stats_compare %>%
@@ -176,6 +185,7 @@ plots[["cosine_expos"]] = stats_compare %>%
                      # limits=names(pal_methods), 
                      name="Method") 
 
+plots[["cosine_expos"]]
 
 ## runtimes ####
 times_sigpr = read.csv("~/Dropbox/dropbox_shared/2022. Basilica/simulations/runtimes/last/sigprofiler_exectimes.csv") %>% 
@@ -232,7 +242,7 @@ plots[["runtime"]] = dplyr::bind_rows(times_sigpr,
 # fit_simul = readRDS("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits/fits_dn.matched.2011/simul_fit.N500.G3.s11.matched.2011.Rds")
 # fit_simul = readRDS("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits/fits_dn.matched.2011/simul_fit.N150.G3.s22.matched.2011.Rds")
 # fit_simul = readRDS("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits/fits_dn.matched.2011/simul_fit.N150.G3.s12.matched.2011.Rds")
-fit_simul = readRDS("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits/fits_dn.matched.2011/simul_fit.N500.G3.s14.matched.2011.Rds")
+fit_simul = readRDS("~/Dropbox/dropbox_shared/2022. Basilica/simulations/fits_generative_model/fits_dn.matched.2011/simul_fit.N500.G3.s14.matched.2011.Rds")
 
 
 bas_mapped = fit_simul$fit.0.auto %>% 
@@ -329,6 +339,7 @@ panelG = plots[["nmi"]] +
   guides(fill=guide_legend(title="Method"),
          color=guide_legend(title="Method"))
 
+panelH = ggplot()
 panelH = plots[["runtime"]] + 
   labs(title="Runtime comparison",
        subtitle="Ratio of runtimes between competitors and BASCULE") +
@@ -355,10 +366,10 @@ a = patchwork::wrap_plots(
 # ggsave("~/Dropbox/dropbox_shared/2022. Basilica/paper/figure2/draft_fig2BIS.pdf", 
 #        height=120, width=210, units="cm")
 
-ggsave("paper/figure2/figure2_v2.pdf", plot=a,
+ggsave("paper/figure2/figure2_v3.pdf", plot=a,
        height=210, width=210, units="mm")
 
-ggsave("paper/figure2/figure2_v2.png", plot=a,
+ggsave("paper/figure2/figure2_v3.png", plot=a,
        height=210, width=210, units="mm", dpi=1000)
 
 # 210
