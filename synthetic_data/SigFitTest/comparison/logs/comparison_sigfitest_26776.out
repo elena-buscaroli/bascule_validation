@@ -1,0 +1,310 @@
+
+CondaError: Run 'conda init' before 'conda activate'
+
+ℹ Loading simbascule
+ℹ Loading bascule
+slurmstepd: error: *** JOB 26776 ON epyc001 CANCELLED AT 2025-05-05T17:32:45 DUE TO NODE FAILURE, SEE SLURMCTLD LOG FOR DETAILS ***
+✔ Loading bascule. Support : <https://caravagnalab.github.io/bascule/>
+
+Attaching package: ‘kernlab’
+
+The following object is masked from ‘package:flexclust’:
+
+    kcca
+
+The following object is masked from ‘package:bascule’:
+
+    alpha
+
+
+Attaching package: ‘proxy’
+
+The following objects are masked from ‘package:stats’:
+
+    as.dist, dist
+
+The following object is masked from ‘package:base’:
+
+    as.matrix
+
+Files path:
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST/
+
+Output path:
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//stats_dataframes/
+Output file:
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//stats_dataframes/stats_matched.2011.compare_LAST.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s0.WES.100.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s0.WES.2000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s0.WES.50000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s0.WGS.100.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s0.WGS.2000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s0.WGS.50000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s1.WES.100.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s1.WES.2000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s1.WES.50000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s1.WGS.100.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s1.WGS.2000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s1.WGS.50000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s10.WES.100.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s10.WES.2000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s10.WES.50000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s10.WGS.100.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s10.WGS.2000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s10.WGS.50000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s11.WES.100.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s11.WES.2000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s11.WES.50000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s11.WGS.100.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s11.WGS.2000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s11.WGS.50000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s12.WES.100.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s12.WES.2000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s12.WES.50000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s12.WGS.100.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s12.WGS.2000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s12.WGS.50000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s13.WES.100.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s13.WES.2000.SigFitTest.Rds
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "SigProfiler"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SigProfiler"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib_E"
+[1] "SparseSignatures"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib_E"
+[1] "SignatureToolsLib"
+[1] "SignatureToolsLib_E"
+[1] "SignatureToolsLib"
+[1] "SigProfiler"
+[1] "SignatureToolsLib_E"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s18.WGS.100.SigFitTest.Rds
+[1] "SignatureToolsLib_E"
+[1] "SignatureToolsLib"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s15.WES.50000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s16.WGS.100.SigFitTest.Rds
+[1] "BASCULE"
+[1] "SigProfiler"
+[1] "SigProfiler"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s17.WGS.50000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s16.WGS.50000.SigFitTest.Rds
+[1] "BASCULE"
+[1] "SparseSignatures"
+[1] "SparseSignatures"
+[1] "SigProfiler"
+[1] "BASCULE"
+[1] "SignatureToolsLib_E"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib_E"
+[1] "SignatureToolsLib_E"
+[1] "SigProfiler"
+[1] "SignatureToolsLib"
+[1] "BASCULE"
+[1] "SignatureToolsLib"
+[1] "BASCULE"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib"
+[1] "SigProfiler"
+[1] "SignatureToolsLib_E"
+[1] "SparseSignatures"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s13.WES.50000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s15.WES.100.SigFitTest.Rds
+[1] "SignatureToolsLib_E"
+[1] "SigProfiler"
+[1] "SigProfiler"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s17.WGS.100.SigFitTest.Rds
+[1] "SparseSignatures"
+[1] "SparseSignatures"
+[1] "BASCULE"
+[1] "SignatureToolsLib"
+[1] "SignatureToolsLib_E"
+[1] "SignatureToolsLib"
+[1] "BASCULE"
+[1] "SignatureToolsLib_E"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s16.WES.50000.SigFitTest.Rds
+[1] "BASCULE"
+[1] "SigProfiler"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s17.WES.2000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s18.WES.100.SigFitTest.Rds
+[1] "SparseSignatures"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s15.WGS.100.SigFitTest.Rds
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "SignatureToolsLib_E"
+[1] "SignatureToolsLib"
+[1] "SigProfiler"
+[1] "BASCULE"
+[1] "SigProfiler"
+[1] "BASCULE"
+[1] "SparseSignatures"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib_E"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib_E"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s13.WGS.50000.SigFitTest.Rds
+[1] "SignatureToolsLib"
+[1] "SignatureToolsLib_E"
+[1] "SignatureToolsLib"
+[1] "SigProfiler"
+[1] "SigProfiler"
+[1] "SignatureToolsLib"
+[1] "SigProfiler"
+[1] "BASCULE"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s14.WGS.100.SigFitTest.Rds
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SparseSignatures"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib_E"
+[1] "SignatureToolsLib"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib_E"
+[1] "SignatureToolsLib"
+[1] "SignatureToolsLib_E"
+[1] "SignatureToolsLib_E"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s17.WES.50000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s14.WGS.50000.SigFitTest.Rds
+[1] "BASCULE"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s15.WES.2000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s14.WES.2000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s18.WES.2000.SigFitTest.Rds
+[1] "SigProfiler"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib_E"
+[1] "SignatureToolsLib"
+[1] "BASCULE"
+[1] "SigProfiler"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s18.WES.50000.SigFitTest.Rds
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SigProfiler"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s17.WGS.2000.SigFitTest.Rds
+[1] "SignatureToolsLib_E"
+[1] "SignatureToolsLib"
+[1] "SparseSignatures"
+[1] "SparseSignatures"
+[1] "BASCULE"
+[1] "SignatureToolsLib_E"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s16.WES.100.SigFitTest.Rds
+[1] "BASCULE"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "BASCULE"
+[1] "SignatureToolsLib_E"
+[1] "SignatureToolsLib_E"
+[1] "SigProfiler"
+[1] "SignatureToolsLib"
+[1] "SignatureToolsLib"
+[1] "SparseSignatures"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s14.WES.100.SigFitTest.Rds
+[1] "SignatureToolsLib_E"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s17.WES.100.SigFitTest.Rds
+[1] "SigProfiler"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s14.WES.50000.SigFitTest.Rds
+[1] "SignatureToolsLib"
+[1] "SparseSignatures"
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "SignatureToolsLib_E"
+[1] "BASCULE"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s15.WGS.50000.SigFitTest.Rds
+[1] "SignatureToolsLib"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "BASCULE"
+[1] "SigProfiler"
+[1] "SignatureToolsLib_E"
+[1] "SignatureToolsLib"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s22.WGS.50000.SigFitTest.Rds
+[1] "SparseSignatures"
+[1] "SignatureToolsLib_E"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s14.WGS.2000.SigFitTest.Rds
+[1] "SignatureToolsLib_E"
+[1] "SignatureToolsLib"
+[1] "BASCULE"
+[1] "SigProfiler"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s16.WES.2000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s13.WGS.100.SigFitTest.Rds
+[1] "BASCULE"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib_E"
+[1] "SignatureToolsLib"
+[1] "BASCULE"
+[1] "BASCULE"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s15.WGS.2000.SigFitTest.Rds
+[1] "BASCULE"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib_E"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s13.WGS.2000.SigFitTest.Rds
+[1] "BASCULE"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SigProfiler"
+[1] "SignatureToolsLib_E"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib_E"
+[1] "SignatureToolsLib"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s2.WES.50000.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s2.WGS.50000.SigFitTest.Rds
+[1] "BASCULE"
+[1] "BASCULE"
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib_E"
+[1] "SignatureToolsLib"
+[1] "SigProfiler"
+slurmstepd: error: *** JOB 26776 ON epyc004 CANCELLED AT 2025-05-06T23:31:17 DUE TO TIME LIMIT ***

@@ -1,0 +1,119 @@
+/var/spool/slurm/d/job1120361/slurm_script: line 11: conda: command not found
+ℹ Loading simbascule
+ℹ Loading bascule
+✔ Loading bascule. Support : <https://caravagnalab.github.io/bascule/>
+
+Attaching package: ‘kernlab’
+
+The following object is masked from ‘package:flexclust’:
+
+    kcca
+
+The following object is masked from ‘package:bascule’:
+
+    alpha
+
+
+Attaching package: ‘proxy’
+
+The following objects are masked from ‘package:stats’:
+
+    as.dist, dist
+
+The following object is masked from ‘package:base’:
+
+    as.matrix
+
+Files path:
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST/
+
+Output path:
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//stats_dataframes/
+Output file:
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//stats_dataframes/stats_matched.2011.compare_LAST.SigFitTest.Rds
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s0.WES.100.SigFitTest.Rds
+[1] "BASCULE"
+Kmeans done.
+K: 1
+..........
+K: 2
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+Found more than one class "kcca" in cache; using the first, from namespace 'flexclust'
+Also defined by ‘kernlab’
+..........
+K: 3
+..........
+K: 4
+..........
+K: 5
+..........
+KL-Kmeans done.
+K: 1
+..........
+K: 2
+..........
+K: 3
+..........
+K: 4
+..........
+K: 5
+..........
+Spectral clustering done.
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib_E"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s0.WES.2000.SigFitTest.Rds
+[1] "BASCULE"
+Kmeans done.
+K: 1
+..........
+K: 2
+..........
+K: 3
+..........
+K: 4
+..........
+K: 5
+..........
+KL-Kmeans done.
+K: 1
+..........
+K: 2
+..........
+K: 3
+..........
+K: 4
+..........
+K: 5
+..........
+Spectral clustering done.
+[1] "SigProfiler"
+[1] "SparseSignatures"
+[1] "SignatureToolsLib_E"
+[1] "SignatureToolsLib"
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST//simul_fit.N1000.G1.s0.WES.50000.SigFitTest.Rds
+[1] "BASCULE"
+Kmeans done.
+K: 1
+..........
+K: 2
+..........
+K: 3
+..........
+K: 4
+..........
+K: 5
+..........
+KL-Kmeans done.
+K: 1
+..........
+K: 2
+..........
+K: 3
+..........
+K: 4
+..........
+K: 5
+.........slurmstepd: error: *** JOB 1120361 ON epyc001 CANCELLED AT 2025-04-16T10:51:20 ***

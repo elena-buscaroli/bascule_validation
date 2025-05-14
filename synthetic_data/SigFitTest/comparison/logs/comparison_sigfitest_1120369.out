@@ -1,0 +1,35 @@
+/var/spool/slurm/d/job1120369/slurm_script: line 11: conda: command not found
+ℹ Loading simbascule
+ℹ Loading bascule
+✔ Loading bascule. Support : <https://caravagnalab.github.io/bascule/>
+
+Attaching package: ‘kernlab’
+
+The following object is masked from ‘package:flexclust’:
+
+    kcca
+
+The following object is masked from ‘package:bascule’:
+
+    alpha
+
+
+Attaching package: ‘proxy’
+
+The following objects are masked from ‘package:stats’:
+
+    as.dist, dist
+
+The following object is masked from ‘package:base’:
+
+    as.matrix
+
+Files path:
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//fits_SigFitTest/fits_dn.matched.2011.compare_LAST/
+
+Output path:
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//stats_dataframes/
+Output file:
+/orfeo/cephfs/scratch/cdslab/ebusca00/signatures//stats_dataframes/stats_matched.2011.compare_LAST.SigFitTest.Rds
+Error: 'mclappy' is not an exported object from 'namespace:parallel'
+Execution halted
