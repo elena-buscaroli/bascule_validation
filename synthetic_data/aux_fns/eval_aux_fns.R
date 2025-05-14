@@ -173,6 +173,13 @@ eval_single_fit_matched = function(x.fit, x.simul, fname=NULL, cutoff=0.8) {
     clustering_fname = fname %>% stringr::str_replace_all("simul_fit", "clustering")
     
     KM_groups = KL.KM_groups = JS.spect_groups = NULL
+    if (!is.null(fname) & file.exists(clustering_fname)) {
+      clustering_fits = readRDS(clustering_fname)
+      KM_groups = clustering_fits$KMeans
+      KL.KM_groups = clustering_fits$KL_KMeans
+      JS.spect_groups = clustering_fits$JS_spectral
+    }
+
     if (is.null(KM_groups)) {
       KM_groups = run_clustering(x.fit, method="kmeans", B=10)
       cat("Kmeans done.\n")
@@ -189,6 +196,8 @@ eval_single_fit_matched = function(x.fit, x.simul, fname=NULL, cutoff=0.8) {
     clustering_fits = list(KMeans=KM_groups,
                            KL_KMeans=KL.KM_groups,
                            JS_spectral=JS.spect_groups)
+
+    if (!is.null(fname)) saveRDS(clustering_fits, file=clustering_fname)
     
     ari_nmi_KM = compute_ari_nmi(groups_simul=get_cluster_assignments(x.simul) %>% dplyr::arrange(samples) %>% dplyr::pull(clusters), 
                                  groups_fit=KM_groups %>% dplyr::arrange(samples) %>% dplyr::pull(clusters))
@@ -292,6 +301,7 @@ eval_single_fit_matched = function(x.fit, x.simul, fname=NULL, cutoff=0.8) {
 
 # method in "kmeans", "kl_kmeans" or "js_spectral"
 run_clustering = function(x.fit, method, B=50) {
+  start.time = Sys.time()
   max_g = x.fit$clustering$pyro$params$init_params$pi %>% length()
   expos = get_exposure(x.fit, matrix=T) %>% dplyr::bind_cols()
 
@@ -328,8 +338,10 @@ run_clustering = function(x.fit, method, B=50) {
       fit_obj = NULL
     }
   }
+
+  end.time = Sys.time()
   
-  return(tibble::tibble(samples=rownames(expos), clusters=res_tmp$cluster, obj=list(fit_obj)))
+  return(tibble::tibble(samples=rownames(expos), clusters=res_tmp$cluster, obj=list(fit_obj), time=end.time - start.time))
 }
 
 
@@ -502,11 +514,13 @@ gap_stat_custom = function(input_mat, kmax, cluster_fn, distance_fn, B=10, seed=
   }
   
   for (k in 1:kmax) {
+    cli::cli_text("K: {k}\n")
     clusters_obs = cluster_fn(input_mat=input_mat, k=k)
     Wk_obs = compute_dispersion(input_mat, clusters_obs$cluster, distance_fn)
     log_wks_obs[k] = log(Wk_obs)
     
     for (b in 1:B) {
+      # cli::cli_text("B: {b}\n")
       set.seed(b+k)
       null_input_mat = t(apply(input_mat, 1, function(x) { dirmult::rdirichlet(n=1, alpha=x*10) + 1e-10 }))
       clusters_null = cluster_fn(input_mat=null_input_mat, k=k)
