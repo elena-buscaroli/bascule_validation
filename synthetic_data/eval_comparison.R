@@ -1,8 +1,8 @@
 # dataset_id = "generative_model/all_fits/"
 # dataset_id = "SigFitTest"
 
-# args = commandArgs(trailingOnly=TRUE)
-# dataset_id = args[1]  # either "generative_model/all_fits/" or "SigFitTest"
+args = commandArgs(trailingOnly=TRUE)
+dataset_id = args[1]  # either "generative_model/all_fits/" or "SigFitTest"
 
 devtools::load_all("~/GitHub/simbascule/")
 devtools::load_all("~/GitHub/bascule/")
@@ -12,8 +12,8 @@ run_id = "matched.2011.compare_LAST"
 
 out_id = paste0(run_id, ".", dataset_id %>% stringr::str_remove_all("/all_fits/"))
 
-main_path = "~/Dropbox/dropbox_shared/2022. Basilica/simulations/"
-# main_path = "/orfeo/cephfs/scratch/cdslab/ebusca00/signatures/"
+# main_path = "~/Dropbox/dropbox_shared/2022. Basilica/simulations/"
+main_path = "/orfeo/cephfs/scratch/cdslab/ebusca00/signatures/"
 
 save_path = file.path(main_path, "stats_dataframes/")
 
@@ -37,14 +37,16 @@ path = file.path(main_path, paste0("fits_", dataset_id, "/fits_dn.", run_id, "/"
 
 cli::cli_text("Files path: {path}\n
               Output path: {save_path}\n")
+cli::cli_text("Output file: {paste0(save_path, 'stats_', out_id, '.Rds')}\n")
 
 stopifnot(all(file.exists(c(path, save_path))))
 
-if (!file.exists(paste0(save_path, "stats_", out_id, ".Rds"))) {
+if (TRUE) {
+# if (!file.exists(paste0(save_path, "stats_", out_id, ".Rds"))) {
   files = list.files(path, full.names=T, pattern=glob2rx("simul_fit*.Rds"))
   # library(parallel)
   # n_cores = detectCores()
-  # fn = mclappy
+  # fn = mclapply
   fn = lapply
   all_stats = fn(files, function(fname) {
     stats_single_data(fname, names_fits=fitnames %>% setNames(runids))
@@ -83,9 +85,9 @@ plot_list[["performance_grps"]] = all_stats %>% plot_performance(fill="penalty",
 # Save plots #####
 saveRDS(plot_list, paste0(save_path, "stats_", out_id, "_plots.Rds"))
 
-patchwork::wrap_plots(plot_list, design="CCCCC\nCCCCC\nAABBB") &
-  theme(legend.position="bottom")
-ggsave(paste0(save_path, "stats_", run_id, ".pdf"), width=12, height=8)
+# patchwork::wrap_plots(plot_list, design="CCCCC\nCCCCC\nAABBB") &
+#   theme(legend.position="bottom")
+# ggsave(paste0(save_path, "stats_", run_id, ".pdf"), width=12, height=8)
 
 
 

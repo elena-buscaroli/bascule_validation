@@ -2,8 +2,8 @@
 #SBATCH --partition=THIN
 #SBATCH --job-name=comparison_sigfitest
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=16
-#SBATCH --mem=20G
+#SBATCH --ntasks-per-node=24
+#SBATCH --mem=50G
 #SBATCH --time=30:00:00
 #SBATCH --output=logs/comparison_sigfitest_%j.out
 
