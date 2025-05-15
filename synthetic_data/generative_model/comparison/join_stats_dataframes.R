@@ -4,11 +4,11 @@ library(tidyverse)
 main_path = "/orfeo/cephfs/scratch/cdslab/ebusca00/signatures/"
 
 save_path = file.path(main_path, "stats_dataframes/")
-files_path = file.path(main_path, "stats_dataframes/SigFitTest/")
+files_path = file.path(main_path, "stats_dataframes/generative_model/")
 
 files = list.files(files_path, full.names=T)
 
-dataset_id = "SigFitTest"
+dataset_id = "generative_model"
 run_id = "matched.2011.compare_LAST"
 out_id = paste0(run_id, ".", dataset_id %>% stringr::str_remove_all("/all_fits/"))
 # out_file = paste0(save_path, "stats_", out_id, ".Rds")
