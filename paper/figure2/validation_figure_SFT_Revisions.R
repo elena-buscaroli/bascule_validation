@@ -6,14 +6,14 @@ source("~/GitHub/bascule_validation/synthetic_data/aux_fns/eval_aux_fns.R")
 source("~/GitHub/bascule_validation/synthetic_data/aux_fns/plots_aux_fns.R")
 
 df_path = "~/Dropbox/dropbox_shared/2022. Basilica/simulations/stats_dataframes/revisions/"
-# stats_bascule = readRDS(paste0(df_path, "stats_matched.2011_KM.Rds")) %>% 
-#   compute_quantiles(colname="K_true")
-stats_bascule = readRDS(paste0(df_path, "stats_matched.2011.compare_LAST.generative_model.nofits.Rds")) %>%
+stats_bascule = readRDS(paste0(df_path, "stats_matched.2011.compare_LAST.SigFitTest.nofits.Rds")) %>%
   filter(penalty=="BASCULE", type=="SBS") %>%
+  filter(source=="WGS", nMuts==50000) %>%
   compute_quantiles(colname="K_true")
-stats_compare = readRDS(paste0(df_path, "stats_matched.2011.compare_LAST.generative_model.nofits.Rds")) %>% 
-  compute_quantiles(colname="K_true") %>% 
+stats_compare = readRDS(paste0(df_path, "stats_matched.2011.compare_LAST.SigFitTest.nofits.Rds")) %>% 
   dplyr::filter(type=="SBS") %>% 
+  filter(source=="WGS", nMuts==50000) %>% 
+  compute_quantiles(colname="K_true") %>% 
   dplyr::mutate(penalty=replace(penalty, penalty=="Basilica", "BASCULE"))
 
 

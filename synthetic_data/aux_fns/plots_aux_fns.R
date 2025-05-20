@@ -18,12 +18,13 @@ plot_K = function(all_stats, fill="", facet="type ~ metric",
   list_cols = get_colnames_islist(all_stats)
   id_cols = get_id_cols(all_stats)
   grps_cols = get_grps_cols(all_stats, fill, facet)
+  print(facet)
   
   vln_fn = geom_violin(aes(x=factor(N), y=value), draw_quantiles=c(.5), 
                        position=position_dodge(width=1.2))
   if (fill != "") {
     vln_fn = geom_violin(aes(x=factor(N), y=value, color=get(fill), fill=get(fill)), 
-                         draw_quantiles=c(.5), lwd=.3, alpha=0.7,
+                         draw_quantiles=c(.5), lwd=.5, alpha=0.7,
                          position=position_dodge(width=.7))
   } else { pal = c() }
   
@@ -51,7 +52,7 @@ plot_performance = function(all_stats, fill="", facet="type ~ variable",
   bxplt_fn = geom_boxplot(aes(x=factor(N), y=value), outlier.shape=NA)
   if (fill != "") {
     bxplt_fn = geom_boxplot(aes(x=factor(N), y=value, color=get(fill), fill=get(fill)), 
-                            outlier.shape=NA, lwd=0.3, alpha=0.7)
+                            outlier.shape=NA, lwd=0.5, alpha=0.7, width=0.5)
   } else { pal = c() }
   
   cosine = mse = NULL
@@ -86,14 +87,14 @@ plot_performance_clustering = function(all_stats, fill="penalty", facet="~metric
   id_cols = get_id_cols(all_stats)
   grps_cols = get_grps_cols(all_stats, fill, facet)
   
-  bxplt_fn = geom_boxplot(aes(x=factor(N), y=value, fill=get(fill)), 
-                          outlier.shape=NA, lwd=.3)
+  bxplt_fn = geom_boxplot(aes(x=factor(N), y=value, color=get(fill), fill=get(fill)), 
+                          outlier.shape=NA, lwd=.5, alpha=.7, width=0.5)
 
   all_stats_sub = all_stats %>% 
     dplyr::select(-dplyr::all_of(list_cols)) %>%
     reshape2::melt(id=id_cols, variable.name="metric") %>% 
     dplyr::select(-type) %>% unique() %>% 
-    dplyr::filter(metric %in% c("ari","nmi"))
+    dplyr::filter(metric %in% c("ARI","NMI","ari","nmi"))
   
   ylim = get_l_u(all_stats_sub, grps_cols)
 
@@ -132,7 +133,7 @@ get_colnames_islist = function(all_stats) {
 
 get_id_cols = function(all_stats) {
   ids = c("N","G","seed","idd","fname","type",
-          "penalty","K_true_cat","label","source","nMuts")
+          "penalty","K_true_cat","label","source","nMuts","nMuts_label")
   return(intersect(ids, colnames(all_stats)))
 }
 
