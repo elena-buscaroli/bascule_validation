@@ -3,8 +3,8 @@ plt = function(df, fn, pal, fill, facet, grps_cols=NULL) {
   p = df %>% 
     ggplot() +
     fn +
-    scale_fill_manual(fill, values=pal) +
-    scale_color_manual(fill, values=pal) +
+    scale_fill_manual(fill, values=pal, breaks=names(pal)) +
+    scale_color_manual(fill, values=pal, breaks=names(pal)) +
     ggh4x::facet_nested(as.formula(facet), scales="free_y") +
     theme_bw()
   if (!is.null(grps_cols)) p + coord_cartesian(ylim=get_l_u(df, grps_cols))

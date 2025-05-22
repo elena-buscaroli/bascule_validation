@@ -1,5 +1,5 @@
 compute_quantiles = function(all_stats, colname) {
-  qq=all_stats[[colname]] %>% quantile(c(0.33,0.66,1.))
+  qq = all_stats[[colname]] %>% quantile(c(0.33,0.66,1.))
   
   all_stats %>% 
     dplyr::mutate("{colname}_cat":=dplyr::case_when(
@@ -155,8 +155,8 @@ eval_single_fit_matched = function(x.fit, x.simul, fname=NULL, cutoff=0.8) {
   add_unassigned = rep(FALSE, length.out=length(get_types(x.fit))) %>% setNames(get_types(x.fit))
   for (tid in get_types(x.fit)) {
     if("unassigned" %in% colnames(get_exposure(x.fit, matrix=T)[[tid]])) {
-      x.fit$nmf[[tid]]$exposure=x.fit$nmf[[tid]]$exposure %>% dplyr::filter(sigs!="unassigned")
-      add_unassigned[[tid]]=TRUE
+      x.fit$nmf[[tid]]$exposure = x.fit$nmf[[tid]]$exposure %>% dplyr::filter(sigs!="unassigned")
+      add_unassigned[[tid]] = TRUE
     }
   }
   
@@ -170,7 +170,7 @@ eval_single_fit_matched = function(x.fit, x.simul, fname=NULL, cutoff=0.8) {
     ari_nmi = compute_ari_nmi(groups_simul=get_cluster_assignments(x.simul) %>% dplyr::arrange(samples) %>% dplyr::pull(clusters), 
                               groups_fit=get_cluster_assignments(x.fit) %>% dplyr::arrange(samples) %>% dplyr::pull(clusters))
     
-    clustering_fname = fname %>% stringr::str_replace_all("simul_fit", "clustering")
+    clustering_fname = fname %>% stringr::str_replace_all("simul_fit", "clustering/clutering")
     
     KM_groups = KL.KM_groups = JS.spect_groups = NULL
     if (!is.null(fname) & file.exists(clustering_fname)) {

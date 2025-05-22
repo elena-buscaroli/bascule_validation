@@ -1,4 +1,5 @@
 library(magrittr)
+library(dplyr)
 library(ggplot2)
 source("~/GitHub/bascule_validation/synthetic_data/aux_fns/eval_aux_fns.R")
 source("~/GitHub/bascule_validation/synthetic_data/aux_fns/plots_aux_fns.R")
@@ -7,6 +8,8 @@ df_path = "~/Dropbox/dropbox_shared/2022. Basilica/simulations/stats_dataframes/
 stats_bascule = readRDS(paste0(df_path, "stats_matched.2011.compare_LAST.generative_model.nofits.Rds")) %>% 
   compute_quantiles(colname="K_true") %>% dplyr::filter(penalty=="BASCULE")
 stats_compare = readRDS(paste0(df_path, "stats_matched.2011.compare_LAST.generative_model.nofits.Rds")) %>% 
+  filter(penalty!="SignatureToolsLib") %>%
+  mutate(penalty=stringr::str_replace_all(penalty, "SignatureToolsLib", "FitMS")) %>% 
   compute_quantiles(colname="K_true") %>% 
   dplyr::filter(type=="SBS")
 
@@ -90,8 +93,11 @@ clustering
 # SF S2 - comparison #####
 
 # pal_methods = RColorBrewer::brewer.pal(3, name="Dark2")
-pal_methods = c("#7fb3d5", "#FF8C00", "#8FBC8B", "#DB7093", RColorBrewer::brewer.pal(4, name="Dark2")) %>% 
-  setNames(c("BASCULE", "SigProfiler", "SparseSignatures","SignatureToolsLib_E","KMeans","KL-KMeans","JS-Spectral","SignatureToolsLib"))
+# pal_methods = c("#7fb3d5", "#FF8C00", "#8FBC8B", "#DB7093", RColorBrewer::brewer.pal(4, name="Dark2")) %>% 
+#   setNames(c("BASCULE", "SigProfiler", "SparseSignatures","SignatureToolsLib_E","KMeans","KL-KMeans","JS-Spectral","SignatureToolsLib"))
+pal_methods = c("#7fb3d5", "#FF8C00", "#8FBC8B", "#DB7093", RColorBrewer::brewer.pal(4, name="Dark2")) %>%
+  setNames(c("BASCULE", "SigProfiler", "SparseSignatures","FitMS_E","KMeans","KL-KMeans","JS-Spectral","FitMS"))
+
 
 
 stats_compare = stats_compare %>% 
@@ -163,59 +169,27 @@ cosine_sigs_cmp
 
 
 # SF S3 - runtimes ####
-runtime_path = "~/Dropbox/dropbox_shared/2022. Basilica/simulations/runtimes/generative_model/"
-times_sigpr = read.csv(file.path(runtime_path, "last/sigprofiler_exectimes.csv")) %>% 
-  dplyr::mutate(tool="SigProfiler") %>% tibble::as_tibble() %>% 
-  dplyr::mutate(execution_time=stringr::str_replace_all(execution_time, " 0:", "00:")) %>% 
-  dplyr::mutate(execution_time=stringr::str_remove_all(execution_time, " ")) %>% 
-  dplyr::mutate(execution_time=lubridate::period_to_seconds(lubridate::hms(execution_time))) %>% 
-  dplyr::rename(simulation_name=simulation) %>% 
-  dplyr::select(simulation_name, execution_time, tool)
-times_sparsesig = read.csv(file.path(runtime_path, "last/sparsesignatures_exectimes.csv")) %>% 
-  dplyr::rename(execution_time=total_mins, simulation_name=name) %>% 
-  dplyr::mutate(tool="SparseSignatures",
-                simulation_name=stringr::str_remove_all(simulation_name, ".Rds")) %>% 
-  tibble::as_tibble() %>% 
-  dplyr::select(simulation_name, execution_time, tool)
-times_sigtoolslib = read.csv(file.path(runtime_path, "last/signaturetoolslib_exectimes.csv")) %>% 
-  dplyr::mutate(tool="SignatureToolsLib",
-                simulation_name=stringr::str_remove_all(simulation_name, ".Rds")) %>% 
-  tibble::as_tibble() %>% 
-  dplyr::select(simulation_name, execution_time, tool)
-times_sigtoolslib_E = read.csv(file.path(runtime_path, "last/signaturetoolslib_E_exectimes.csv")) %>% 
-  dplyr::mutate(tool="SignatureToolsLib_E",
-                simulation_name=stringr::str_remove_all(simulation_name, ".Rds")) %>% 
-  tibble::as_tibble() %>% 
-  dplyr::select(simulation_name, execution_time, tool)
 
-times_bascule = read.csv(file.path(runtime_path, "last/bascule_exectimes.csv")) %>% 
-  dplyr::rename(execution_time_bascule=execution_time_SBS) %>% tibble::as_tibble() %>% 
-  dplyr::mutate(tool="BASCULE", execution_time=execution_time_bascule) %>%
-  dplyr::select(simulation_name, execution_time, execution_time_bascule, tool)
+runtime_df = readRDS(file.path(df_path, "runtime_generative_model.Rds")) %>% 
+  mutate(tool=stringr::str_replace_all(tool, "SignatureToolsLib", "FitMS"))
 
-
-runtimes_cmp = dplyr::bind_rows(times_sigpr, 
-                                times_sparsesig, 
-                                times_sigtoolslib,
-                                times_sigtoolslib_E,
-                                times_bascule)  %>% 
-  dplyr::rowwise() %>% 
-  dplyr::mutate(processor=dplyr::case_when(
-    tool=="Bascule" && grep("N1000", simulation_name) ~ "GPU",
-    .default="CPU"
-  )) %>% 
-  dplyr::mutate(N=strsplit(simulation_name, "[.]")[[1]][2] %>% stringr::str_remove_all("N") %>% as.numeric()) %>% 
-  dplyr::select(simulation_name, execution_time, tool, processor, N) %>% 
+runtimes_cmp = runtime_df %>% 
+  # dplyr::filter(tool != "SignatureToolsLib") %>% 
   
-  dplyr::group_by(tool, N) %>% 
-  dplyr::filter(execution_time < boxplot.stats(execution_time)$stats[5]) %>% 
+  rowwise() %>% 
+  dplyr::mutate(N=strsplit(simulation_name, "[.]")[[1]][2] %>% 
+                  stringr::str_remove_all("N") %>% as.numeric()) %>% 
+  dplyr::select(simulation_name, execution_time, tool, N) %>% 
+  
+  # dplyr::group_by(tool, N) %>% 
+  # dplyr::filter(execution_time < boxplot.stats(execution_time)$stats[5]) %>% 
   
   ggplot() +
   geom_boxplot(aes(y=execution_time, x=factor(N), color=tool, fill=tool),
                alpha=0.7, lwd=0.5) +
   # facet_wrap(~processor, scales="free") +
-  scale_fill_manual(values=pal_methods) +
-  scale_color_manual(values=pal_methods) +
+  scale_fill_manual(values=pal_methods, breaks=names(pal_methods)) +
+  scale_color_manual(values=pal_methods, breaks=names(pal_methods)) +
   theme_bw()
 runtimes_cmp
 
@@ -274,8 +248,8 @@ figure1
 
 # ggsave(filename="paper/figure2/revisions/figure2_SUP1.pdf", plot=figure1,
 #        width=210, height=210, units="mm")
-ggsave(filename="paper/figure2/revisions/figure2_SUP1.png", plot=figure1,
-       width=210, height=210, units="mm")
+ggsave(filename="paper/figure2/revisions/generative_model/figure2_SUP1.png", plot=figure1,
+       width=210, height=210, units="mm", device=png, family="Helvetica")
 
 # Figure comparison SBS #####
 
@@ -332,22 +306,23 @@ figure2
 
 # ggsave(filename="paper/figure2/revisions/figure2_SUP2.pdf", plot=figure2,
 #        width=210, height=250, units="mm")
-ggsave(filename="paper/figure2/revisions/figure2_SUP2.png", plot=figure2,
-       width=210, height=250, units="mm")
+ggsave(filename="paper/figure2/revisions/generative_model/figure2_SUP2.png", plot=figure2,
+       width=210, height=210, units="mm", device=png, family="Helvetica")
 
 
 # Figure runtime ####
 
 runtimes = runtimes_cmp + xlab("# samples") + ylab("Time (minutes)") +
   labs(title="Fit runtime",
-       subtitle="Execution time (minutes) required to fit the model") +
+       subtitle="Execution time (minutes) required to fit each model") +
   guides(fill=guide_legend(title="Method"),
          color=guide_legend(title="Method")) +
-  theme_text + theme_legend + theme(legend.position="bottom")
+  theme_text + theme_legend + theme(legend.position="right")
 
 runtimes
 
 # ggsave(filename="paper/figure2/revisions/figure2_SUP3.pdf", plot=runtimes,
 #        width=120, height=100, units="mm")
-ggsave(filename="paper/figure2/revisions/figure2_SUP3.png", plot=runtimes,
-       width=120, height=100, units="mm")
+ggsave(filename="paper/figure2/revisions/generative_model/figure2_SUP3.png", plot=runtimes,
+       width=150, height=100, units="mm", device=png, family="Helvetica")
+

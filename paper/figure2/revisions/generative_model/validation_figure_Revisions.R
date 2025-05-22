@@ -1,5 +1,6 @@
 library(magrittr)
 library(ggplot2)
+library(aplot)
 library(tidyverse)
 devtools::load_all("~/GitHub/bascule/")
 source("~/GitHub/bascule_validation/synthetic_data/aux_fns/eval_aux_fns.R")
@@ -12,9 +13,9 @@ stats_bascule = readRDS(paste0(df_path, "stats_matched.2011.compare_LAST.generat
   filter(penalty=="BASCULE", type=="SBS") %>%
   compute_quantiles(colname="K_true")
 stats_compare = readRDS(paste0(df_path, "stats_matched.2011.compare_LAST.generative_model.nofits.Rds")) %>% 
-  compute_quantiles(colname="K_true") %>% 
-  dplyr::filter(type=="SBS") %>% 
-  dplyr::mutate(penalty=replace(penalty, penalty=="Basilica", "BASCULE"))
+  dplyr::filter(penalty!="SignatureToolsLib", type=="SBS") %>% 
+  mutate(penalty=stringr::str_replace_all(penalty, "SignatureToolsLib", "FitMS")) %>% 
+  compute_quantiles(colname="K_true")
 
 
 theme_legend = theme(legend.text=element_text(size=7.4),
@@ -34,11 +35,15 @@ theme_text = theme(axis.title=element_text(size=7.4),
 plots = list()
 
 pal_k_true = wesanderson::wes_palette("Cavalcanti1", 6, type="continuous")[c(1,4,3)]
-pal_methods = c("#7fb3d5", "#FF8C00", "#8FBC8B", "#DB7093", RColorBrewer::brewer.pal(4, name="Dark2")) %>% 
-  setNames(c("BASCULE", "SigProfiler", "SparseSignatures","SignatureToolsLib_E","KMeans","KL-KMeans","JS-Spectral","SignatureToolsLib"))
+# pal_methods = c("#7fb3d5", "#FF8C00", "#8FBC8B", "#DB7093", RColorBrewer::brewer.pal(4, name="Dark2")) %>% 
+#   setNames(c("BASCULE", "SigProfiler", "SparseSignatures","SignatureToolsLib_E","KMeans","KL-KMeans","JS-Spectral","SignatureToolsLib"))
+pal_methods = c("#7fb3d5", "#FF8C00", "#8FBC8B", "#DB7093", RColorBrewer::brewer.pal(4, name="Dark2")) %>%
+  setNames(c("BASCULE", "SigProfiler", "SparseSignatures","FitMS_E","KMeans","KL-KMeans","JS-Spectral","FitMS"))
 
 
 # Basilica ####
+
+## nmi ####
 
 plots[["nmi"]] = stats_bascule %>% 
   dplyr::filter(type=="SBS") %>% 
@@ -55,11 +60,10 @@ plots[["nmi"]] = stats_bascule %>%
   
   ggplot(aes(x=factor(N), y=nmi, fill=Method, color=Method)) +
   stat_summary(aes(group=Method), position=position_dodge(width=0.2), 
-               fun.data="mean_cl_boot", show.legend=T, size=.2) +
-  stat_summary(aes(group=Method), position=position_dodge(width=0.2), 
                fun.data="mean_cl_boot", show.legend=T,
                geom="line", linewidth=1) +
-  
+  stat_summary(aes(group=Method), position=position_dodge(width=0.2), 
+               fun.data="mean_cl_boot", show.legend=T, size=.2) +
   scale_fill_manual(values=pal_methods, 
                     breaks=names(pal_methods),
                     # limits=names(pal_methods), 
@@ -88,13 +92,12 @@ plots[["recall"]] = stats_compare %>% dplyr::rowwise() %>%
   dplyr::mutate(penalty=reorder(penalty, value, mean, decreasing=T)) %>% 
   
   ggplot(aes(x=factor(N), y=value, fill=penalty, color=penalty)) + 
-  stat_summary(aes(group=penalty), position=position_dodge(width=.15), 
-               fun.data="mean_cl_boot", show.legend=TRUE, size=.2) +
   stat_summary(aes(group=penalty), fun.data="mean_cl_boot", 
                position=position_dodge(width=.15), show.legend=TRUE,
                geom="line", linewidth=1) +
+  stat_summary(aes(group=penalty), position=position_dodge(width=.15), 
+               fun.data="mean_cl_boot", show.legend=TRUE, size=.2) +
   
-  theme_bw() + 
   scale_y_continuous(breaks=scales::pretty_breaks(n=3), limits=c(NA, 1)) +
   scale_fill_manual(values=pal_methods, 
                     breaks=names(pal_methods),
@@ -103,36 +106,58 @@ plots[["recall"]] = stats_compare %>% dplyr::rowwise() %>%
   scale_color_manual(values=pal_methods, 
                      breaks=names(pal_methods),
                      # limits=names(pal_methods), 
-                     name="Method") 
+                     name="Method") +
+  theme_bw()
 plots[["recall"]]
 
 ## mse ####
-plots[["mse_counts"]] = stats_compare %>%
-  
-  # dplyr::filter(!penalty %in% c("SignatureToolsLib_E","SignatureToolsLib")) %>% 
-  
+input_mse = stats_compare %>%
   dplyr::select(N, idd, mse_counts, penalty) %>% dplyr::rename(value=mse_counts) %>% 
   dplyr::mutate(metric="Counts") %>% 
-  
-  dplyr::mutate(penalty=reorder(penalty, value, mean, decreasing=T)) %>% 
-  
+  dplyr::mutate(penalty=reorder(penalty, value, mean, decreasing=T)) 
+
+
+# min_br = input_mse %>% filter(penalty!="SignatureToolsLib_E") %>% 
+#   group_by(penalty) %>% 
+#   # summarise(up_wh=boxplot.stats(value)$stats[5]) %>% 
+#   summarise(up_p=quantile(value, p=0.90)) %>% 
+#   pull(up_p) %>% max()
+# max_br = input_mse %>% filter(penalty=="SignatureToolsLib_E") %>% 
+#   summarise(low_p=quantile(value, p=0.30)) %>% 
+#   pull(low_p) %>% min()
+
+plots[["mse_counts"]] = input_mse %>% 
+  add_row(input_mse %>% slice(1) %>% mutate(value=0, idd=NA, penalty=" ")) %>% 
+  mutate(y_range=case_when(
+    penalty != "FitMS_E" ~ "Low range",
+    penalty == "FitMS_E" ~ "High range",
+  )) %>% 
+
   ggplot(aes(x=factor(N), y=value, fill=penalty, color=penalty)) + 
-  stat_summary(aes(group=penalty), position=position_dodge(width=.15), 
-               fun.data="mean_cl_boot", show.legend=T, size=.2) +
   stat_summary(aes(group=penalty), position=position_dodge(width=.15), 
                fun.data="mean_cl_boot", show.legend=T,
                geom="line", linewidth=1) +
-  theme_bw() + # facet_grid(~metric) +
-  scale_y_continuous(breaks=scales::pretty_breaks(n=3), limits=c(0, NA),
+  stat_summary(aes(group=penalty), position=position_dodge(width=.15), 
+               fun.data="mean_cl_boot", show.legend=T, size=.2) +
+  # ggbreak::scale_y_break(breaks=c(min_br, max_br), expand=T) +
+  scale_y_continuous(breaks=scales::pretty_breaks(n=3),
                      labels=function(x) scales::scientific(x)) +
-  scale_fill_manual(values=pal_methods, 
+  
+  facet_grid(y_range ~ ., scales="free_y", space="free_y") +
+  
+  scale_fill_manual(values=c(pal_methods, " "="#FFFFFF00"), 
                     breaks=names(pal_methods),
-                    # limits=names(pal_methods), 
                     name="Method") +
-  scale_color_manual(values=pal_methods, 
+  scale_color_manual(values=c(pal_methods, " "="#FFFFFF00"), 
                      breaks=names(pal_methods),
-                     # limits=names(pal_methods),
-                     name="Method")
+                     name="Method") +
+  coord_cartesian(ylim=c(NA,NA)) +
+  # expand_limits(y=0) +
+  theme_bw() + 
+  theme(axis.text.y.right=element_blank(), 
+        axis.ticks.y.right=element_blank(),
+        strip.background=element_blank(), 
+        strip.text=element_blank())
 plots[["mse_counts"]]
 
 ## cosine sigs ####
@@ -144,15 +169,13 @@ plots[["cosine_sigs"]] = stats_compare %>%
   dplyr::mutate(penalty=reorder(penalty, value, mean, decreasing=T)) %>% 
   
   ggplot(aes(x=factor(N), y=value, fill=penalty)) + 
+  stat_summary(aes(group=penalty, color=penalty), geom="line",
+               position=position_dodge(width=.15), fun.data="mean_cl_boot", 
+               linewidth=1, show.legend=T) +
   stat_summary(aes(group=penalty, color=penalty), 
                position=position_dodge(width=.15),
                geom="pointrange", fun.data="mean_cl_boot", 
                show.legend=T, size=.2) +
-  stat_summary(aes(group=penalty, color=penalty), geom="line",
-               position=position_dodge(width=.15), fun.data="mean_cl_boot", 
-               linewidth=1, show.legend=T) +
-  theme_bw() + # facet_grid(~metric) +
-  # scale_y_continuous(n.breaks=5) +
   scale_y_continuous(breaks=scales::pretty_breaks(n=3), limits=c(NA, 1)) +
   scale_fill_manual(values=pal_methods, 
                     breaks=names(pal_methods),
@@ -161,7 +184,8 @@ plots[["cosine_sigs"]] = stats_compare %>%
   scale_color_manual(values=pal_methods, 
                      breaks=names(pal_methods),
                      # limits=names(pal_methods), 
-                     name="Method") 
+                     name="Method") +
+  theme_bw()
 plots[["cosine_sigs"]]
 
 ## cosine expos ####
@@ -173,12 +197,11 @@ plots[["cosine_expos"]] = stats_compare %>%
   dplyr::mutate(penalty=reorder(penalty, value, mean, decreasing=T)) %>% 
   
   ggplot(aes(x=factor(N), y=value, fill=penalty, color=penalty)) + 
-  stat_summary(aes(group=penalty), fun.data="mean_cl_boot", 
-               position=position_dodge(width=.2), show.legend=T, size=.2) +
   stat_summary(aes(group=penalty), fun.data="mean_cl_boot", position=position_dodge(width=.2), 
                geom="line", linewidth=1, show.legend=T) +
+  stat_summary(aes(group=penalty), fun.data="mean_cl_boot", 
+               position=position_dodge(width=.2), show.legend=T, size=.2) +
   
-  theme_bw() + # facet_grid(~metric) +
   scale_y_continuous(breaks=scales::pretty_breaks(n=3), limits=c(NA, 1)) +
   scale_fill_manual(values=pal_methods, 
                     breaks=names(pal_methods),
@@ -187,63 +210,31 @@ plots[["cosine_expos"]] = stats_compare %>%
   scale_color_manual(values=pal_methods, 
                      breaks=names(pal_methods),
                      # limits=names(pal_methods), 
-                     name="Method") 
+                     name="Method") +
+  theme_bw()
 
 plots[["cosine_expos"]]
 
 ## runtimes ####
-runtime_path = "~/Dropbox/dropbox_shared/2022. Basilica/simulations/runtimes/generative_model/"
-times_sigpr = read.csv(file.path(runtime_path, "last/sigprofiler_exectimes.csv")) %>% 
-  dplyr::mutate(tool="SigProfiler") %>% tibble::as_tibble() %>% 
-  dplyr::mutate(execution_time=stringr::str_replace_all(execution_time, " 0:", "00:")) %>% 
-  dplyr::mutate(execution_time=stringr::str_remove_all(execution_time, " ")) %>% 
-  dplyr::mutate(execution_time=lubridate::period_to_seconds(lubridate::hms(execution_time))) %>% 
-  dplyr::rename(simulation_name=simulation) %>% 
-  dplyr::select(simulation_name, execution_time, tool)
-times_sparsesig = read.csv(file.path(runtime_path, "last/sparsesignatures_exectimes.csv")) %>% 
-  dplyr::rename(execution_time=total_mins, simulation_name=name) %>% 
-  dplyr::mutate(tool="SparseSignatures",
-                simulation_name=stringr::str_remove_all(simulation_name, ".Rds")) %>% 
-  tibble::as_tibble() %>% 
-  dplyr::select(simulation_name, execution_time, tool)
-times_sigtoolslib = read.csv(file.path(runtime_path, "signaturetoolslib_exectimes.csv")) %>% 
-  dplyr::mutate(tool="SignatureToolsLib",
-                simulation_name=stringr::str_remove_all(simulation_name, ".Rds")) %>% 
-  tibble::as_tibble() %>% 
-  dplyr::select(simulation_name, execution_time, tool)
-times_sigtoolslib_E = read.csv(file.path(runtime_path, "signaturetoolslib_E_exectimes.csv")) %>% 
-  dplyr::mutate(tool="SignatureToolsLib_E",
-                simulation_name=stringr::str_remove_all(simulation_name, ".Rds")) %>% 
-  tibble::as_tibble() %>% 
-  dplyr::select(simulation_name, execution_time, tool)
 
-times_bascule = read.csv(file.path(runtime_path, "bascule_exectimes.csv")) %>% 
-  dplyr::rename(execution_time_bascule=execution_time_SBS) %>% tibble::as_tibble() %>% 
-  dplyr::mutate(tool="BASCULE", execution_time=execution_time_bascule) %>%
-  dplyr::select(simulation_name, execution_time, execution_time_bascule, tool)
+runtime_df = readRDS(file.path(df_path, "runtime_generative_model.Rds")) %>% 
+  mutate(tool=stringr::str_replace_all(tool, "SignatureToolsLib", "FitMS"))
 
-plots[["runtime"]] = dplyr::bind_rows(times_sigpr, 
-                                      times_sparsesig, 
-                                      times_sigtoolslib,
-                                      times_sigtoolslib_E,
-                                      times_bascule %>% dplyr::select(-execution_time_bascule)) %>% 
-  dplyr::inner_join(times_bascule %>% dplyr::select(-execution_time, -tool)) %>% 
+plots[["runtime"]] = runtime_df %>% 
+  filter(tool != "FitMS") %>% 
 
-  # dplyr::mutate(time_gain=execution_time / execution_time_bascule) %>% 
+  # mutate(time_gain=execution_time / execution_time_bascule) %>% 
+  # filter(tool!="BASCULE") %>% 
   
-  # dplyr::filter(tool!="BASCULE") %>% 
-  
-  dplyr::rowwise() %>% 
-  dplyr::mutate(N=strsplit(simulation_name, "[.]")[[1]][2] %>% stringr::str_remove_all("N") %>% as.numeric()) %>% 
-  
-  # dplyr::mutate(tool=reorder(tool, time_gain, mean, decreasing=T)) %>% 
+  rowwise() %>% 
+  mutate(N=strsplit(simulation_name, "[.]")[[1]][2] %>% stringr::str_remove_all("N") %>% as.numeric()) %>% 
+  # mutate(tool=reorder(tool, time_gain, mean, decreasing=T)) %>% 
   
   ggplot(aes(x=factor(N), y=execution_time, fill=tool, color=tool)) +
-  stat_summary(aes(group=tool), position=position_dodge(width=.15), 
-               fun.data="mean_cl_boot", show.legend=T, size=.2) +
   stat_summary(aes(group=tool), fun.data="mean_cl_boot", position=position_dodge(width=.15), 
                geom="line", linewidth=1, show.legend=T) +
-  theme_bw() +
+  stat_summary(aes(group=tool), position=position_dodge(width=.15), 
+               fun.data="mean_cl_boot", show.legend=T, size=.2) +
   scale_fill_manual(values=pal_methods, 
                     breaks=names(pal_methods),
                     # limits=names(pal_methods), 
@@ -252,7 +243,8 @@ plots[["runtime"]] = dplyr::bind_rows(times_sigpr,
                      breaks=names(pal_methods),
                      # limits=names(pal_methods), 
                      name="Method") +
-  scale_y_continuous(limits=c(1, NA))
+  scale_y_continuous(limits=c(1, NA)) +
+  theme_bw()
 
 plots[["runtime"]]
 
@@ -306,93 +298,100 @@ plots[["example"]] = input_df %>%
   facet_grid(factor(method, levels=c("Ground truth","Predicted")) ~ clusters, scales="free_x", space="free_x") +
   scale_fill_manual(values=cols) +
   
-  theme_bw() +
   theme(axis.text.x=element_blank(), axis.ticks.x=element_blank(), 
         panel.grid.major.x=element_blank(), panel.grid.major.y=element_blank()) +
-  labs(fill="Signatures")
+  labs(fill="Signatures") + theme_bw()
 
 plots[["example"]]
 
 
 # Panels #####
 # panelsAB = ggplot()
-panelsAB = plots[["example"]] + ylab("") +
+panelA = plots[["example"]] + ylab("") +
   labs(title="Inference on a simulated dataset",
        subtitle="Dataset with 500 samples, 5 signatures and 3 groups") +
-  theme(legend.position="bottom") + xlab("Samples") +
-  labs(fill="Signatures") + ylab("Relative exposures") +
-  scale_y_continuous(breaks=c(0,1))
+  xlab("Samples") + labs(fill="Signatures") + ylab("Relative exposures") +
+  scale_y_continuous(breaks=c(0,1)) +
+  theme_text + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
 
-panelC = plots[["recall"]] + ylab("Recall") +
+panelB = plots[["recall"]] + ylab("Recall") +
   labs(title="Signatures detection accuracy",
        subtitle="Recall of identified signatures") +
   xlab("# samples") +
   guides(fill=guide_legend(title="Method"),
-         color=guide_legend(title="Method"))
+         color=guide_legend(title="Method")) + theme_text
+
+panelC = plots[["nmi"]] +
+  labs(title="Clustering accuracy",
+       subtitle="NMI between inferred and true assignments") +
+  ylab("Normalised mutual information") + 
+  xlab("# samples") + 
+  guides(fill=guide_legend(title="Method"),
+         color=guide_legend(title="Method")) + theme_text
 
 panelD = plots[["mse_counts"]] + 
   labs(title="Reconstruction error",
        subtitle="MSE between inferred and true mutation counts") +
   ylab("Mean squared error") + xlab("# samples") +
   guides(fill=guide_legend(title="Method"),
-         color=guide_legend(title="Method"))
+         color=guide_legend(title="Method")) + theme_text +
+  theme(axis.text.y.right=element_blank(), 
+        axis.ticks.y.right=element_blank(),
+        strip.background = element_blank(), 
+        strip.text=element_blank())
 
 panelE = plots[["cosine_sigs"]] + 
   labs(title="Signatures quality",
        subtitle="CS between inferred and true signature profiles") +
   ylab("Cosine similarity") + xlab("# samples") +
   guides(fill=guide_legend(title="Method"),
-         color=guide_legend(title="Method"))
+         color=guide_legend(title="Method")) + theme_text
 
 panelF = plots[["cosine_expos"]] +
   labs(title="Exposures quality",
        subtitle="CS between inferred and true exposures") +
   ylab("Cosine similarity") + xlab("# samples") +
   guides(fill=guide_legend(title="Method"),
-         color=guide_legend(title="Method"))
+         color=guide_legend(title="Method")) + theme_text
 
-panelG = plots[["nmi"]] +
-  labs(title="Clustering accuracy",
-       subtitle="NMI between inferred and true assignments") +
-  ylab("Normalised mutual information") + 
-  xlab("# samples") + 
-  guides(fill=guide_legend(title="Method"),
-         color=guide_legend(title="Method"))
-
-panelH = ggplot()
-panelH = plots[["runtime"]] + 
+panelG = plots[["runtime"]] + 
   labs(title="Runtime comparison",
-       subtitle="Ratio of runtimes between competitors and BASCULE") +
+       subtitle="Runtimes of BASCULE and competitors") +
   ylab("Runtime (mins)") + 
   xlab("# samples") + 
   guides(fill=guide_legend(title="Method"),
-         color=guide_legend(title="Method"))
+         color=guide_legend(title="Method")) + theme_text
 
+
+# ggsave("tmp_panel_D.png", panelD + theme_text, height=220/4, width=210/2, 
+#        dpi=1000, units="mm", device=png)
+# img = png::readPNG("tmp_panel_D.png")
+# grob = grid::rasterGrob(img, interpolate=TRUE)
+# unlink("tmp_panel_D.png")
 
 a = patchwork::wrap_plots(
-  panelsAB,
-  panelC, panelG,
-  panelD, panelE, 
-  panelF, panelH,
-  design="AAAA\nBBCC\nDDEE\nFFGG"
-  # guides="collect",
-  # design="AAAABBCC\nDDEEFFGG"
-) & theme(legend.position="bottom") & theme_legend & theme_text &
+  panelA,
+  panelB,
+  panelC,
+  panelD,
+  panelE,
+  panelF,
+  panelG,
+  
+  design="aa
+          bc
+          de
+          fg"
+) & theme_legend &
   theme(legend.position="right") &
   patchwork::plot_annotation(tag_levels="A")
-
 a
 
-# ggsave("~/Dropbox/dropbox_shared/2022. Basilica/paper/figure2/draft_fig2BIS.png", 
-#        height=120, width=210, units="cm")
-# ggsave("~/Dropbox/dropbox_shared/2022. Basilica/paper/figure2/draft_fig2BIS.pdf", 
-#        height=120, width=210, units="cm")
-
-# ggsave("paper/figure2/revisions/figure2_v3.pdf", plot=a,
-#        height=210, width=210, units="mm")
-
-ggsave("paper/figure2/revisions/figure2_v3.png", plot=a,
-       height=210, width=210, units="mm", dpi=1000)
+# ggsave("paper/figure2/revisions/generative_model/figure2_v3_tmp.pdf", plot=a,
+#        height=220, width=210, units="mm", device=pdf, family="Helvetica")
+ggsave("paper/figure2/revisions/generative_model/figure2_v3.png", plot=a,
+       height=220, width=210, units="mm", dpi=1000,
+       device=png, family="Helvetica")
 
 
 
@@ -403,11 +402,13 @@ ggsave("paper/figure2/revisions/figure2_v3.png", plot=a,
 stats_bascule %>% 
   dplyr::filter(type=="SBS") %>% 
   compute_quantiles(colname="K_true") %>% 
-  dplyr::select(idd, N, K_true_cat, nmi, nmi_KM, nmi_KL, nmi_JS) %>% 
+  dplyr::select(idd, N, G, K_true_cat, starts_with("nmi")) %>% 
   
-  tidyr::pivot_longer(cols=c("nmi","nmi_KM"), values_to="nmi", names_to="Method") %>% 
+  tidyr::pivot_longer(cols=starts_with("nmi"), values_to="nmi", names_to="Method") %>% 
   dplyr::mutate(Method=dplyr::case_when(Method=="nmi" ~ "BASCULE",
-                                        Method=="nmi_KM" ~ "KMeans")) %>% 
+                                        Method=="nmi_KM" ~ "KMeans",
+                                        Method=="nmi_KL" ~ "KL-KMeans",
+                                        Method=="nmi_JS" ~ "JS-Spectral")) %>% 
   
   dplyr::mutate(Method=reorder(Method, nmi, mean, decreasing=T)) %>% 
   
@@ -415,7 +416,8 @@ stats_bascule %>%
   dplyr::summarise(mean_mean_nmi=mean(nmi)) %>% 
   
   dplyr::group_by(Method) %>% 
-  dplyr::summarise(min_mean_mean_nmi=min(mean_mean_nmi))
+  dplyr::summarise(min_mean_mean_nmi=min(mean_mean_nmi)) %>% 
+  arrange(desc(min_mean_mean_nmi))
   
 
 
@@ -431,7 +433,8 @@ stats_compare %>%
   dplyr::mutate(method_type=replace(Method, Method!="BASCULE", "Competitor")) %>% 
   
   dplyr::group_by(Method) %>% 
-  dplyr::summarise(max_mse=max(mean_mean_mse))
+  dplyr::summarise(max_mse=max(mean_mean_mse)) %>% 
+  mutate(max_mse=scales::scientific(max_mse))
 
 
 ## CS signatures ####
@@ -466,25 +469,37 @@ stats_compare %>%
 
 ## Runtime ####
 
-dplyr::bind_rows(times_sigpr, 
-                 times_sparsesig, 
-                 times_bascule %>% dplyr::select(-execution_time_bascule)) %>% 
-  dplyr::inner_join(times_bascule %>% dplyr::select(-execution_time, -tool)) %>% 
-  
-  dplyr::mutate(time_gain=execution_time / execution_time_bascule) %>% 
-  
-  dplyr::filter(tool!="BASCULE") %>% 
-  
+runtime_df %>%
+  filter(tool != "FitMS") %>% 
+  dplyr::mutate(time_gain=execution_time / execution_time_bascule) %>%
   dplyr::rowwise() %>% 
   dplyr::mutate(N=strsplit(simulation_name, "[.]")[[1]][2] %>% stringr::str_remove_all("N") %>% as.numeric()) %>% 
   
   dplyr::mutate(tool=reorder(tool, time_gain, mean, decreasing=T)) %>% 
   
-  dplyr::filter(N==1000) %>% 
+  # dplyr::filter(N==1000) %>%
   
-  dplyr::group_by(tool) %>% 
+  dplyr::group_by(tool, N) %>% 
   dplyr::summarise(mean_gain=mean(time_gain),
-                   sd_gain=sd(time_gain))
+                   sd_time=sd(time_gain)) %>% 
+  arrange(N, mean_gain)
+  
+
+runtime_df %>% 
+  
+  filter(tool != "FitMS") %>% 
+  
+  dplyr::rowwise() %>% 
+  dplyr::mutate(N=strsplit(simulation_name, "[.]")[[1]][2] %>% stringr::str_remove_all("N") %>% as.numeric()) %>% 
+  
+  dplyr::mutate(tool=reorder(tool, execution_time, mean, decreasing=T)) %>% 
+  
+  # dplyr::filter(N==1000) %>% 
+  
+  dplyr::group_by(tool, N) %>% 
+  dplyr::summarise(mean_time=mean(execution_time),
+                   sd_time=sd(execution_time)) %>% 
+  arrange(mean_time)
 
 
 
