@@ -18,14 +18,13 @@ plot_K = function(all_stats, fill="", facet="type ~ metric",
   list_cols = get_colnames_islist(all_stats)
   id_cols = get_id_cols(all_stats)
   grps_cols = get_grps_cols(all_stats, fill, facet)
-  print(facet)
-  
+
   vln_fn = geom_violin(aes(x=factor(N), y=value), draw_quantiles=c(.5), 
-                       position=position_dodge(width=1.2))
+                       position=position_dodge(width=1.2), show.legend=T)
   if (fill != "") {
     vln_fn = geom_violin(aes(x=factor(N), y=value, color=get(fill), fill=get(fill)), 
                          draw_quantiles=c(.5), lwd=.5, alpha=0.7,
-                         position=position_dodge(width=.7))
+                         position=position_dodge(width=.7), show.legend=T)
   } else { pal = c() }
   
   p = all_stats %>% 

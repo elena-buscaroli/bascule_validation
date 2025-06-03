@@ -40,6 +40,8 @@ pal_methods = c("#7fb3d5", "#FF8C00", "#8FBC8B", "#DB7093", RColorBrewer::brewer
 
 # Basilica ####
 
+## NMI #####
+
 plots[["nmi"]] = stats_bascule %>% 
   dplyr::filter(type=="SBS") %>% 
   compute_quantiles(colname="K_true") %>% 

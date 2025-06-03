@@ -171,7 +171,8 @@ cosine_sigs_cmp
 # SF S3 - runtimes ####
 
 runtime_df = readRDS(file.path(df_path, "runtime_generative_model.Rds")) %>% 
-  mutate(tool=stringr::str_replace_all(tool, "SignatureToolsLib", "FitMS"))
+  mutate(tool=stringr::str_replace_all(tool, "SignatureToolsLib", "FitMS")) %>% 
+  filter(tool!="FitMS")
 
 runtimes_cmp = runtime_df %>% 
   # dplyr::filter(tool != "SignatureToolsLib") %>% 
@@ -321,8 +322,6 @@ runtimes = runtimes_cmp + xlab("# samples") + ylab("Time (minutes)") +
 
 runtimes
 
-# ggsave(filename="paper/figure2/revisions/figure2_SUP3.pdf", plot=runtimes,
-#        width=120, height=100, units="mm")
-ggsave(filename="paper/figure2/revisions/generative_model/figure2_SUP3.png", plot=runtimes,
-       width=150, height=100, units="mm", device=png, family="Helvetica")
+ggsave(filename="paper/figure2/revisions/generative_model/figure2_SUP4.png", plot=runtimes,
+       width=210, height=100, units="mm", device=png, family="Helvetica")
 
