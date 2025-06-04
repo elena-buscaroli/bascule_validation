@@ -37,6 +37,12 @@ sig_cls_organ_all <<- list(
 )
 
 
+run_clustering = function(x, organ_name) {
+  
+  return(fitms_clust_merg)
+}
+
+
 get_degasperi = function(degasperi_sbs="~/Google Drive/My Drive/work/bascule_shared/zenodo/real_data_validation/data/degasperi_sbs.Rds",
                          degasperi_dbs="~/Google Drive/My Drive/work/bascule_shared/zenodo/real_data_validation/data/degasperi_dbs.Rds") {
   readRDS(degasperi_sbs) %>% 
