@@ -499,7 +499,7 @@ runtime_df %>%
   dplyr::group_by(tool, N) %>% 
   dplyr::summarise(mean_time=mean(execution_time),
                    sd_time=sd(execution_time)) %>% 
-  arrange(mean_time)
+  arrange(N)
 
 
 
