@@ -84,7 +84,6 @@ lapply(c("Breast","Colorectal","Lung"), function(organ_name) {
                                  py=py,
                                  autoguide=TRUE)
     fitms_clust_merg = merge_clusters(fitms_clust)
-    saveRDS(fitms_clust_merg, paste0("real_data/fitms_clustering/fit_", organ_name, ".Rds"))
   }
   
   
@@ -176,9 +175,10 @@ lapply(c("Breast","Colorectal","Lung"), function(organ_name) {
   
   fitms_clust_merg$median_cs = cs$value %>% median
   
+  saveRDS(fitms_clust_merg, paste0("real_data/fitms_clustering/fit_", organ_name, ".Rds"))
   saveRDS(cs, paste0("real_data/fitms_clustering/cs_", organ_name, ".Rds"))
   ggsave(paste0("real_data/fitms_clustering/plot_expos_", organ_name, ".png"), pl_exposures,
-         height=18*1.5, width=21*1.5, units="cm", device=png)
+         height=18*1.2, width=21*1.2, units="cm", device=png)
   
 })
 
@@ -186,6 +186,13 @@ lapply(c("Breast","Colorectal","Lung"), function(organ_name) {
 # Cosine Similarity #####
 
 organs = c("Breast", "Colorectal", "Lung")
+
+readRDS("real_data/fitms_clustering/cs_Breast.Rds") %>% 
+  bind_rows(readRDS("real_data/fitms_clustering/cs_Colorectal.Rds")) %>% 
+  bind_rows(readRDS("real_data/fitms_clustering/cs_Lung.Rds")) %>% 
+  group_by(organ) %>% 
+  summarise(median_cs=median(value)) 
+
 pl_cs = readRDS("real_data/fitms_clustering/cs_Breast.Rds") %>% 
   bind_rows(readRDS("real_data/fitms_clustering/cs_Colorectal.Rds")) %>% 
   bind_rows(readRDS("real_data/fitms_clustering/cs_Lung.Rds")) %>% 
